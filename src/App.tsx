@@ -18,15 +18,23 @@ function App() {
   let codeEditor: HTMLTextAreaElement | undefined;
   let logOutput: HTMLDivElement | undefined;
 
+  function handlePlay() {
+    const code = codeEditor?.value.trim();
+    if (!code) return;
+    play(drome, code, log);
+  }
+
+  function handleStop() {
+    stop(drome);
+  }
+
   function handleKeydown(e: KeyboardEvent) {
-    if (!codeEditor) return;
     if (e.altKey && e.key === "Enter") {
-      const code = codeEditor.value.trim();
       e.preventDefault();
-      play(drome, code, log);
+      handlePlay();
     } else if (e.altKey && e.key === "≥") {
       e.preventDefault();
-      stop(drome);
+      handleStop();
     }
   }
 
@@ -76,6 +84,10 @@ function App() {
             <div class="status-dot" id="statusDot" data-playing={playing()} />
             <span id="statusText">{playing() ? "Playing" : "Stopped"}</span>
           </div>
+          <button onclick={handlePlay}>{playing() ? "Update" : "Play"}</button>
+          <button onclick={handleStop} disabled={!playing()}>
+            Stop
+          </button>
         </div>
       </div>
 
