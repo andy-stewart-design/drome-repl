@@ -50,7 +50,7 @@ function App() {
       log(`▶ Starting playback loop...`, "output");
     });
     drome.onIterationStart((n: number) => {
-      log(`♻️ Staring iteration ${n}`);
+      log(`♻️ Staring cycle ${n}`);
     });
     drome.onStop(() => {
       setPlaying(false);
