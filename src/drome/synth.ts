@@ -7,7 +7,18 @@ import { euclid } from "./utils/euclid";
 import { hex } from "./utils/hex";
 import { midiToFreq } from "./utils/midi";
 import type Drome from "./drome";
-import type { OscType } from "./types";
+import type { OscType, SynthAlias } from "./types";
+
+export const synthAliasMap = {
+  saw: "sawtooth",
+  sawtooth: "sawtooth",
+  tri: "triangle",
+  triangle: "triangle",
+  sq: "square",
+  square: "square",
+  sin: "sine",
+  sine: "sine",
+} satisfies Record<string, OscType>;
 
 class Synth {
   private ctx: AudioContext;
@@ -37,8 +48,8 @@ class Synth {
     return this;
   }
 
-  public sound(type: OscType, harmonics?: number) {
-    this.waveform = type;
+  public sound(type: SynthAlias, harmonics?: number) {
+    this.waveform = synthAliasMap[type];
     if (harmonics) this.harmonics = harmonics;
     return this;
   }

@@ -1,6 +1,6 @@
 import DromeArray from "./drome-array";
-import Synth from "./synth";
-import type { OscType } from "./types";
+import Synth, { synthAliasMap } from "./synth";
+import type { SynthAlias } from "./types";
 
 type IterationCallback = (n: number) => void;
 
@@ -18,7 +18,7 @@ class Drome {
   private startCallbacks: (() => void)[] = [];
   private iterationCallbacks: IterationCallback[] = [];
   private stopCallbacks: (() => void)[] = [];
-  public paused = true;
+  private _paused = true;
 
   constructor(bpm = 120) {
     this.setBpm(bpm);
@@ -42,17 +42,17 @@ class Drome {
   }
 
   public start() {
-    if (!this.paused) return;
+    if (!this._paused) return;
 
     this.onTick();
     this.intervalID = setInterval(this.onTick.bind(this), this.interval * 1000);
-    this.paused = false;
+    this._paused = false;
     this.startCallbacks.forEach((cb) => cb());
   }
 
   public pause() {
     clearInterval(this.intervalID);
-    this.paused = true;
+    this._paused = true;
   }
 
   public stop() {
@@ -92,8 +92,8 @@ class Drome {
     this.stopCallbacks.push(cb);
   }
 
-  public synth(type: OscType = "sine", harmonics?: number) {
-    const synth = new Synth(this, type, harmonics);
+  public synth(type: SynthAlias = "sine", harmonics?: number) {
+    const synth = new Synth(this, synthAliasMap[type], harmonics);
     this.addInstruments(synth);
     return synth;
   }
@@ -135,6 +135,10 @@ class Drome {
 
   get duration() {
     return this._duration;
+  }
+
+  get paused() {
+    return this._paused;
   }
 }
 

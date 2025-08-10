@@ -1,7 +1,7 @@
 const examples = [
   {
     title: "Minimal example",
-    code: `drome.synth().note(60)`,
+    code: `drome.synth().note(60) // default waveform is "sine"`,
   },
   {
     title: "Multiple elements",
@@ -11,17 +11,17 @@ drome.synth("sawtooth", 8).note(48).euclid(3, 8).dec(0.5).sus(0.2)`,
   },
   {
     title: "Multiple speeds",
-    code: `drome.synth("sawtooth",8).note(57).euclid(3,8).adsr(0.001,0.333)
+    code: `drome.synth("sawtooth",8).note(57).euclid(3,8).adsr(0.001,0.333) // can use either "saw" or "sawtooth"
 
-drome.synth("sawtooth",24).note([43,43,43,50,43,43,53,54]).lpf(1000).adsr(0.001,0.25).fast(2).gain(1.5)`,
+drome.synth("saw",24).note([43,43,43,50,43,43,53,54]).lpf(1000).adsr(0.001,0.25).fast(2).gain(1.5)`,
   },
   {
     title: "Static methods",
     code: `const struct = drome.euclid(5,8)
 
-drome.synth("sawtooth",12).note(48).struct(struct).adsr(0, 0.333)
+drome.synth("saw",12).note(48).struct(struct).adsr(0, 0.333)
 
-drome.synth("square",16).note(60).struct(struct.rotate(4).stretch(3)).adsr(0, 0.1).hpf(800).gain(0.75)`,
+drome.synth("sq",16).note(60).struct(struct.rotate(4).stretch(3)).adsr(0, 0.1).hpf(800).gain(0.75)`,
   },
 ];
 
