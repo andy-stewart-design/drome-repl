@@ -1,7 +1,7 @@
 import { createPeriodicWave } from "./utils/create-periodic-wave";
 import type { ADSRParams, FilterParams, OscType } from "./types";
 
-interface BeepOptions {
+interface OscillatorOptions {
   ctx: AudioContext;
   time: number;
   waveform?: OscType;
@@ -20,7 +20,7 @@ const defaultAdsr: ADSRParams = {
   release: 0.1,
 };
 
-function beep({
+function oscillator({
   ctx,
   time,
   waveform = "sine",
@@ -30,7 +30,7 @@ function beep({
   adsr = defaultAdsr,
   gain = 1,
   filter,
-}: BeepOptions) {
+}: OscillatorOptions) {
   const t = time + 0.01;
 
   const o = ctx.createOscillator();
@@ -95,4 +95,4 @@ function beep({
   };
 }
 
-export { beep };
+export { oscillator };

@@ -1,8 +1,5 @@
-// const struct = drome.stretch([1, 0], 4);
-// drome.synth().struct(struct).adsr(0, 0.2);
-
 import DromeArray from "./drome-array";
-import { beep } from "./beep";
+import { oscillator } from "./oscillator";
 import { euclid } from "./utils/euclid";
 import { hex } from "./utils/hex";
 import { midiToFreq } from "./utils/midi";
@@ -33,9 +30,9 @@ class Synth {
   private filterFreq: number | null = null;
   private filterQ: number = 1;
 
-  constructor(clock: Drome, type: OscType = "sine", harmonics?: number) {
-    this.ctx = clock.ctx;
-    this.duration = clock.duration;
+  constructor(drome: Drome, type: OscType = "sine", harmonics?: number) {
+    this.ctx = drome.ctx;
+    this.duration = drome.duration;
     this.waveform = type;
     if (harmonics) this.harmonics = harmonics;
   }
@@ -160,7 +157,7 @@ class Synth {
       const offset = Array.isArray(noteOffsets) ? noteOffsets[i] : noteOffsets;
       const t = time + offset * i;
 
-      beep({
+      oscillator({
         ctx,
         waveform,
         harmonics,

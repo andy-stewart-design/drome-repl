@@ -1,4 +1,5 @@
 import DromeArray from "./drome-array";
+import Sample from "./sample";
 import Synth, { synthAliasMap } from "./synth";
 import type { SynthAlias } from "./types";
 
@@ -6,7 +7,7 @@ type IterationCallback = (n: number) => void;
 
 class Drome {
   readonly ctx = new AudioContext();
-  private instruments: Synth[] = [];
+  private instruments: (Synth | Sample)[] = [];
   private _duration = 2;
   private intervalID: ReturnType<typeof setInterval> | undefined;
   private tick = 0;
@@ -21,7 +22,7 @@ class Drome {
   private _paused = true;
 
   constructor(bpm = 120) {
-    this.setBpm(bpm);
+    this.bpm(bpm);
   }
 
   private onTick() {
@@ -66,12 +67,12 @@ class Drome {
     this._duration = setter(this._duration);
   }
 
-  public setBpm(bpm: number) {
+  public bpm(bpm: number) {
     if (bpm <= 0) return;
     this._duration = (60 / bpm) * 4;
   }
 
-  public addInstruments(inst: Synth, replace = false) {
+  public addInstruments(inst: Synth | Sample, replace = false) {
     if (replace) this.instruments = [inst];
     else this.instruments.push(inst);
   }
@@ -96,6 +97,12 @@ class Drome {
     const synth = new Synth(this, synthAliasMap[type], harmonics);
     this.addInstruments(synth);
     return synth;
+  }
+
+  public sample(name: string = "bd") {
+    const samp = new Sample(this, name);
+    this.addInstruments(samp);
+    return samp;
   }
 
   public euclid(pulses: number, steps: number, rotation = 0) {

@@ -1,5 +1,5 @@
 import Drome from "@/drome";
-import { beep } from "@/drome/beep";
+import { oscillator } from "@/drome/oscillator";
 import { euclid } from "@/drome/utils/euclid";
 import { midiToFreq } from "@/drome/utils/midi";
 import Synth from "@/drome/synth";
@@ -8,7 +8,8 @@ import type { LogType } from "./App";
 type LogCallback = (message: string, type?: LogType) => void;
 
 function runCode(drome: Drome, code: string, log: LogCallback) {
-  log(`🔧 Running code...`, "input");
+  const msg = drome.paused ? `🔧 Running code...` : `🔧 Queuing update...`;
+  log(msg, "input");
 
   try {
     drome.clearInstruments();
@@ -19,10 +20,8 @@ function runCode(drome: Drome, code: string, log: LogCallback) {
       "euclid",
       "beep",
       "midiToFreq",
-      `
-                    ${code}
-                `
-    )(drome, Synth, Drome, euclid, beep, midiToFreq);
+      `${code}`
+    )(drome, Synth, Drome, euclid, oscillator, midiToFreq);
 
     log(`✓ Code executed successfully`, "output");
     if (result !== undefined) {
