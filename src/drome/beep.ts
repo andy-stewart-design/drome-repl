@@ -87,6 +87,12 @@ function beep({
   }
 
   g.connect(ctx.destination);
+
+  o.onended = () => {
+    o.disconnect();
+    g.disconnect();
+    if (f) f.disconnect();
+  };
 }
 
 export { beep };
