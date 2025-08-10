@@ -1,3 +1,5 @@
+type DromeStatus = "stopped" | "stopping" | "playing" | "queued";
+
 type OscType = Exclude<OscillatorType, "custom">;
 
 interface ADSRParams {
@@ -13,4 +15,4 @@ interface FilterParams {
   Q?: number;
 }
 
-export type { OscType, ADSRParams, FilterParams };
+export type { DromeStatus, OscType, ADSRParams, FilterParams };
