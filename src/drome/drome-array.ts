@@ -1,5 +1,6 @@
 import { euclid } from "./utils/euclid";
 import { range } from "./utils/range";
+import { rotateArray } from "./utils/rotate";
 
 class DromeArray {
   private _value: number[];
@@ -15,7 +16,13 @@ class DromeArray {
 
   public range(start: number, end?: number, stepOrIncl: number | boolean = 1) {
     this._value = range(start, end, stepOrIncl);
-    return this._value;
+    return this;
+  }
+
+  public rotate(n: number) {
+    const rotated = rotateArray(this._value, n);
+    this._value = rotated;
+    return this;
   }
 
   public stretch(n: number) {

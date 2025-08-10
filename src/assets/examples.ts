@@ -17,9 +17,11 @@ drome.synth("sawtooth",24).note([43,43,43,50,43,43,53,54]).lpf(1000).adsr(0.001,
   },
   {
     title: "Static methods",
-    code: `const struct = drome.euclid(5,8).stretch(4)
+    code: `const struct = drome.euclid(5,8)
 
-drome.synth("sawtooth",12).struct(struct).adsr(0, 0.1)`,
+drome.synth("sawtooth",12).note(48).struct(struct).adsr(0, 0.333)
+
+drome.synth("square",16).note(60).struct(struct.rotate(4).stretch(3)).adsr(0, 0.1).hpf(800).gain(0.75)`,
   },
 ];
 
