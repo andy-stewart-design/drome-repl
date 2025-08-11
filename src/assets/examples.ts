@@ -29,11 +29,11 @@ drome.synth("sq",16).note(60).struct(struct.rotate(4).stretch(3)).adsr(0, 0.1).h
 
 drome.sample("bd", 2).hex("f")
 
-drome.sample("hh", 1).euclid(8, 8)
+drome.sample("hh", 1).euclid(8,8).gain(0.625)
 
-drome.sample("oh").euclid(4, 8, 1)
+drome.sample("oh").euclid(4,8,1).gain(0.575)
 
-drome.sample("cp").euclid(2, 4, 1)`,
+drome.sample("cp").euclid(2,4,1).gain(1.5)`,
   },
 ];
 

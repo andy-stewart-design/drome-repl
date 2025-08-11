@@ -16,6 +16,7 @@ class Sample {
   private drome: Drome;
   private sounds: (SampleId | "")[];
   private soundOffsets: number | number[] = 0;
+  private _gain = 1;
 
   constructor(
     drome: Drome,
@@ -26,6 +27,21 @@ class Sample {
     this.drome = drome;
     const id: SampleId = makeSampleId(bank, name, index);
     this.sounds = [id];
+  }
+
+  public gain(n: number) {
+    this._gain = n;
+    return this;
+  }
+
+  public fast(multiplier: number) {
+    const newLength = Math.floor(this.sounds.length * multiplier);
+    this.sounds = Array.from(
+      { length: newLength },
+      (_, i) => this.sounds[i % this.sounds.length]
+    );
+    this.soundOffsets = this.drome.duration / this.sounds.length;
+    return this;
   }
 
   public euclid(pulses: number, steps: number, rotation = 0) {
@@ -85,7 +101,7 @@ class Sample {
         ? soundOffsets[i]
         : soundOffsets;
       const t = time + offset * i;
-      playSample({ ctx: drome.ctx, time: t, buffer });
+      playSample({ ctx: drome.ctx, time: t, buffer, gain: this._gain });
     });
   }
 

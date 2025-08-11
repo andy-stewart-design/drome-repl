@@ -11,7 +11,18 @@ type SampleId<
   B extends SampleBank = SampleBank,
   N extends SampleName = SampleName
 > = `${B}-${N}-${number}`;
-type SampleName = "bd" | "hh" | "oh" | "cp" | "cr" | "ht" | "lt" | "mt";
+type SampleName =
+  | "bd"
+  | "hh"
+  | "oh"
+  | "cp"
+  | "cr"
+  | "ht"
+  | "lt"
+  | "mt"
+  | "sd"
+  | "rim"
+  | "rd";
 type SampleBank = "RolandTR909";
 
 interface ADSRParams {

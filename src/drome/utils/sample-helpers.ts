@@ -21,19 +21,21 @@ interface PlaySampleOptions {
   ctx: AudioContext;
   buffer: AudioBuffer;
   time: number;
+  gain?: number;
   //   frequency?: number;
   //   duration?: number;
   //   adsr?: ADSRParams;
-  //   gain?: number;
   //   filter?: FilterParams;
 }
 
-function playSample({ ctx, time, buffer }: PlaySampleOptions) {
+function playSample({ ctx, time, buffer, gain = 1 }: PlaySampleOptions) {
   const t = time + 0.01;
+  const baseVolume = 0.5;
+  const maxVolume = gain * baseVolume;
 
   try {
     const gainNode = ctx.createGain();
-    gainNode.gain.value = 0.5;
+    gainNode.gain.value = maxVolume;
 
     const source = ctx.createBufferSource();
     source.buffer = buffer;
