@@ -1,5 +1,5 @@
 import DromeArray from "./drome-array";
-import { oscillator } from "./oscillator";
+import { oscillator } from "./utils/oscillator";
 import { euclid } from "./utils/euclid";
 import { hex } from "./utils/hex";
 import { midiToFreq } from "./utils/midi";

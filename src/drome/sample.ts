@@ -1,48 +1,64 @@
-import { audioBuffer } from "@/drome/audio-buffer";
-import { euclid } from "@/drome/utils/euclid";
+import { euclid } from "./utils/euclid";
+import { loadSample, playSample, splitSampleId } from "./utils/sample-helpers";
 import type Drome from "@/drome";
+import type { SampleName, SampleBank } from "./types";
+
+type SampleId = `${SampleBank}-${SampleName}-${number}`;
 
 class Sample {
-  private ctx: AudioContext;
-  private sounds: string[];
-  private soundIndexes: number[];
+  private drome: Drome;
+  private sounds: (SampleId | "")[];
   private soundOffsets: number | number[] = 0;
-  private duration: number;
 
-  constructor(drome: Drome, name: string = "bd", index = 0) {
-    this.ctx = drome.ctx;
-    this.duration = drome.duration;
-    this.sounds = [name];
-    this.soundIndexes = [index];
+  constructor(
+    drome: Drome,
+    name: SampleName = "bd",
+    index = 0,
+    bank: SampleBank = "RolandTR909"
+  ) {
+    this.drome = drome;
+    const id: SampleId = `${bank}-${name}-${index}`;
+    this.sounds = [id];
   }
 
   public euclid(pulses: number, steps: number, rotation = 0) {
     const pattern = euclid(pulses, steps, rotation);
-    this.soundOffsets = this.duration / steps;
+    this.soundOffsets = this.drome.duration / steps;
 
     let noteIndex = 0;
     this.sounds = pattern.map((p) => {
       return p === 0 ? "" : this.sounds[noteIndex++ % this.sounds.length];
     });
-    this.soundIndexes = pattern.map((p) => {
-      return p === 0
-        ? 0
-        : this.soundIndexes[noteIndex++ % this.soundIndexes.length];
-    });
 
     return this;
   }
 
-  public play(time: number) {
-    const { ctx, sounds, soundOffsets } = this;
-    sounds.forEach((sound, i) => {
-      if (sound === "") return;
+  public async play(time: number) {
+    const { drome, sounds, soundOffsets } = this;
+
+    const foo = [...new Set(sounds)].map(async (id) => {
+      if (id === "") return;
+      const bar = drome.sampleBuffers.get(id);
+      if (bar) return bar;
+
+      const [bank, name, index] = splitSampleId(id);
+      const arrayBuffer = await loadSample(name, bank, index);
+      if (!arrayBuffer) return; // TODO: error handling
+      const audioBuffer = await drome.ctx.decodeAudioData(arrayBuffer);
+      drome.sampleBuffers.set(id, audioBuffer);
+      return audioBuffer;
+    });
+
+    await Promise.all(foo);
+
+    sounds.forEach((id, i) => {
+      const buffer = drome.sampleBuffers.get(id);
+      if (id === "" || !buffer) return;
       const offset = Array.isArray(soundOffsets)
         ? soundOffsets[i]
         : soundOffsets;
-      const index = this.soundIndexes[i] ?? 0;
       const t = time + offset * i;
-      audioBuffer({ ctx, name: sound, time: t, index });
+      playSample({ ctx: drome.ctx, time: t, buffer });
     });
   }
 

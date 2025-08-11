@@ -1,13 +1,14 @@
 import DromeArray from "./drome-array";
 import Sample from "./sample";
 import Synth, { synthAliasMap } from "./synth";
-import type { SynthAlias } from "./types";
+import type { SampleName, SynthAlias } from "./types";
 
 type IterationCallback = (n: number) => void;
 
 class Drome {
   readonly ctx = new AudioContext();
   private instruments: (Synth | Sample)[] = [];
+  readonly sampleBuffers = new Map<string, AudioBuffer>();
   private _duration = 2;
   private intervalID: ReturnType<typeof setInterval> | undefined;
   private tick = 0;
@@ -99,7 +100,7 @@ class Drome {
     return synth;
   }
 
-  public sample(name: string = "bd", index = 0) {
+  public sample(name: SampleName = "bd", index = 0) {
     const sample = new Sample(this, name, index);
     this.addInstruments(sample);
     return sample;

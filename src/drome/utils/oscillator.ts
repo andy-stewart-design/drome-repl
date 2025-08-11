@@ -1,5 +1,5 @@
-import { createPeriodicWave } from "./utils/create-periodic-wave";
-import type { ADSRParams, FilterParams, OscType } from "./types";
+import { createPeriodicWave } from "./create-periodic-wave";
+import type { ADSRParams, FilterParams, OscType } from "../types";
 
 interface OscillatorOptions {
   ctx: AudioContext;

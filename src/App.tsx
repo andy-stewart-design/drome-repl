@@ -1,4 +1,4 @@
-import { createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { createSignal, onCleanup, onMount } from "solid-js";
 import Drome from "@/drome";
 import { play, stop } from "./repl";
 import { examples, textAreaPlaceholder } from "@/assets/examples";
@@ -37,10 +37,6 @@ function App() {
       handleStop();
     }
   }
-
-  createEffect(() => {
-    console.log("playing", playing());
-  });
 
   onMount(() => {
     if (!codeEditor) return;

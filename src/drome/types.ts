@@ -7,6 +7,9 @@ type SynthTypeMap = typeof synthAliasMap;
 type SynthAlias = keyof SynthTypeMap;
 type SynthType = SynthTypeMap[keyof SynthTypeMap];
 
+type SampleName = "bd" | "hh" | "oh";
+type SampleBank = "RolandTR909";
+
 interface ADSRParams {
   attack: number;
   decay: number;
@@ -26,6 +29,8 @@ export type {
   SynthTypeMap,
   SynthAlias,
   SynthType,
+  SampleName,
+  SampleBank,
   ADSRParams,
   FilterParams,
 };
