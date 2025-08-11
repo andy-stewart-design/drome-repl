@@ -1,14 +1,14 @@
+import type Drome from "@/drome";
+import DromeArray from "./drome-array";
 import { euclid } from "./utils/euclid";
+import { hex } from "./utils/hex";
 import {
   loadSample,
   playSample,
   makeSampleId,
   splitSampleId,
 } from "./utils/sample-helpers";
-import type Drome from "@/drome";
 import type { SampleName, SampleBank } from "./types";
-import { hex } from "./utils/hex";
-import DromeArray from "./drome-array";
 
 type SampleId = `${SampleBank}-${SampleName}-${number}`;
 
