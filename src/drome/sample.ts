@@ -2,12 +2,7 @@ import type Drome from "@/drome";
 import DromeArray from "./drome-array";
 import { euclid } from "./utils/euclid";
 import { hex } from "./utils/hex";
-import {
-  loadSample,
-  playSample,
-  makeSampleId,
-  splitSampleId,
-} from "./utils/sample-helpers";
+import { loadSample, playSample, makeSampleId } from "./utils/sample-helpers";
 import type { SampleName, SampleBank, SampleId } from "./types";
 
 type SoundSlot = { name: SampleName; index: number };
@@ -90,34 +85,29 @@ class Sample {
   public async play(time: number) {
     const { drome, sounds, soundOffsets } = this;
 
-    const foo = [...new Set(sounds)].map(async (soundSlot) => {
-      if (soundSlot === null) return;
+    const bufferPromises = sounds.map(async (soundSlot) => {
+      if (soundSlot === null) return null;
       const { name, index } = soundSlot;
       const id: SampleId = makeSampleId(this._bank, name, index);
 
-      const bar = drome.sampleBuffers.get(id);
-      if (bar) return bar;
+      if (drome.sampleBuffers.has(id)) return drome.sampleBuffers.get(id)!;
 
       const arrayBuffer = await loadSample(name, this._bank, index);
-      if (!arrayBuffer) return; // TODO: error handling
+      if (!arrayBuffer) return null; // TODO: error handling
       const audioBuffer = await drome.ctx.decodeAudioData(arrayBuffer);
       drome.sampleBuffers.set(id, audioBuffer);
       return audioBuffer;
     });
 
-    await Promise.all(foo);
-
-    sounds.forEach((soundSlot, i) => {
-      if (soundSlot === null) return;
-      const { name, index } = soundSlot;
-      const id: SampleId = makeSampleId(this._bank, name, index);
-      const buffer = drome.sampleBuffers.get(id);
-      if (!buffer) return;
-      const offset = Array.isArray(soundOffsets)
-        ? soundOffsets[i]
-        : soundOffsets;
-      const t = time + offset * i;
-      playSample({ ctx: drome.ctx, time: t, buffer, gain: this._gain });
+    Promise.all(bufferPromises).then((buffers) => {
+      buffers.forEach((buffer, i) => {
+        if (!buffer) return;
+        const offset = Array.isArray(soundOffsets)
+          ? soundOffsets[i]
+          : soundOffsets;
+        const t = time + offset * i;
+        playSample({ ctx: drome.ctx, time: t, buffer, gain: this._gain });
+      });
     });
   }
 

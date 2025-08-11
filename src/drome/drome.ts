@@ -1,7 +1,8 @@
 import DromeArray from "./drome-array";
 import Sample from "./sample";
 import Synth, { synthAliasMap } from "./synth";
-import type { SampleName, SynthAlias } from "./types";
+import type { SampleBank, SampleName, SynthAlias } from "./types";
+import { loadSample, makeSampleId } from "./utils/sample-helpers";
 
 type IterationCallback = (n: number) => void;
 
@@ -78,6 +79,16 @@ class Drome {
     if (replace) this.instruments = [inst];
     else this.instruments.push(inst);
   }
+
+  // public async loadSample(bank: SampleBank, name: SampleName, index: number) {
+  //   const id = makeSampleId(bank, name, index);
+  //   if (this.sampleBuffers.has(id)) return this.sampleBuffers.get(id);
+  //   const arrayBuffer = await loadSample(name, bank, index);
+  //   if (!arrayBuffer) return; // TODO: error handling
+  //   const audioBuffer = await this.ctx.decodeAudioData(arrayBuffer);
+  //   this.sampleBuffers.set(id, audioBuffer);
+  //   return audioBuffer;
+  // }
 
   public clearInstruments() {
     this.instruments.length = 0;
