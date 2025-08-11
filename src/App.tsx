@@ -61,6 +61,7 @@ function App() {
   });
 
   function handleInsertExample(code: string) {
+    drome.bpm(120);
     setCode(code);
     codeEditor?.focus();
     play(drome, code, log);
@@ -117,8 +118,9 @@ function App() {
                 <div class="example-title">{ex.title}</div>
                 <div class="example-code">
                   {ex.code
+                    .replace(/(\r?\n){2,}/g, "\n")
                     .split(/\r?\n|\r/)
-                    .slice(0, 5)
+                    .slice(0, 3)
                     .map((line) => (
                       <p>{line}</p>
                     ))}

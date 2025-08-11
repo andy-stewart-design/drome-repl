@@ -73,13 +73,13 @@ class Drome {
     this._duration = (60 / bpm) * 4;
   }
 
-  public addInstruments(inst: Synth | Sample, replace = false) {
+  public addInstrument(inst: Synth | Sample, replace = false) {
     if (replace) this.instruments = [inst];
     else this.instruments.push(inst);
   }
 
   public clearInstruments() {
-    this.instruments = [];
+    this.instruments.length = 0;
   }
 
   public onStart(cb: () => void) {
@@ -96,14 +96,20 @@ class Drome {
 
   public synth(type: SynthAlias = "sine", harmonics?: number) {
     const synth = new Synth(this, synthAliasMap[type], harmonics);
-    this.addInstruments(synth);
+    // this.addInstrument(synth);
     return synth;
   }
 
   public sample(name: SampleName = "bd", index = 0) {
     const sample = new Sample(this, name, index);
-    this.addInstruments(sample);
+    // this.addInstrument(sample);
     return sample;
+  }
+
+  public stack(...intruments: (Synth | Sample)[]) {
+    intruments.forEach((inst) => {
+      this.addInstrument(inst);
+    });
   }
 
   public euclid(pulses: number, steps: number, rotation = 0) {

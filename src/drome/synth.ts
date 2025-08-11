@@ -35,6 +35,11 @@ class Synth {
     if (harmonics) this.harmonics = harmonics;
   }
 
+  public push() {
+    this.drome.addInstrument(this);
+    return this;
+  }
+
   public note(n: number | number[] | DromeArray) {
     const midiArray =
       n instanceof DromeArray ? n.value : Array.isArray(n) ? n : [n];

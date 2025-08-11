@@ -29,6 +29,11 @@ class Sample {
     this.sounds = [id];
   }
 
+  public push() {
+    this.drome.addInstrument(this);
+    return this;
+  }
+
   public gain(n: number) {
     this._gain = n;
     return this;
