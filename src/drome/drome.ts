@@ -40,6 +40,7 @@ class Drome {
       this.phase += this._duration; // increment phase by duration
       this.tick++;
       this.iterationCallbacks.forEach((cb) => cb(this.tick));
+      console.log(this.instruments.filter((i) => i instanceof Sample));
     }
   }
 
@@ -107,9 +108,7 @@ class Drome {
   }
 
   public stack(...intruments: (Synth | Sample)[]) {
-    intruments.forEach((inst) => {
-      this.addInstrument(inst);
-    });
+    intruments.forEach((inst) => inst.push());
   }
 
   public euclid(pulses: number, steps: number, rotation = 0) {
