@@ -1,5 +1,5 @@
 import type { SampleBank, SampleId, SampleName } from "../types";
-import rawSampleMap from "../samples/tr909.json";
+import rawSampleMap from "../samples/drum-machines.json";
 
 const sampleMap = rawSampleMap as Record<string, string[]>;
 const baseUrl =

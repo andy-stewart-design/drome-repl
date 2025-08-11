@@ -8,9 +8,7 @@ import {
   makeSampleId,
   splitSampleId,
 } from "./utils/sample-helpers";
-import type { SampleName, SampleBank } from "./types";
-
-type SampleId = `${SampleBank}-${SampleName}-${number}`;
+import type { SampleName, SampleBank, SampleId } from "./types";
 
 class Sample {
   private drome: Drome;
