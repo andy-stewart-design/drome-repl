@@ -1,12 +1,17 @@
 import type { SampleBank, SampleId, SampleName } from "../types";
-import sampleMap from "../samples/tr909.json";
+import rawSampleMap from "../samples/tr909.json";
 
+const sampleMap = rawSampleMap as Record<string, string[]>;
 const baseUrl =
   "https://raw.githubusercontent.com/ritchse/tidal-drum-machines/main/machines/";
 
 async function loadSample(name: SampleName, bank: SampleBank, index = 0) {
   const key: `${SampleBank}_${SampleName}` = `${bank}_${name}`;
-  const slug = sampleMap[key][index];
+  const sampleBank = sampleMap[key];
+  if (!sampleBank) return;
+  const slug = sampleBank[index % sampleBank.length];
+  console.log({ sampleBank, slug });
+
   const sampleUrl = baseUrl + slug;
 
   try {

@@ -34,6 +34,16 @@ class Sample {
     return this;
   }
 
+  public bank(bank: SampleBank) {
+    const nextSounds = this.sounds.map((id) => {
+      if (!id) return id;
+      const [_, name, index] = splitSampleId(id);
+      return makeSampleId(bank, name, index);
+    });
+    this.sounds = nextSounds;
+    return this;
+  }
+
   public gain(n: number) {
     this._gain = n;
     return this;

@@ -23,7 +23,7 @@ type SampleName =
   | "sd"
   | "rim"
   | "rd";
-type SampleBank = "RolandTR909";
+type SampleBank = "RolandTR909" | "RolandTR808";
 
 interface ADSRParams {
   attack: number;
