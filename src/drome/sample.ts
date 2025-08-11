@@ -1,7 +1,14 @@
 import { euclid } from "./utils/euclid";
-import { loadSample, playSample, splitSampleId } from "./utils/sample-helpers";
+import {
+  loadSample,
+  playSample,
+  makeSampleId,
+  splitSampleId,
+} from "./utils/sample-helpers";
 import type Drome from "@/drome";
 import type { SampleName, SampleBank } from "./types";
+import { hex } from "./utils/hex";
+import DromeArray from "./drome-array";
 
 type SampleId = `${SampleBank}-${SampleName}-${number}`;
 
@@ -17,7 +24,7 @@ class Sample {
     bank: SampleBank = "RolandTR909"
   ) {
     this.drome = drome;
-    const id: SampleId = `${bank}-${name}-${index}`;
+    const id: SampleId = makeSampleId(bank, name, index);
     this.sounds = [id];
   }
 
@@ -30,6 +37,26 @@ class Sample {
       return p === 0 ? "" : this.sounds[noteIndex++ % this.sounds.length];
     });
 
+    return this;
+  }
+
+  public hex(hexNotation: string | number) {
+    const pattern = hex(hexNotation);
+    this.soundOffsets = this.drome.duration / pattern.length;
+    let noteIndex = 0;
+    this.sounds = pattern.map((p) => {
+      return p === 0 ? "" : this.sounds[noteIndex++ % this.sounds.length];
+    });
+    return this;
+  }
+
+  public struct(pattern: number[] | DromeArray) {
+    const pat = pattern instanceof DromeArray ? pattern.value : pattern;
+    this.soundOffsets = this.drome.duration / pat.length;
+    let noteIndex = 0;
+    this.sounds = pat.map((p) => {
+      return p === 0 ? "" : this.sounds[noteIndex++ % this.sounds.length];
+    });
     return this;
   }
 

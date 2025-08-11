@@ -26,10 +26,14 @@ drome.synth("sq",16).note(60).struct(struct.rotate(4).stretch(3)).adsr(0, 0.1).h
   {
     title: "Samples",
     code: `drome.bpm(140)
-    
-drome.sample("bd",2).euclid(4,4) // This is a test, samples are very limited ¯|_(ツ)_/¯
 
-drome.sample("hh",1).euclid(4,8,1) // just one bd and hh rn`,
+drome.sample("bd", 2).hex("f")
+
+drome.sample("hh", 1).euclid(8, 8)
+
+drome.sample("oh").euclid(4, 8, 1)
+
+drome.sample("cp").euclid(2, 4, 1)`,
   },
 ];
 

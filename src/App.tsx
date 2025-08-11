@@ -116,9 +116,12 @@ function App() {
               >
                 <div class="example-title">{ex.title}</div>
                 <div class="example-code">
-                  {ex.code.split(/\r?\n|\r/).map((line) => (
-                    <p>{line}</p>
-                  ))}
+                  {ex.code
+                    .split(/\r?\n|\r/)
+                    .slice(0, 5)
+                    .map((line) => (
+                      <p>{line}</p>
+                    ))}
                 </div>
               </button>
             ))}

@@ -7,7 +7,11 @@ type SynthTypeMap = typeof synthAliasMap;
 type SynthAlias = keyof SynthTypeMap;
 type SynthType = SynthTypeMap[keyof SynthTypeMap];
 
-type SampleName = "bd" | "hh" | "oh";
+type SampleId<
+  B extends SampleBank = SampleBank,
+  N extends SampleName = SampleName
+> = `${B}-${N}-${number}`;
+type SampleName = "bd" | "hh" | "oh" | "cp" | "cr" | "ht" | "lt" | "mt";
 type SampleBank = "RolandTR909";
 
 interface ADSRParams {
@@ -29,8 +33,28 @@ export type {
   SynthTypeMap,
   SynthAlias,
   SynthType,
+  SampleId,
   SampleName,
   SampleBank,
   ADSRParams,
   FilterParams,
 };
+
+// type FutureSampleName =
+//   | "bd"
+//   | "sd"
+//   | "rim"
+//   | "cp"
+//   | "hh"
+//   | "oh"
+//   | "cr"
+//   | "rd"
+//   | "ht"
+//   | "mt"
+//   | "lt"
+//   | "sh"
+//   | "cb"
+//   | "tb"
+//   | "perc"
+//   | "misc"
+//   | "fx";
