@@ -99,10 +99,10 @@ class Drome {
     return synth;
   }
 
-  public sample(name: string = "bd") {
-    const samp = new Sample(this, name);
-    this.addInstruments(samp);
-    return samp;
+  public sample(name: string = "bd", index = 0) {
+    const sample = new Sample(this, name, index);
+    this.addInstruments(sample);
+    return sample;
   }
 
   public euclid(pulses: number, steps: number, rotation = 0) {

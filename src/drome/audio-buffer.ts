@@ -1,6 +1,7 @@
 interface OscillatorOptions {
   ctx: AudioContext;
   name: string;
+  index?: number;
   time: number;
   //   harmonics?: number | null;
   //   frequency?: number;
@@ -10,10 +11,29 @@ interface OscillatorOptions {
   //   filter?: FilterParams;
 }
 
-async function audioBuffer({ ctx, time }: OscillatorOptions) {
+const baseUrl =
+  "https://raw.githubusercontent.com/ritchse/tidal-drum-machines/main/machines/";
+
+const sampleMap: Record<string, string[]> = {
+  bd: [
+    "RolandTR909/rolandtr909-bd/Bassdrum-01.wav",
+    "RolandTR909/rolandtr909-bd/Bassdrum-02.wav",
+    "RolandTR909/rolandtr909-bd/Bassdrum-03.wav",
+    "RolandTR909/rolandtr909-bd/Bassdrum-04.wav",
+  ],
+  hh: [
+    "RolandTR909/rolandtr909-hh/hh01.wav",
+    "RolandTR909/rolandtr909-hh/hh02.wav",
+    "RolandTR909/rolandtr909-hh/hh03.wav",
+    "RolandTR909/rolandtr909-hh/hh04.wav",
+  ],
+};
+
+async function audioBuffer({ ctx, time, name, index = 0 }: OscillatorOptions) {
   const t = time + 0.01;
-  const sampleUrl =
-    "https://raw.githubusercontent.com/ritchse/tidal-drum-machines/main/machines/RolandTR909/rolandtr909-bd/Bassdrum-02.wav";
+  const sampleArray = sampleMap[name] ?? sampleMap.bd;
+  const sampleSlug = sampleArray[index % sampleArray.length];
+  const sampleUrl = baseUrl + sampleSlug;
 
   try {
     const response = await fetch(sampleUrl);

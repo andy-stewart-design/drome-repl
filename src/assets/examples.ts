@@ -25,9 +25,11 @@ drome.synth("sq",16).note(60).struct(struct.rotate(4).stretch(3)).adsr(0, 0.1).h
   },
   {
     title: "Samples",
-    code: `drome.bpm(160)
+    code: `drome.bpm(140)
     
-drome.sample("bd").euclid(4,4) // This is a test, samples are very limited rn ¯|_(ツ)_/¯`,
+drome.sample("bd",2).euclid(4,4) // This is a test, samples are very limited ¯|_(ツ)_/¯
+
+drome.sample("hh",1).euclid(4,8,1) // just one bd and hh rn`,
   },
 ];
 
