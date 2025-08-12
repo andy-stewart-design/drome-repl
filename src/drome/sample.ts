@@ -5,8 +5,6 @@ import { hex } from "./utils/hex";
 import { loadSample, playSample, makeSampleId } from "./utils/sample-helpers";
 import type { SampleName, SampleBank, SampleId } from "./types";
 
-type Foo = SampleName | `${SampleName}:${number}`;
-
 class Sample {
   private drome: Drome;
   public sampleMap: Partial<Record<SampleName, number>> = {};

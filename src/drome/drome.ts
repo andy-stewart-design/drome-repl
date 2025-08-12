@@ -1,7 +1,7 @@
 import DromeArray from "./drome-array";
 import Sample from "./sample";
 import Synth, { synthAliasMap } from "./synth";
-import type { SampleBank, SampleId, SampleName, SynthAlias } from "./types";
+import type { SampleId, SampleName, SynthAlias } from "./types";
 import { loadSample, makeSampleId } from "./utils/sample-helpers";
 
 type IterationCallback = (n: number) => void;
