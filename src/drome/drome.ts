@@ -1,7 +1,7 @@
 import DromeArray from "./drome-array";
 import Sample from "./sample";
 import Synth, { synthAliasMap } from "./synth";
-import type { SampleBank, SampleName, SynthAlias } from "./types";
+import type { SampleBank, SampleId, SampleName, SynthAlias } from "./types";
 import { loadSample, makeSampleId } from "./utils/sample-helpers";
 
 type IterationCallback = (n: number) => void;
@@ -36,8 +36,9 @@ class Drome {
     // callback as long as we're inside the lookahead
     while (this.phase < lookahead) {
       this.phase = Math.round(this.phase * this.precision) / this.precision;
-      this.phase >= t &&
+      if (this.phase >= t) {
         this.instruments.forEach((inst) => inst.play(this.phase));
+      }
       this.phase += this._duration; // increment phase by duration
       this.tick++;
       this.iterationCallbacks.forEach((cb) => cb(this.tick));
@@ -45,9 +46,38 @@ class Drome {
     }
   }
 
-  public start() {
-    if (!this._paused) return;
+  public async preloadSamples() {
+    const promises: Promise<AudioBuffer | null>[] = [];
 
+    for (const inst of this.instruments) {
+      if (!(inst instanceof Sample)) continue;
+
+      const samples = Object.entries(inst.sampleMap) as [SampleName, number][];
+      for (const [name, index] of samples) {
+        const bank = inst.sampleBank;
+        const id: SampleId = makeSampleId(bank, name, index);
+
+        if (this.sampleBuffers.has(id)) continue;
+
+        promises.push(
+          (async () => {
+            const arrayBuffer = await loadSample(name, bank, index);
+            if (!arrayBuffer) return null;
+
+            const audioBuffer = await this.ctx.decodeAudioData(arrayBuffer);
+            this.sampleBuffers.set(id, audioBuffer);
+            return audioBuffer;
+          })()
+        );
+      }
+    }
+
+    await Promise.all(promises);
+  }
+
+  public async start() {
+    if (!this._paused) return;
+    await this.preloadSamples();
     this.onTick();
     this.intervalID = setInterval(this.onTick.bind(this), this.interval * 1000);
     this._paused = false;

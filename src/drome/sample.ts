@@ -5,11 +5,12 @@ import { hex } from "./utils/hex";
 import { loadSample, playSample, makeSampleId } from "./utils/sample-helpers";
 import type { SampleName, SampleBank, SampleId } from "./types";
 
-type SoundSlot = { name: SampleName; index: number };
+type Foo = SampleName | `${SampleName}:${number}`;
 
 class Sample {
   private drome: Drome;
-  private sounds: (SoundSlot | null)[];
+  public sampleMap: Partial<Record<SampleName, number>> = {};
+  private sounds: (SampleName | "")[];
   private soundOffsets: number | number[] = 0;
   private _bank: SampleBank;
   private _gain = 1;
@@ -21,7 +22,8 @@ class Sample {
     bank: SampleBank = "RolandTR909"
   ) {
     this.drome = drome;
-    this.sounds = [{ name, index }];
+    this.sampleMap[name] = index;
+    this.sounds = [name];
     this._bank = bank;
   }
 
@@ -56,7 +58,7 @@ class Sample {
 
     let noteIndex = 0;
     this.sounds = pattern.map((p) => {
-      return p === 0 ? null : this.sounds[noteIndex++ % this.sounds.length];
+      return p === 0 ? "" : this.sounds[noteIndex++ % this.sounds.length];
     });
 
     return this;
@@ -67,7 +69,7 @@ class Sample {
     this.soundOffsets = this.drome.duration / pattern.length;
     let noteIndex = 0;
     this.sounds = pattern.map((p) => {
-      return p === 0 ? null : this.sounds[noteIndex++ % this.sounds.length];
+      return p === 0 ? "" : this.sounds[noteIndex++ % this.sounds.length];
     });
     return this;
   }
@@ -77,7 +79,7 @@ class Sample {
     this.soundOffsets = this.drome.duration / pat.length;
     let noteIndex = 0;
     this.sounds = pat.map((p) => {
-      return p === 0 ? null : this.sounds[noteIndex++ % this.sounds.length];
+      return p === 0 ? "" : this.sounds[noteIndex++ % this.sounds.length];
     });
     return this;
   }
@@ -85,15 +87,16 @@ class Sample {
   public async play(time: number) {
     const { drome, sounds, soundOffsets } = this;
 
-    const bufferPromises = sounds.map(async (soundSlot) => {
-      if (soundSlot === null) return null;
-      const { name, index } = soundSlot;
+    const bufferPromises = sounds.map(async (name) => {
+      if (name === "") return null;
+      const index = this.sampleMap[name] ?? 0;
       const id: SampleId = makeSampleId(this._bank, name, index);
 
       if (drome.sampleBuffers.has(id)) return drome.sampleBuffers.get(id)!;
 
       const arrayBuffer = await loadSample(name, this._bank, index);
-      if (!arrayBuffer) return null; // TODO: error handling
+      if (!arrayBuffer) return null;
+
       const audioBuffer = await drome.ctx.decodeAudioData(arrayBuffer);
       drome.sampleBuffers.set(id, audioBuffer);
       return audioBuffer;
@@ -112,6 +115,10 @@ class Sample {
   }
 
   public destroy() {}
+
+  get sampleBank() {
+    return this._bank;
+  }
 }
 
 export default Sample;
