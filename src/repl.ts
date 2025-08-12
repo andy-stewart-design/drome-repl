@@ -9,7 +9,7 @@ function runCode(drome: Drome, code: string, log: LogCallback) {
 
   try {
     drome.clearInstruments();
-    const result = new Function("drome", `${code}`)(drome);
+    const result = new Function("drome, d", `${code}`)(drome, drome);
 
     log(`✓ Code executed successfully`, "output");
     if (result !== undefined) {
