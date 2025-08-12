@@ -1,5 +1,6 @@
 import type { SampleBank, SampleId, SampleName } from "../types";
 import rawSampleMap from "../samples/drum-machines.json";
+import type Drome from "../drome";
 
 const sampleMap = rawSampleMap as Record<string, string[]>;
 const baseUrl =
@@ -20,6 +21,34 @@ async function loadSample(name: SampleName, bank: SampleBank, index = 0) {
   } catch (error) {
     console.error("Error loading or playing sample:", error);
   }
+}
+
+function loadSamples(
+  drome: Drome,
+  sampleMap: Partial<Record<SampleName, number>>,
+  bank: SampleBank
+) {
+  const promises: Promise<AudioBuffer | null>[] = [];
+  const samples = Object.entries(sampleMap) as [SampleName, number][];
+
+  for (const [name, index] of samples) {
+    const id: SampleId = makeSampleId(bank, name, index);
+
+    if (drome.sampleBuffers.has(id)) continue;
+
+    promises.push(
+      (async () => {
+        const arrayBuffer = await loadSample(name, bank, index);
+        if (!arrayBuffer) return null;
+
+        const audioBuffer = await drome.ctx.decodeAudioData(arrayBuffer);
+        drome.sampleBuffers.set(id, audioBuffer);
+        return audioBuffer;
+      })()
+    );
+  }
+
+  return promises;
 }
 
 interface PlaySampleOptions {
@@ -69,4 +98,4 @@ function splitSampleId<
   return [bank as B, name as N, Number(numStr) as Num];
 }
 
-export { playSample, loadSample, makeSampleId, splitSampleId };
+export { playSample, loadSample, loadSamples, makeSampleId, splitSampleId };
