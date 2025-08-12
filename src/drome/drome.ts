@@ -37,12 +37,11 @@ class Drome {
     while (this.phase < lookahead) {
       this.phase = Math.round(this.phase * this.precision) / this.precision;
       if (this.phase >= t) {
-        this.instruments.forEach((inst) => inst.play(this.phase));
+        this.instruments.forEach((inst) => inst.play(this.phase, this.tick));
       }
       this.phase += this._duration; // increment phase by duration
       this.tick++;
       this.iterationCallbacks.forEach((cb) => cb(this.tick));
-      console.log(this.instruments.filter((i) => i instanceof Sample));
     }
   }
 
@@ -91,16 +90,6 @@ class Drome {
     if (replace) this.instruments = [inst];
     else this.instruments.push(inst);
   }
-
-  // public async loadSample(bank: SampleBank, name: SampleName, index: number) {
-  //   const id = makeSampleId(bank, name, index);
-  //   if (this.sampleBuffers.has(id)) return this.sampleBuffers.get(id);
-  //   const arrayBuffer = await loadSample(name, bank, index);
-  //   if (!arrayBuffer) return; // TODO: error handling
-  //   const audioBuffer = await this.ctx.decodeAudioData(arrayBuffer);
-  //   this.sampleBuffers.set(id, audioBuffer);
-  //   return audioBuffer;
-  // }
 
   public clearInstruments() {
     this.instruments.length = 0;

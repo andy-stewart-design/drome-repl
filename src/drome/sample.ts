@@ -82,9 +82,11 @@ class Sample {
     return this;
   }
 
-  public async play(time: number) {
+  public async play(time: number, tick?: number) {
     const { drome, sounds, sampleMap, sampleBank, soundOffsets } = this;
-    await Promise.all(loadSamples(drome, sampleMap, sampleBank));
+    if (tick && tick > 0) {
+      await Promise.all(loadSamples(drome, sampleMap, sampleBank));
+    }
 
     for (const [i, name] of sounds.entries()) {
       if (name === "") continue;

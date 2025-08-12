@@ -11,8 +11,6 @@ async function loadSample(name: SampleName, bank: SampleBank, index = 0) {
   const sampleBank = sampleMap[key];
   if (!sampleBank) return;
   const slug = sampleBank[index % sampleBank.length];
-  console.log({ sampleBank, slug });
-
   const sampleUrl = baseUrl + slug;
 
   try {
@@ -89,13 +87,4 @@ function makeSampleId<
   return `${bank}-${name}-${num}` as SampleId<B, N>;
 }
 
-function splitSampleId<
-  B extends SampleBank,
-  N extends SampleName,
-  Num extends number
->(id: SampleId<B, N>): [B, N, Num] {
-  const [bank, name, numStr] = id.split("-");
-  return [bank as B, name as N, Number(numStr) as Num];
-}
-
-export { playSample, loadSample, loadSamples, makeSampleId, splitSampleId };
+export { playSample, loadSample, loadSamples, makeSampleId };
