@@ -1,6 +1,7 @@
 import DromeArray from "./drome-array";
 import Sample from "./sample";
 import Synth, { synthAliasMap } from "./synth";
+import { loadSamples } from "./utils/sample-helpers";
 import type { SampleName, SynthAlias } from "./types";
 
 type IterationCallback = (n: number) => void;
@@ -35,17 +36,29 @@ class Drome {
     // callback as long as we're inside the lookahead
     while (this.phase < lookahead) {
       this.phase = Math.round(this.phase * this.precision) / this.precision;
-      this.phase >= t &&
-        this.instruments.forEach((inst) => inst.play(this.phase));
+      if (this.phase >= t) {
+        this.instruments.forEach((inst) => inst.play(this.phase, this.tick));
+      }
       this.phase += this._duration; // increment phase by duration
       this.tick++;
       this.iterationCallbacks.forEach((cb) => cb(this.tick));
     }
   }
 
-  public start() {
-    if (!this._paused) return;
+  public async preloadSamples() {
+    const promises: Promise<AudioBuffer | null>[] = [];
 
+    for (const inst of this.instruments) {
+      if (!(inst instanceof Sample)) continue;
+      promises.push(...loadSamples(this, inst.sampleMap, inst.sampleBank));
+    }
+
+    await Promise.all(promises);
+  }
+
+  public async start() {
+    if (!this._paused) return;
+    await this.preloadSamples();
     this.onTick();
     this.intervalID = setInterval(this.onTick.bind(this), this.interval * 1000);
     this._paused = false;
@@ -107,9 +120,7 @@ class Drome {
   }
 
   public stack(...intruments: (Synth | Sample)[]) {
-    intruments.forEach((inst) => {
-      this.addInstrument(inst);
-    });
+    intruments.forEach((inst) => inst.push());
   }
 
   public euclid(pulses: number, steps: number, rotation = 0) {
