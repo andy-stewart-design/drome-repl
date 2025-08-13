@@ -7,6 +7,7 @@ interface Metronome {
 interface AudioClockCallbackData extends Metronome {
   startTime: number;
   stepLength: number;
+  barStartTime: number;
 }
 
 class AudioClock {
@@ -18,11 +19,13 @@ class AudioClock {
   private lookAhead = 20.0; //How frequently to call scheduling (in ms)
   private _callback: Function | undefined;
   private _nextStepTime = 0;
+  private _barStartTime = 0;
   private _paused = true;
   private _stepLength = 0.12;
   private _tempo = 120;
   private _stepsPerBeat = 4;
   private _beatsPerBar = 4;
+  private _barDuration = 2;
 
   constructor() {
     this.setStepLength();
@@ -30,6 +33,7 @@ class AudioClock {
 
   private setStepLength() {
     this._stepLength = 60.0 / this._tempo / this._stepsPerBeat;
+    this._barDuration = (60 / this._tempo) * this._beatsPerBar;
   }
 
   private scheduler() {
@@ -46,24 +50,26 @@ class AudioClock {
       beat: this.metronome.beat,
       bar: this.metronome.bar,
       startTime: this._nextStepTime,
+      barStartTime: this._barStartTime,
       stepLength: this._stepLength,
     };
 
-    this._callback?.(data);
+    console.log(data);
+
+    this._callback?.();
   }
 
   private nextStep() {
     if (this._paused) return;
 
-    let maxStep = this._stepsPerBeat * this._beatsPerBar;
-
     this._nextStepTime += this._stepLength;
 
     this.metronome.step++;
 
-    if (this.metronome.step == maxStep) {
+    if (this.metronome.step == this.stepCount) {
       this.metronome.step = 0;
       this.metronome.bar++;
+      this._barStartTime = this._nextStepTime;
     }
 
     if (this.metronome.step % this._stepsPerBeat == 0) {
@@ -82,6 +88,7 @@ class AudioClock {
 
     this._paused = false;
     this._nextStepTime = this.ctx.currentTime + this.scheduleAheadTime;
+    this._barStartTime = this._nextStepTime;
     this.timerId = setInterval(this.scheduler.bind(this), this.lookAhead);
   }
 
@@ -130,6 +137,26 @@ class AudioClock {
 
   get startTime() {
     return this._nextStepTime;
+  }
+
+  get barDivisions() {
+    return this._beatsPerBar;
+  }
+
+  get barDuration() {
+    return this._barDuration;
+  }
+
+  get barStartTime() {
+    return this._barStartTime;
+  }
+
+  get stepCount() {
+    return this._beatsPerBar * this._stepsPerBeat;
+  }
+
+  get isFirstTick() {
+    return this.metronome.bar + this.metronome.beat + this.metronome.step === 0;
   }
 }
 

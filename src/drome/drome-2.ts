@@ -1,56 +1,44 @@
 import AudioClock, { type AudioClockCallbackData } from "@/drome/audio-clock";
+import Synth from "./synth-2";
 
 class Drome extends AudioClock {
+  private instruments: Synth[] = [];
+  private queue: Synth[] = [];
+  private _granularity: 4 | 8 | 16 = 8;
+
   constructor() {
     super();
-    this.callback = this.play.bind(this);
+    this.callback = this.onTick.bind(this);
+    // this.queue.push(new Synth(this));
   }
 
-  play(data: AudioClockCallbackData) {
-    const stepsPerBeat = 4;
-    const { step } = this.metronome;
+  private onTick() {
+    this.pushQueue();
+    this.play();
+  }
 
-    if (this.metronome.step % 4 == 0) console.log(data);
+  private pushQueue() {
+    if (this.metronome.step % this._granularity === 0 && this.queue.length) {
+      console.log("updating queue");
+      this.queue.forEach((inst) => {
+        this.instruments.push(inst);
+        if (!this.isFirstTick && this._granularity < this.stepCount) {
+          console.log("calling instrument's onPush method");
+          inst.onPush();
+        }
+      });
+      this.queue.length = 0;
+    }
+  }
 
-    const freq = step % stepsPerBeat == 0 ? 880 : 440;
-    const noteLength = this.stepLength / 2;
-
-    // Create oscillator
-    const oscillator = this.ctx.createOscillator();
-    oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(freq, this.ctx.currentTime);
-
-    // Create gain node for envelope
-    const gainNode = this.ctx.createGain();
-    gainNode.gain.setValueAtTime(0, this.ctx.currentTime);
-
-    // Connect: oscillator -> gain -> destination
-    oscillator.connect(gainNode);
-    gainNode.connect(this.ctx.destination);
-
-    // Define envelope timing
-    const attackTime = 0.01; // 10ms attack
-    const releaseTime = 0.05; // 50ms release
-    const sustainTime = Math.max(0, noteLength - attackTime - releaseTime);
-
-    // Schedule gain envelope
-    const startTime = this.startTime;
-    const attackEnd = this.startTime + attackTime;
-    const sustainEnd = attackEnd + sustainTime;
-    const releaseEnd = sustainEnd + releaseTime;
-
-    // Attack: fade in
-    gainNode.gain.linearRampToValueAtTime(1, attackEnd);
-
-    // Sustain: hold at full volume
-    gainNode.gain.setValueAtTime(1, sustainEnd);
-
-    // Release: fade out
-    gainNode.gain.linearRampToValueAtTime(0, releaseEnd);
-
-    // Start and stop oscillator
-    oscillator.start(startTime);
-    oscillator.stop(releaseEnd + 0.1); // Small buffer to ensure clean stop
+  play() {
+    if (!this.queue.length && !this.instruments.length) {
+      this.queue.push(new Synth(this));
+    }
+    if (this.metronome.step % 16 === 0 && this.instruments.length) {
+      console.log("playing");
+      this.instruments.forEach((inst) => inst.play());
+    }
   }
 }
 
