@@ -17,7 +17,6 @@ class AudioClock {
   private timerId: ReturnType<typeof setInterval> | null = null;
   private scheduleAheadTime = 0.18; //How far ahead to schedule events (in seconds)
   private lookAhead = 20.0; //How frequently to call scheduling (in ms)
-  private _callback: Function | undefined;
   private _nextStepTime = 0;
   private _barStartTime = 0;
   private _paused = true;
@@ -26,6 +25,9 @@ class AudioClock {
   private _stepsPerBeat = 4;
   private _beatsPerBar = 4;
   private _barDuration = 2;
+  private onStepCallback: ((n: number) => void) | undefined;
+  private onBeatCallback: ((n: number) => void) | undefined;
+  private onBarCallback: ((n: number) => void) | undefined;
 
   constructor() {
     this.setStepLength();
@@ -45,18 +47,15 @@ class AudioClock {
   }
 
   private scheduleStep() {
-    let data: AudioClockCallbackData = {
-      step: this.metronome.step,
-      beat: this.metronome.beat,
-      bar: this.metronome.bar,
-      startTime: this._nextStepTime,
-      barStartTime: this._barStartTime,
-      stepLength: this._stepLength,
-    };
+    this.onStepCallback?.(this.metronome.step);
 
-    console.log(data);
+    if (this.metronome.step % this._stepsPerBeat === 0) {
+      this.onBeatCallback?.(this.metronome.beat);
+    }
 
-    this._callback?.();
+    if (this.metronome.step % (this._stepsPerBeat * this._beatsPerBar) === 0) {
+      this.onBarCallback?.(this.metronome.bar);
+    }
   }
 
   private nextStep() {
@@ -123,36 +122,44 @@ class AudioClock {
     this.setStepLength();
   }
 
-  set callback(cb: Function) {
-    this._callback = cb;
+  set onStep(cb: (n: number) => void) {
+    this.onStepCallback = cb;
+  }
+
+  set onBeat(cb: (n: number) => void) {
+    this.onBeatCallback = cb;
+  }
+
+  set onBar(cb: (n: number) => void) {
+    this.onBarCallback = cb;
   }
 
   get paused() {
     return this._paused;
   }
 
-  get stepLength() {
-    return this._stepLength;
-  }
-
-  get startTime() {
+  get stepStartTime() {
     return this._nextStepTime;
-  }
-
-  get barDivisions() {
-    return this._beatsPerBar;
-  }
-
-  get barDuration() {
-    return this._barDuration;
   }
 
   get barStartTime() {
     return this._barStartTime;
   }
 
+  get barDuration() {
+    return this._barDuration;
+  }
+
+  get stepLength() {
+    return this._stepLength;
+  }
+
   get stepCount() {
     return this._beatsPerBar * this._stepsPerBeat;
+  }
+
+  get barDivisions() {
+    return this._beatsPerBar;
   }
 
   get isFirstTick() {

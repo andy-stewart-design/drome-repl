@@ -2,17 +2,18 @@ import type { Drome } from "./drome-2";
 
 class Synth {
   private drome: Drome;
-  public notes = [
-    880, 440, 440, 440, 440, 440, 440, 440, 440, 440, 440, 440, 440, 440, 440,
-    440,
-  ];
+  public notes = Array.from({ length: 4 }, (_, i) => (i ? 440 : 880));
 
   constructor(drome: Drome) {
     this.drome = drome;
   }
 
-  private _play(skippedNotesCount = 0) {
+  play() {
     const startOffset = this.drome.barDuration / this.notes.length;
+    const barProgress = this.drome.metronome.step / this.drome.stepCount;
+    // const skippedNotesCount = this.notes.length * barProgress;
+    const skippedNotesCount = Math.ceil(this.notes.length * barProgress);
+    // console.log("notes to skip", skippedNotesCount);
 
     this.notes.forEach((note, i) => {
       if (i < skippedNotesCount) return;
@@ -56,17 +57,6 @@ class Synth {
       oscillator.start(startTime);
       oscillator.stop(releaseEnd + 0.1); // Small buffer to ensure clean stop
     });
-  }
-
-  onPush() {
-    const barProgress = this.drome.metronome.step / this.drome.stepCount;
-    const skippedNotesCount = this.notes.length * barProgress;
-    console.log("notes to skip", skippedNotesCount);
-    this._play(skippedNotesCount);
-  }
-
-  play() {
-    this._play();
   }
 }
 

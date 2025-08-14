@@ -4,11 +4,11 @@ import Synth from "./synth-2";
 class Drome extends AudioClock {
   private instruments: Synth[] = [];
   private queue: Synth[] = [];
-  private _granularity: 4 | 8 | 16 = 8;
+  private _granularity: 4 | 8 | 16 = 4;
 
   constructor() {
     super();
-    this.callback = this.onTick.bind(this);
+    this.onStep = this.onTick.bind(this);
     // this.queue.push(new Synth(this));
   }
 
@@ -22,9 +22,10 @@ class Drome extends AudioClock {
       console.log("updating queue");
       this.queue.forEach((inst) => {
         this.instruments.push(inst);
+        // If it's not the first loop && we're pushing from the queue more than once per cycle
         if (!this.isFirstTick && this._granularity < this.stepCount) {
           console.log("calling instrument's onPush method");
-          inst.onPush();
+          inst.play();
         }
       });
       this.queue.length = 0;
@@ -36,7 +37,6 @@ class Drome extends AudioClock {
       this.queue.push(new Synth(this));
     }
     if (this.metronome.step % 16 === 0 && this.instruments.length) {
-      console.log("playing");
       this.instruments.forEach((inst) => inst.play());
     }
   }
