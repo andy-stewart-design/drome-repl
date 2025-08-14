@@ -9,7 +9,7 @@ class Drome extends AudioClock {
   constructor() {
     super();
     this.onStep = this.onTick.bind(this);
-    // this.queue.push(new Synth(this));
+    this.queue.push(new Synth(this));
   }
 
   private onTick() {
@@ -19,12 +19,12 @@ class Drome extends AudioClock {
 
   private pushQueue() {
     if (this.metronome.step % this._granularity === 0 && this.queue.length) {
-      console.log("updating queue");
+      console.log("[DROME] updating queue");
       this.queue.forEach((inst) => {
         this.instruments.push(inst);
-        // If it's not the first loop && we're pushing from the queue more than once per cycle
-        if (!this.isFirstTick && this._granularity < this.stepCount) {
-          console.log("calling instrument's onPush method");
+        // Never do this on the first step because
+        if (this.metronome.step) {
+          console.log("[DROME] calling play after pushing from queue");
           inst.play();
         }
       });
