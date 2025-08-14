@@ -4,7 +4,8 @@ import { midiToFreq } from "./utils/midi";
 
 class Synth {
   private drome: Drome;
-  public notes = Array.from({ length: 8 }, (_, i) => (i ? 69 : 81));
+  //   public notes = Array.from({ length: 8 }, (_, i) => (i ? 69 : 81));
+  public notes = [69];
 
   constructor(drome: Drome) {
     this.drome = drome;
@@ -26,6 +27,13 @@ class Synth {
         frequency,
         time,
         duration,
+        type: "square",
+        adsr: { a: 0.01, d: 0.01, s: 1, r: 0.05 },
+        filter: {
+          type: "lowpass",
+          value: 400,
+          adsr: { a: 0.5, d: 0.01, s: 1, r: 0.25 },
+        },
       });
 
       osc.play();

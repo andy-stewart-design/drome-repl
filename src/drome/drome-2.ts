@@ -4,7 +4,7 @@ import Synth from "./synth-2";
 class Drome extends AudioClock {
   private instruments: Synth[] = [];
   private queue: Synth[] = [];
-  private _granularity: 4 | 8 | 16 = 4;
+  private _granularity: 4 | 8 | 16 = 16;
 
   constructor() {
     super();
