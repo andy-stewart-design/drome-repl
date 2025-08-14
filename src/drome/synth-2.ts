@@ -11,6 +11,10 @@ class Synth {
     this.drome = drome;
   }
 
+  push() {
+    this.drome.enqueue(this);
+  }
+
   play() {
     const startOffset = this.drome.barDuration / this.notes.length;
     const barProgress = this.drome.metronome.step / this.drome.stepCount;

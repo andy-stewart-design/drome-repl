@@ -1,5 +1,6 @@
 import AudioClock, { type AudioClockCallbackData } from "@/drome/audio-clock";
 import Synth from "./synth-2";
+import DromeArray from "./drome-array";
 
 class Drome extends AudioClock {
   private instruments: Synth[] = [];
@@ -13,11 +14,15 @@ class Drome extends AudioClock {
   }
 
   private onTick() {
-    this.pushQueue();
+    this.dequeue();
     this.play();
   }
 
-  private pushQueue() {
+  public enqueue(instrument: Synth) {
+    this.queue.push(instrument);
+  }
+
+  private dequeue() {
     if (this.metronome.step % this._granularity === 0 && this.queue.length) {
       console.log("[DROME] updating queue");
       this.queue.forEach((inst) => {
@@ -32,6 +37,10 @@ class Drome extends AudioClock {
     }
   }
 
+  public clearInstruments() {
+    this.instruments.length = 0;
+  }
+
   play() {
     if (!this.queue.length && !this.instruments.length) {
       this.queue.push(new Synth(this));
@@ -39,6 +48,18 @@ class Drome extends AudioClock {
     if (this.metronome.step % 16 === 0 && this.instruments.length) {
       this.instruments.forEach((inst) => inst.play());
     }
+  }
+
+  public euclid(pulses: number, steps: number, rotation = 0) {
+    return new DromeArray().euclid(pulses, steps, rotation);
+  }
+
+  public range(start: number, end?: number, stepOrIncl: number | boolean = 1) {
+    return new DromeArray().range(start, end, stepOrIncl);
+  }
+
+  public stretch(arr: number[], stretchFactor: number) {
+    return new DromeArray(arr).stretch(stretchFactor);
   }
 }
 

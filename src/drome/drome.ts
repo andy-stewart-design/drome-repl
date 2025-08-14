@@ -26,7 +26,7 @@ class Drome {
   constructor(bpm = 120) {
     this.bpm(bpm);
   }
-
+  // done
   private onTick() {
     const t = this.ctx.currentTime;
     const lookahead = t + this.interval + this.overlap; // the time window for this tick
@@ -55,7 +55,7 @@ class Drome {
 
     await Promise.all(promises);
   }
-
+  // done
   public async start() {
     if (!this._paused) return;
     await this.preloadSamples();
@@ -64,45 +64,45 @@ class Drome {
     this._paused = false;
     this.startCallbacks.forEach((cb) => cb());
   }
-
+  // done
   public pause() {
     clearInterval(this.intervalID);
     this._paused = true;
   }
-
+  // done
   public stop() {
     this.tick = 0;
     this.phase = 0;
     this.pause();
     this.stopCallbacks.forEach((cb) => cb());
   }
-
+  // not relevant
   public setDuration(setter: (n: number) => number) {
     this._duration = setter(this._duration);
   }
-
+  // done
   public bpm(bpm: number) {
     if (bpm <= 0) return;
     this._duration = (60 / bpm) * 4;
   }
-
+  // done
   public addInstrument(inst: Synth | Sample, replace = false) {
     if (replace) this.instruments = [inst];
     else this.instruments.push(inst);
   }
-
+  // done
   public clearInstruments() {
     this.instruments.length = 0;
   }
-
+  // done
   public onStart(cb: () => void) {
     this.startCallbacks.push(cb);
   }
-
+  // done
   public onIterationStart(cb: (n: number) => void) {
     this.iterationCallbacks.push(cb);
   }
-
+  // done
   public onStop(cb: () => void) {
     this.stopCallbacks.push(cb);
   }
@@ -122,15 +122,15 @@ class Drome {
   public stack(...intruments: (Synth | Sample)[]) {
     intruments.forEach((inst) => inst.push());
   }
-
+  // done
   public euclid(pulses: number, steps: number, rotation = 0) {
     return new DromeArray().euclid(pulses, steps, rotation);
   }
-
+  // done
   public range(start: number, end?: number, stepOrIncl: number | boolean = 1) {
     return new DromeArray().range(start, end, stepOrIncl);
   }
-
+  // done
   public stretch(arr: number[], stretchFactor: number) {
     return new DromeArray(arr).stretch(stretchFactor);
   }
@@ -157,11 +157,11 @@ class Drome {
       this.intervalID = undefined;
     }
   }
-
+  // done
   get duration() {
     return this._duration;
   }
-
+  // done
   get paused() {
     return this._paused;
   }
