@@ -45,10 +45,20 @@ class Oscillator {
     this.ctx = params.ctx;
     this.frequency = params.frequency;
     this.startTime = params.time;
-    this.duration = params.duration;
     this.gain = params.gain ?? 1;
     this.adsr = params.adsr ?? defaultAdsr;
     this.filter = params.filter;
+
+    const gainEnvDuration = this.adsr.a + this.adsr.d + this.adsr.r;
+    const filterEnvDuration =
+      this.filter?.adsr &&
+      this.filter.adsr.a + this.filter.adsr.d + this.filter.adsr.r;
+    const stopTime = Math.max(
+      params.duration,
+      gainEnvDuration,
+      filterEnvDuration ?? 0
+    );
+    this.duration = stopTime;
 
     this.oscNode = this.ctx.createOscillator();
     this.oscNode.type = params.type ?? "sine";

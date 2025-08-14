@@ -21,21 +21,24 @@ class AudioClock {
   private _barStartTime = 0;
   private _paused = true;
   private _stepLength = 0.12;
-  private _tempo = 120;
+  private _bpm = 120;
   private _stepsPerBeat = 4;
   private _beatsPerBar = 4;
   private _barDuration = 2;
-  private onStepCallback: ((n: number) => void) | undefined;
-  private onBeatCallback: ((n: number) => void) | undefined;
-  private onBarCallback: ((n: number) => void) | undefined;
+  private onStartCallback: (() => void) | undefined;
+  private onStepCallback: ((m: Metronome) => void) | undefined;
+  private onBeatCallback: ((m: Metronome) => void) | undefined;
+  private onBarCallback: ((m: Metronome) => void) | undefined;
+  private onStopCallback: (() => void) | undefined;
 
-  constructor() {
+  constructor(bpm?: number) {
+    if (bpm) this._bpm = bpm;
     this.setStepLength();
   }
 
   private setStepLength() {
-    this._stepLength = 60.0 / this._tempo / this._stepsPerBeat;
-    this._barDuration = (60 / this._tempo) * this._beatsPerBar;
+    this._stepLength = 60.0 / this._bpm / this._stepsPerBeat;
+    this._barDuration = (60 / this._bpm) * this._beatsPerBar;
   }
 
   private scheduler() {
@@ -47,14 +50,14 @@ class AudioClock {
   }
 
   private scheduleStep() {
-    this.onStepCallback?.(this.metronome.step);
+    this.onStepCallback?.(this.metronome);
 
     if (this.metronome.step % this._stepsPerBeat === 0) {
-      this.onBeatCallback?.(this.metronome.beat);
+      this.onBeatCallback?.(this.metronome);
     }
 
     if (this.metronome.step % (this._stepsPerBeat * this._beatsPerBar) === 0) {
-      this.onBarCallback?.(this.metronome.bar);
+      this.onBarCallback?.(this.metronome);
     }
   }
 
@@ -89,6 +92,7 @@ class AudioClock {
     this._nextStepTime = this.ctx.currentTime + this.scheduleAheadTime;
     this._barStartTime = this._nextStepTime;
     this.timerId = setInterval(this.scheduler.bind(this), this.lookAhead);
+    this.onStartCallback?.();
   }
 
   stop() {
@@ -98,6 +102,7 @@ class AudioClock {
     this.metronome.step = 0;
     this.metronome.bar = 0;
     this._nextStepTime = 0;
+    this.onStopCallback?.();
   }
 
   pause() {
@@ -107,8 +112,8 @@ class AudioClock {
     this.timerId = null;
   }
 
-  tempo(tempo: number) {
-    this._tempo = tempo;
+  bpm(tempo: number) {
+    this._bpm = tempo;
     this.setStepLength();
   }
 
@@ -122,16 +127,24 @@ class AudioClock {
     this.setStepLength();
   }
 
-  set onStep(cb: (n: number) => void) {
+  set onStart(cb: () => void) {
+    this.onStartCallback = cb;
+  }
+
+  set onStep(cb: (m: Metronome) => void) {
     this.onStepCallback = cb;
   }
 
-  set onBeat(cb: (n: number) => void) {
+  set onBeat(cb: (m: Metronome) => void) {
     this.onBeatCallback = cb;
   }
 
-  set onBar(cb: (n: number) => void) {
+  set onBar(cb: (m: Metronome) => void) {
     this.onBarCallback = cb;
+  }
+
+  set onStop(cb: () => void) {
+    this.onStopCallback = cb;
   }
 
   get paused() {

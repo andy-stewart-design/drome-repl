@@ -1,6 +1,6 @@
 import Drome from "@/drome/drome-2";
 
-let drome = new Drome();
+let drome = new Drome(140);
 
 // drome.onBeat = (n: number) => console.log("Beat:", n);
 // drome.onBar = (n: number) => console.log("Bar:", n);

@@ -6,8 +6,8 @@ class Drome extends AudioClock {
   private queue: Synth[] = [];
   private _granularity: 4 | 8 | 16 = 16;
 
-  constructor() {
-    super();
+  constructor(bpm?: number) {
+    super(bpm);
     this.onStep = this.onTick.bind(this);
     this.queue.push(new Synth(this));
   }
