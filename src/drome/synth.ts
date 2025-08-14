@@ -34,12 +34,12 @@ class Synth {
     this.waveform = type;
     if (harmonics) this.harmonics = harmonics;
   }
-
+  // done
   public push() {
     this.drome.addInstrument(this);
     return this;
   }
-
+  // done
   public note(n: number | number[] | DromeArray) {
     const midiArray =
       n instanceof DromeArray ? n.value : Array.isArray(n) ? n : [n];
@@ -47,18 +47,18 @@ class Synth {
     this.noteOffsets = this.drome.duration / this.notes.length;
     return this;
   }
-
+  // done
   public sound(type: SynthAlias, harmonics?: number) {
     this.waveform = synthAliasMap[type];
     if (harmonics) this.harmonics = harmonics;
     return this;
   }
-
+  // done
   public gain(n: number) {
     this._gain = n;
     return this;
   }
-
+  // done
   public adsr(a: number, d?: number, s?: number, r?: number) {
     this._adsr.attack = a || 0.001;
     this._adsr.decay = d || 0.001;
@@ -110,7 +110,7 @@ class Synth {
     this.noteOffsets = this.drome.duration / this.notes.length;
     return this;
   }
-
+  // done
   public euclid(pulses: number, steps: number, rotation = 0) {
     const pattern = euclid(pulses, steps, rotation);
     this.noteOffsets = this.drome.duration / steps;
@@ -122,7 +122,7 @@ class Synth {
 
     return this;
   }
-
+  // done
   public hex(hexNotation: string | number) {
     const pattern = hex(hexNotation);
     this.noteOffsets = this.drome.duration / pattern.length;
@@ -132,7 +132,7 @@ class Synth {
     });
     return this;
   }
-
+  // done
   public struct(pattern: number[] | DromeArray) {
     const pat = pattern instanceof DromeArray ? pattern.value : pattern;
     this.noteOffsets = this.drome.duration / pat.length;
@@ -142,7 +142,7 @@ class Synth {
     });
     return this;
   }
-
+  // done
   public play(time: number) {
     this.notes?.forEach((frequency, i) => {
       if (frequency === 0) return; // Skip silent notes

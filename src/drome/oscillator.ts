@@ -5,16 +5,20 @@ interface ADSREnvelope {
   r: number;
 }
 
+interface GainParams {
+  value: number;
+  env: ADSREnvelope;
+}
+
 interface FilterParams {
   type: BiquadFilterType;
   value: number;
-  adsr?: ADSREnvelope;
+  env?: ADSREnvelope;
 }
 
 interface OptionalOscillatorParameters {
   type: OscillatorType;
-  adsr: ADSREnvelope;
-  gain: number;
+  gain: Partial<GainParams>;
   filter: FilterParams;
 }
 
@@ -32,9 +36,8 @@ class Oscillator {
   private frequency: number;
   private startTime: number;
   private duration: number;
-  private adsr: ADSREnvelope;
   private baseGain = 0.25;
-  private gain: number;
+  private gain: GainParams;
   private filter: FilterParams | undefined;
 
   private oscNode: OscillatorNode;
@@ -45,14 +48,16 @@ class Oscillator {
     this.ctx = params.ctx;
     this.frequency = params.frequency;
     this.startTime = params.time;
-    this.gain = params.gain ?? 1;
-    this.adsr = params.adsr ?? defaultAdsr;
+    this.gain = {
+      value: params.gain?.value ?? 1,
+      env: params.gain?.env ?? defaultAdsr,
+    };
     this.filter = params.filter;
 
-    const gainEnvDuration = this.adsr.a + this.adsr.d + this.adsr.r;
+    const gainEnvDuration = this.gain.env.a + this.gain.env.d + this.gain.env.r;
     const filterEnvDuration =
-      this.filter?.adsr &&
-      this.filter.adsr.a + this.filter.adsr.d + this.filter.adsr.r;
+      this.filter?.env &&
+      this.filter.env.a + this.filter.env.d + this.filter.env.r;
     const stopTime = Math.max(
       params.duration,
       gainEnvDuration,
@@ -105,15 +110,15 @@ class Oscillator {
   private applyGain() {
     this.applyEnvelope(
       this.gainNode.gain,
-      this.baseGain * this.gain,
-      this.adsr
+      this.baseGain * this.gain.value,
+      this.gain.env
     );
   }
 
   private applyFilter() {
     if (!this.filter || !this.filterNode) return;
     this.filterNode.type = this.filter.type;
-    const adsr = this.filter.adsr ?? { a: 0.01, d: 0.01, s: 1, r: 0.05 };
+    const adsr = this.filter.env ?? { a: 0.01, d: 0.01, s: 1, r: 0.05 };
     this.applyEnvelope(this.filterNode.frequency, this.filter.value, adsr);
   }
 
