@@ -11,8 +11,8 @@ class Drome extends AudioClock {
 
   constructor(bpm = 120) {
     super(bpm);
-    this.beforeStartCallback = this.preloadSamples.bind(this);
-    this.onIterationStart((tick: number, phase: number) =>
+
+    this.onIteration((tick: number, phase: number) =>
       this.handleTick(tick, phase)
     );
   }
@@ -30,6 +30,12 @@ class Drome extends AudioClock {
     }
 
     await Promise.all(promises);
+  }
+
+  public async start() {
+    if (!this.paused) return;
+    await this.preloadSamples();
+    super.start(); // will set up the scheduler after samples are loaded
   }
 
   public addInstrument(inst: Synth | Sample, replace = false) {

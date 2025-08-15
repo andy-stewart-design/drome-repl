@@ -11,7 +11,7 @@ class AudioClock {
   private minLatency = 0.01;
   private interval = 0.1;
   private overlap = 0.05;
-  public beforeStartCallback: (() => Promise<void>) | undefined;
+
   private startCallbacks: (() => void)[] = [];
   private iterationCallbacks: IterationCallback[] = [];
   private stopCallbacks: (() => void)[] = [];
@@ -30,7 +30,6 @@ class AudioClock {
     while (this.phase < lookahead) {
       this.phase = Math.round(this.phase * this.precision) / this.precision;
       if (this.phase >= t) {
-        // this.instruments.forEach((inst) => inst.play(this.phase, this.tick));
         this.iterationCallbacks.forEach((cb) => cb(this.tick, this.phase));
       }
       this.phase += this._duration; // increment phase by duration
@@ -40,8 +39,6 @@ class AudioClock {
 
   public async start() {
     if (!this._paused) return;
-    await this.beforeStartCallback?.();
-    // await this.preloadSamples();
     this.onTick();
     this.intervalID = setInterval(this.onTick.bind(this), this.interval * 1000);
     this._paused = false;
@@ -73,7 +70,7 @@ class AudioClock {
     this.startCallbacks.push(cb);
   }
 
-  public onIterationStart(cb: IterationCallback) {
+  public onIteration(cb: IterationCallback) {
     this.iterationCallbacks.push(cb);
   }
 

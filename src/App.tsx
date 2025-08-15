@@ -45,7 +45,7 @@ function App() {
       setPlaying(true);
       log(`▶ Starting playback loop...`, "output");
     });
-    drome.onIterationStart((n: number) => {
+    drome.onIteration((n: number) => {
       log(`♻️ Starting cycle ${n}`);
     });
     drome.onStop(() => {
