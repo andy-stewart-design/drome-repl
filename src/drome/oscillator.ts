@@ -100,17 +100,32 @@ class Oscillator {
     maxVal: number,
     env: ADSREnvelope
   ) {
-    const sustainLevel = maxVal * env.s;
-    const attackEnd = this.startTime + env.a;
-    const decayEnd = attackEnd + env.d;
-    const sustainEnd = this.startTime + this.duration - env.r;
-    const releaseEnd = this.startTime + this.duration;
+    const MIN_ENV_TIME = 0.002; // 2 ms safety fade
+    const a = Math.max(env.a, MIN_ENV_TIME);
+    const d = Math.max(env.d, MIN_ENV_TIME);
+    const r = Math.max(env.r, MIN_ENV_TIME);
 
+    const sustainLevel = maxVal * env.s;
+    const attackEnd = this.startTime + a;
+    const decayEnd = attackEnd + d;
+    const sustainEnd = this.startTime + this.duration - r;
+    const releaseEnd = sustainEnd + r;
+
+    // Ensure any prior schedules are cleared
+    target.cancelScheduledValues(this.startTime);
+
+    // Attack
     target.setValueAtTime(startVal, this.startTime);
-    target.linearRampToValueAtTime(maxVal, attackEnd); // Attack
-    target.linearRampToValueAtTime(sustainLevel, decayEnd); // Decay
-    target.setValueAtTime(sustainLevel, sustainEnd); // Sustain
-    target.linearRampToValueAtTime(0, releaseEnd); // Release
+    target.linearRampToValueAtTime(maxVal, attackEnd);
+
+    // Decay
+    target.linearRampToValueAtTime(sustainLevel, decayEnd);
+
+    // Sustain
+    target.setValueAtTime(sustainLevel, sustainEnd);
+
+    // Release (fade to zero)
+    target.linearRampToValueAtTime(0, releaseEnd);
   }
 
   private applyGain() {
@@ -134,16 +149,31 @@ class Oscillator {
     );
   }
 
-  play() {
+  play(onComplete?: () => void) {
     this.applyGain();
     this.applyFilter();
 
+    // Ensure the oscillator lasts through the release phase
+    const totalEnvTime = Math.max(
+      this.duration,
+      this.gain.env.a + this.gain.env.d + this.gain.env.r,
+      this.filter?.env
+        ? this.filter.env.a + this.filter.env.d + this.filter.env.r
+        : 0
+    );
+
+    const stopTime = this.startTime + totalEnvTime + 0.002; // micro fade cushion
+
     this.oscNode.start(this.startTime);
-    this.oscNode.stop(this.startTime + this.duration + 0.1);
+    this.oscNode.stop(stopTime);
 
     this.oscNode.onended = () => {
       this.oscNode.disconnect();
       this.gainNode.disconnect();
+      if (this.filterNode) {
+        this.filterNode.disconnect();
+      }
+      onComplete?.();
     };
   }
 

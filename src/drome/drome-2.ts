@@ -8,7 +8,7 @@ import type { OscType } from "./types";
 class Drome extends AudioClock {
   private instruments: Set<Synth> = new Set();
   private queue: Synth[] = [];
-  readonly granularity: 4 | 8 | 16 = 8;
+  readonly granularity: 4 | 8 | 16 = 16;
 
   constructor(bpm?: number) {
     super(bpm);
@@ -16,6 +16,8 @@ class Drome extends AudioClock {
   }
 
   private onTick() {
+    // console.log(this.instruments);
+
     this.dequeue();
     this.play();
   }

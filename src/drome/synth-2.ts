@@ -22,12 +22,16 @@ interface FilterParams {
 }
 
 class Synth {
+  readonly id = crypto.randomUUID();
   private drome: Drome;
   private waveform: OscType = "sawtooth";
   private _gain = 1;
   private gainEnv = { a: 0.01, d: 0.001, s: 1, r: 0.125 };
   private notes: number[] = Array.from({ length: 4 }, () => 60);
   private filter: FilterParams | undefined;
+
+  private lastScheduledBar = -1;
+  private scheduledOscillators: Map<string, boolean> = new Map();
 
   constructor(drome: Drome, type: OscType = "sine") {
     this.drome = drome;
@@ -40,44 +44,54 @@ class Synth {
   }
 
   play() {
-    const offsetDuration = this.drome.barDuration / this.notes.length;
-    const barProgress = this.drome.metronome.step / this.drome.stepCount;
-    const skippedNotesCount = Math.ceil(this.notes.length * barProgress);
-    const scheduleFrequency = this.drome.granularity / this.drome.stepCount; // 0.25, 0.5, or 1
-    const scheduleLength = Math.ceil(scheduleFrequency * this.notes.length);
-    const scheduleStartIndex = Math.ceil(barProgress * this.notes.length);
-    const notesToSchedule = this.notes.slice(
-      scheduleStartIndex,
-      scheduleLength + scheduleStartIndex
-    );
+    console.log("playing", this.drome.metronome);
 
-    // console.log({
-    //   skippedNotesCount,
-    //   scheduleStartIndex,
-    //   scheduleLength,
-    //   notesToSchedule,
-    //   barProgress,
-    //   scheduleFrequency,
-    // });
+    // Only schedule once per bar to prevent overlapping
+    if (this.drome.metronome.bar === this.lastScheduledBar) {
+      return;
+    }
 
-    notesToSchedule.forEach((note, i) => {
+    this.lastScheduledBar = this.drome.metronome.bar;
+    this.scheduledOscillators.clear();
+
+    const noteStepDuration = this.drome.barDuration / this.notes.length;
+
+    // Schedule all notes for this bar
+    this.notes.forEach((note, i) => {
       if (note === 0) return;
-      const frequency = midiToFreq(note);
-      const time =
-        this.drome.barStartTime + offsetDuration * (i + skippedNotesCount);
-      const duration = this.drome.barDuration / this.notes.length;
 
+      const noteId = `${this.drome.metronome.bar}-${i}`;
+
+      // Prevent duplicate scheduling
+      if (this.scheduledOscillators.has(noteId)) {
+        return;
+      }
+
+      const frequency = midiToFreq(note);
+      const startTime = this.drome.barStartTime + noteStepDuration * i;
+      const duration = noteStepDuration * 0.95; // Slight gap between notes
+
+      // Create and schedule the oscillator
       const osc = new Oscillator({
         ctx: this.drome.ctx,
         frequency,
-        time,
+        time: startTime,
         duration,
         type: this.waveform,
-        gain: { value: this._gain, env: this.gainEnv },
-        filter: this.filter,
+        gain: {
+          value: this._gain,
+          env: { ...this.gainEnv }, // Clone to prevent mutation
+        },
+        filter: this.filter ? { ...this.filter } : undefined,
       });
 
+      this.scheduledOscillators.set(noteId, true);
       osc.play();
+
+      // Clean up tracking after note should be finished
+      setTimeout(() => {
+        this.scheduledOscillators.delete(noteId);
+      }, (duration + this.gainEnv.r + 0.1) * 1000);
     });
   }
 
@@ -138,15 +152,15 @@ class Synth {
   public adsr(adsr: ADSREnvelope): this;
   public adsr(p1: number | ADSREnvelope, d?: number, s?: number, r?: number) {
     if (typeof p1 === "number") {
-      this.gainEnv.a = p1 || 0.001;
-      this.gainEnv.d = d || 0.001;
-      this.gainEnv.s = s || 0;
-      this.gainEnv.r = r || 0.001;
+      this.gainEnv.a = p1 ?? 0.01; // You're missing the 'a' parameter!
+      this.gainEnv.d = d ?? 0.001;
+      this.gainEnv.s = s ?? 1;
+      this.gainEnv.r = r ?? 0.125;
     } else {
-      this.gainEnv.a = p1.a || 0.001;
-      this.gainEnv.d = p1.d || 0.001;
-      this.gainEnv.s = p1.s || 0;
-      this.gainEnv.r = p1.r || 0.001;
+      this.gainEnv.a = p1.a ?? 0.01; // Add default for 'a'
+      this.gainEnv.d = p1.d ?? 0.001;
+      this.gainEnv.s = p1.s ?? 1;
+      this.gainEnv.r = p1.r ?? 0.125;
     }
     return this;
   }
