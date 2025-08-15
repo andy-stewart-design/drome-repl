@@ -12,12 +12,13 @@ class Drome extends AudioClock {
   constructor(bpm = 120) {
     super(bpm);
     this.beforeStartCallback = this.preloadSamples.bind(this);
-    this.onIterationStart(this.handleTick.bind(this));
-    // this.bpm(bpm);
+    this.onIterationStart((tick: number, phase: number) =>
+      this.handleTick(tick, phase)
+    );
   }
 
-  private handleTick() {
-    this.instruments.forEach((inst) => inst.play(this.phase, this.tick));
+  private handleTick(tick: number, phase: number) {
+    this.instruments.forEach((inst) => inst.play(phase, tick));
   }
 
   public async preloadSamples() {

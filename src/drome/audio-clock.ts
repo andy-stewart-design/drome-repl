@@ -1,12 +1,12 @@
-type IterationCallback = (n: number) => void;
+type IterationCallback = (tick: number, phase: number) => void;
 
 class AudioClock {
   readonly ctx = new AudioContext();
   private intervalID: ReturnType<typeof setInterval> | undefined;
   private _paused = true;
   private _duration = 2;
-  public tick = 0;
-  public phase = 0;
+  private tick = 0;
+  private phase = 0;
   private precision = 10 ** 4;
   private minLatency = 0.01;
   private interval = 0.1;
@@ -31,7 +31,7 @@ class AudioClock {
       this.phase = Math.round(this.phase * this.precision) / this.precision;
       if (this.phase >= t) {
         // this.instruments.forEach((inst) => inst.play(this.phase, this.tick));
-        this.iterationCallbacks.forEach((cb) => cb(this.tick));
+        this.iterationCallbacks.forEach((cb) => cb(this.tick, this.phase));
       }
       this.phase += this._duration; // increment phase by duration
       this.tick++;
@@ -73,7 +73,7 @@ class AudioClock {
     this.startCallbacks.push(cb);
   }
 
-  public onIterationStart(cb: (n: number) => void) {
+  public onIterationStart(cb: IterationCallback) {
     this.iterationCallbacks.push(cb);
   }
 
