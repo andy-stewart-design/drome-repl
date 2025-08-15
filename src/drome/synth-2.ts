@@ -7,16 +7,31 @@ import { euclid } from "./utils/euclid";
 import { hex } from "./utils/hex";
 import { midiToFreq } from "./utils/midi";
 
+interface ADSREnvelope {
+  a: number;
+  d: number;
+  s: number;
+  r: number;
+}
+
+interface FilterParams {
+  type: BiquadFilterType;
+  value: number;
+  depth?: number;
+  env?: ADSREnvelope;
+}
+
 class Synth {
   private drome: Drome;
-  private waveform: OscType = "sine";
+  private waveform: OscType = "sawtooth";
   private _gain = 1;
-  private gainEnv = { a: 0.01, d: 0.125, s: 0, r: 0.01 };
-  private notes: number[] = Array.from({ length: 4 }, (_, i) => (i ? 69 : 81));
-  //   public notes = [81, 696];
+  private gainEnv = { a: 0.01, d: 0.001, s: 1, r: 0.125 };
+  private notes: number[] = Array.from({ length: 4 }, () => 60);
+  private filter: FilterParams | undefined;
 
-  constructor(drome: Drome) {
+  constructor(drome: Drome, type: OscType = "sine") {
     this.drome = drome;
+    this.waveform = type;
   }
 
   push() {
@@ -25,15 +40,32 @@ class Synth {
   }
 
   play() {
-    const startOffset = this.drome.barDuration / this.notes.length;
+    const offsetDuration = this.drome.barDuration / this.notes.length;
     const barProgress = this.drome.metronome.step / this.drome.stepCount;
     const skippedNotesCount = Math.ceil(this.notes.length * barProgress);
+    const scheduleFrequency = this.drome.granularity / this.drome.stepCount; // 0.25, 0.5, or 1
+    const scheduleLength = Math.ceil(scheduleFrequency * this.notes.length);
+    const scheduleStartIndex = Math.ceil(barProgress * this.notes.length);
+    const notesToSchedule = this.notes.slice(
+      scheduleStartIndex,
+      scheduleLength + scheduleStartIndex
+    );
 
-    this.notes.forEach((note, i) => {
-      if (i < skippedNotesCount) return;
+    // console.log({
+    //   skippedNotesCount,
+    //   scheduleStartIndex,
+    //   scheduleLength,
+    //   notesToSchedule,
+    //   barProgress,
+    //   scheduleFrequency,
+    // });
+
+    notesToSchedule.forEach((note, i) => {
+      if (note === 0) return;
       const frequency = midiToFreq(note);
-      const time = this.drome.barStartTime + startOffset * i;
-      const duration = this.drome.barDuration;
+      const time =
+        this.drome.barStartTime + offsetDuration * (i + skippedNotesCount);
+      const duration = this.drome.barDuration / this.notes.length;
 
       const osc = new Oscillator({
         ctx: this.drome.ctx,
@@ -42,11 +74,7 @@ class Synth {
         duration,
         type: this.waveform,
         gain: { value: this._gain, env: this.gainEnv },
-        filter: {
-          type: "lowpass",
-          value: 800,
-          env: { a: 0.1, d: 0.25, s: 0.25, r: 0.25 },
-        },
+        filter: this.filter,
       });
 
       osc.play();
@@ -60,9 +88,16 @@ class Synth {
   }
 
   public note(n: number | number[] | DromeArray) {
-    const midiArray =
-      n instanceof DromeArray ? n.value : Array.isArray(n) ? n : [n];
-    this.notes = midiArray.map((n) => midiToFreq(n));
+    this.notes = n instanceof DromeArray ? n.value : Array.isArray(n) ? n : [n];
+    return this;
+  }
+
+  public fast(multiplier: number) {
+    const newLength = Math.floor(this.notes.length * multiplier);
+    this.notes = Array.from(
+      { length: newLength },
+      (_, i) => this.notes[i % this.notes.length]
+    );
     return this;
   }
 
@@ -99,11 +134,48 @@ class Synth {
     return this;
   }
 
-  public env(a: number, d?: number, s?: number, r?: number) {
-    this.gainEnv.a = a || 0.001;
-    this.gainEnv.d = d || 0.001;
-    this.gainEnv.s = s || 0;
-    this.gainEnv.r = r || 0.001;
+  public adsr(a: number, d?: number, s?: number, r?: number): this;
+  public adsr(adsr: ADSREnvelope): this;
+  public adsr(p1: number | ADSREnvelope, d?: number, s?: number, r?: number) {
+    if (typeof p1 === "number") {
+      this.gainEnv.a = p1 || 0.001;
+      this.gainEnv.d = d || 0.001;
+      this.gainEnv.s = s || 0;
+      this.gainEnv.r = r || 0.001;
+    } else {
+      this.gainEnv.a = p1.a || 0.001;
+      this.gainEnv.d = p1.d || 0.001;
+      this.gainEnv.s = p1.s || 0;
+      this.gainEnv.r = p1.r || 0.001;
+    }
+    return this;
+  }
+
+  public lpf(value: number) {
+    this.filter = { type: "lowpass", value, depth: 1 };
+    return this;
+  }
+
+  public lpenv(depth: number, env?: ADSREnvelope) {
+    if (!this.filter) return;
+    this.filter.depth = depth;
+    const s = (this.filter.value * depth) / this.filter.value;
+    this.filter.env = env || { a: 0.125, d: 0.125, s, r: 0.01 };
+    console.log(this.filter);
+
+    return this;
+  }
+
+  public hpf(value: number) {
+    this.filter = { type: "highpass", value, depth: 1 };
+    return this;
+  }
+
+  public hpenv(depth: number, env: ADSREnvelope) {
+    if (!this.filter) return;
+    this.filter.depth = depth;
+    const s = (this.filter.value * depth) / this.filter.value;
+    this.filter.env = env || { a: 0.125, d: 0.125, s, r: 0.01 };
     return this;
   }
 }

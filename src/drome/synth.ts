@@ -66,41 +66,41 @@ class Synth {
     this._adsr.release = r || 0.001;
     return this;
   }
-
+  // deprecate
   public att(n: number) {
     this._adsr.attack = n || 0.01;
     return this;
   }
-
+  // deprecate
   public dec(n: number) {
     this._adsr.decay = n || 0.01;
     return this;
   }
-
+  // deprecate
   public sus(n: number) {
     this._adsr.sustain = n || 0.01;
     return this;
   }
-
+  // deprecate
   public rel(n: number) {
     this._adsr.release = n || 0.01;
     return this;
   }
-
+  // done
   public hpf(frequency: number, q: number = 1) {
     this.filterType = "highpass";
     this.filterFreq = frequency;
     this.filterQ = q;
     return this;
   }
-
+  // done
   public lpf(frequency: number, q: number = 1) {
     this.filterType = "lowpass";
     this.filterFreq = frequency;
     this.filterQ = q;
     return this;
   }
-
+  // done
   public fast(multiplier: number) {
     const newLength = Math.floor(this.notes.length * multiplier);
     this.notes = Array.from(

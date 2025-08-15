@@ -1,4 +1,4 @@
-import Drome from "@/drome";
+import Drome from "@/drome/drome-2";
 import type { LogType } from "./App";
 
 type LogCallback = (message: string, type?: LogType) => void;

@@ -1,5 +1,5 @@
 import { createSignal, onCleanup, onMount } from "solid-js";
-import Drome from "@/drome";
+import Drome from "@/drome/drome-2";
 import { play, stop } from "./repl";
 import { examples, textAreaPlaceholder } from "@/assets/examples";
 
@@ -41,17 +41,17 @@ function App() {
   onMount(() => {
     if (!codeEditor) return;
     codeEditor.addEventListener("keydown", handleKeydown);
-    drome.onStart(() => {
+    drome.onStart = () => {
       setPlaying(true);
       log(`▶ Starting playback loop...`, "output");
-    });
-    drome.onIterationStart((n: number) => {
-      log(`♻️ Starting cycle ${n}`);
-    });
-    drome.onStop(() => {
+    };
+    drome.onBar = (n: typeof drome.metronome) => {
+      log(`♻️ Starting cycle ${n.bar}`);
+    };
+    drome.onStop = () => {
       setPlaying(false);
       log(`⏹ Stopping playback`, "output");
-    });
+    };
   });
 
   onCleanup(() => {

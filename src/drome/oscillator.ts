@@ -13,6 +13,7 @@ interface GainParams {
 interface FilterParams {
   type: BiquadFilterType;
   value: number;
+  depth?: number;
   env?: ADSREnvelope;
 }
 
@@ -93,14 +94,19 @@ class Oscillator {
     }
   }
 
-  private applyEnvelope(target: AudioParam, maxVal: number, env: ADSREnvelope) {
+  private applyEnvelope(
+    target: AudioParam,
+    startVal: number,
+    maxVal: number,
+    env: ADSREnvelope
+  ) {
     const sustainLevel = maxVal * env.s;
     const attackEnd = this.startTime + env.a;
     const decayEnd = attackEnd + env.d;
     const sustainEnd = this.startTime + this.duration - env.r;
     const releaseEnd = this.startTime + this.duration;
 
-    target.setValueAtTime(0, this.startTime);
+    target.setValueAtTime(startVal, this.startTime);
     target.linearRampToValueAtTime(maxVal, attackEnd); // Attack
     target.linearRampToValueAtTime(sustainLevel, decayEnd); // Decay
     target.setValueAtTime(sustainLevel, sustainEnd); // Sustain
@@ -110,6 +116,7 @@ class Oscillator {
   private applyGain() {
     this.applyEnvelope(
       this.gainNode.gain,
+      0,
       this.baseGain * this.gain.value,
       this.gain.env
     );
@@ -118,8 +125,13 @@ class Oscillator {
   private applyFilter() {
     if (!this.filter || !this.filterNode) return;
     this.filterNode.type = this.filter.type;
-    const adsr = this.filter.env ?? { a: 0.01, d: 0.01, s: 1, r: 0.05 };
-    this.applyEnvelope(this.filterNode.frequency, this.filter.value, adsr);
+    const env = this.filter.env ?? { a: 0.01, d: 0.01, s: 1, r: 0.05 };
+    this.applyEnvelope(
+      this.filterNode.frequency,
+      this.filter.value,
+      this.filter.value * (this.filter.depth ?? 2),
+      env
+    );
   }
 
   play() {
