@@ -11,14 +11,11 @@ class Drome extends AudioClock {
 
   constructor(bpm = 120) {
     super(bpm);
-
-    this.onIteration(() => this.handleTick());
+    this.on("bar", this.handleTick.bind(this));
   }
 
   private handleTick() {
-    this.instruments.forEach((inst) =>
-      inst.play(this.barStartTime, this.metronome.bar)
-    );
+    this.instruments.forEach((inst) => inst.play(this.barStartTime));
   }
 
   public async preloadSamples() {
@@ -48,15 +45,11 @@ class Drome extends AudioClock {
   }
 
   public synth(type: SynthAlias = "sine", harmonics?: number) {
-    const synth = new Synth(this, synthAliasMap[type], harmonics);
-    // this.addInstrument(synth);
-    return synth;
+    return new Synth(this, synthAliasMap[type], harmonics);
   }
 
   public sample(name: SampleName = "bd", index = 0) {
-    const sample = new Sample(this, name, index);
-    // this.addInstrument(sample);
-    return sample;
+    return new Sample(this, name, index);
   }
 
   public stack(...intruments: (Synth | Sample)[]) {
@@ -77,8 +70,6 @@ class Drome extends AudioClock {
 
   public destroy() {
     super.destroy();
-
-    // Destroy instruments if they have their own cleanup
     this.instruments.forEach((inst) => inst.destroy());
     this.instruments = [];
   }

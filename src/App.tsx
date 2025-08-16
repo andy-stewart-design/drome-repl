@@ -41,14 +41,14 @@ function App() {
   onMount(() => {
     if (!codeEditor) return;
     codeEditor.addEventListener("keydown", handleKeydown);
-    drome.onStart(() => {
+    drome.on("start", () => {
       setPlaying(true);
       log(`▶ Starting playback loop...`, "output");
     });
-    drome.onIteration((n: number) => {
-      log(`♻️ Starting cycle ${n}`);
+    drome.on("bar", (m) => {
+      log(`♻️ Starting cycle ${m.bar}`);
     });
-    drome.onStop(() => {
+    drome.on("stop", () => {
       setPlaying(false);
       log(`⏹ Stopping playback`, "output");
     });
