@@ -5,8 +5,11 @@ class AudioClock {
   private intervalID: ReturnType<typeof setInterval> | undefined;
   private _paused = true;
   private _duration = 2;
+  private currentBarDuration = 2;
   private tick = 0;
+  private beat = 0;
   private phase = 0;
+  private nextBeatStart = 0;
   private precision = 10 ** 4;
   private minLatency = 0.01;
   private interval = 0.1;
@@ -26,15 +29,32 @@ class AudioClock {
     if (this.phase === 0) {
       this.phase = t + this.minLatency;
     }
+    if (this.nextBeatStart === 0) {
+      this.nextBeatStart = t + this.minLatency;
+    }
+
     // callback as long as we're inside the lookahead
     while (this.phase < lookahead) {
       this.phase = Math.round(this.phase * this.precision) / this.precision;
       if (this.phase >= t) {
         this.iterationCallbacks.forEach((cb) => cb(this.tick, this.phase));
+        this.currentBarDuration = this._duration;
       }
       this.phase += this._duration; // increment phase by duration
+      console.log("bar", this.tick);
       this.tick++;
     }
+
+    while (this.nextBeatStart < lookahead) {
+      this.nextBeatStart =
+        Math.round(this.nextBeatStart * this.precision) / this.precision;
+
+      this.nextBeatStart += this.currentBarDuration / 4; // increment phase by duration
+      console.log("beat", this.beat);
+      this.beat = (this.beat + 1) % 4;
+    }
+
+    // console.log(this.tick, this._duration, this.phase, this.ctx.currentTime);
   }
 
   public async start() {
@@ -52,7 +72,9 @@ class AudioClock {
 
   public stop() {
     this.tick = 0;
+    this.beat = 0;
     this.phase = 0;
+    this.nextBeatStart = 0;
     this.pause();
     this.stopCallbacks.forEach((cb) => cb());
   }
