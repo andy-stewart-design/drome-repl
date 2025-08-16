@@ -89,6 +89,8 @@ class AudioClock {
     this._duration = (60 / bpm) * 4;
   }
 
+  public on() {}
+
   public onStart(cb: () => void) {
     this.onStartCallbacks.push(cb);
   }
