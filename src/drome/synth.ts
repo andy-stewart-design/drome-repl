@@ -1,5 +1,5 @@
 import DromeArray from "./drome-array";
-import { oscillator } from "./utils/oscillator";
+import Oscillator from "./oscillator";
 import { euclid } from "./utils/euclid";
 import { hex } from "./utils/hex";
 import { midiToFreq } from "./utils/midi";
@@ -150,24 +150,31 @@ class Synth {
       const offset = Array.isArray(noteOffsets) ? noteOffsets[i] : noteOffsets;
       const t = time + offset * i;
 
-      oscillator({
+      const osc = new Oscillator({
         ctx: this.drome.ctx,
-        waveform: this.waveform,
-        harmonics: this.harmonics,
+        type: this.waveform,
+        // harmonics: this.harmonics,
         duration: this.drome.duration,
         frequency,
-        time: t,
-        adsr: this._adsr,
-        gain: this._gain,
+        startTime: t,
+        gain: {
+          value: this._gain,
+          env: {
+            a: this._adsr.attack,
+            d: this._adsr.decay,
+            s: this._adsr.sustain,
+            r: this._adsr.release,
+          },
+        },
         filter:
           filterFreq && filterType
             ? {
                 type: filterType,
-                frequency: filterFreq,
-                Q: filterQ,
+                value: filterFreq,
               }
             : undefined,
       });
+      osc.play();
     });
   }
 
