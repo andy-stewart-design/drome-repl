@@ -12,7 +12,7 @@ class Drome extends AudioClock {
   constructor(bpm = 120) {
     super(bpm);
 
-    this.on("bar", () => this.handleTick());
+    this.on("bar", this.handleTick.bind(this));
   }
 
   private handleTick() {
