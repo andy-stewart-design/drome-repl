@@ -55,7 +55,7 @@ class AudioClock {
       this.nextBeatStart += this.currentBarDuration / this._beatsPerBar;
 
       this.listeners.get("beat")?.forEach((cb) => {
-        cb(this.metronome);
+        cb({ ...this.metronome, beat: this.metronome.beat + 1 });
       });
 
       this.metronome.beat = (this.metronome.beat + 1) % this._beatsPerBar;
@@ -138,3 +138,4 @@ class AudioClock {
 }
 
 export default AudioClock;
+export type { Metronome };
