@@ -4,7 +4,7 @@ import { euclid } from "./utils/euclid";
 import { hex } from "./utils/hex";
 import { midiToFreq } from "./utils/midi";
 import type Drome from "./drome";
-import type { ADSRParams, OscType, SynthAlias } from "./types";
+import type { ADSRParams, OscType, SynthAlias, FilterParams } from "./types";
 
 export const synthAliasMap = {
   saw: "sawtooth",
@@ -24,16 +24,14 @@ class Synth {
   private waveform: OscType = "sine";
   private harmonics: number | null = null; // need to decide what to do about this
   private _gain = 1;
-  private _adsr = { attack: 0.001, decay: 0.001, sustain: 1.0, release: 0.001 };
-  private filterType: BiquadFilterType | null = null;
-  private filterFreq: number | null = null;
-  private filterDepth = 1;
-  private filterQ: number = 1;
+  private _adsr: ADSRParams = { a: 0.001, d: 0.001, s: 1.0, r: 0.001 };
+  private filter: FilterParams | undefined;
 
   constructor(drome: Drome, type: OscType = "sine", harmonics?: number) {
     this.drome = drome;
     this.waveform = type;
     if (harmonics) this.harmonics = harmonics;
+    console.log(this.harmonics);
   }
 
   public push() {
@@ -61,49 +59,48 @@ class Synth {
   }
 
   public adsr(a: number, d?: number, s?: number, r?: number) {
-    this._adsr.attack = a || 0.001;
-    this._adsr.decay = d || 0.001;
-    this._adsr.sustain = s || 0;
-    this._adsr.release = r || 0.001;
+    this._adsr.a = a || 0.001;
+    this._adsr.d = d || 0.001;
+    this._adsr.s = s || 0;
+    this._adsr.r = r || 0.001;
     return this;
   }
 
   public att(n: number) {
-    this._adsr.attack = n || 0.01;
+    this._adsr.a = n || 0.01;
     return this;
   }
 
   public dec(n: number) {
-    this._adsr.decay = n || 0.01;
+    this._adsr.d = n || 0.01;
     return this;
   }
 
   public sus(n: number) {
-    this._adsr.sustain = n || 0.01;
+    this._adsr.s = n || 0.01;
     return this;
   }
 
   public rel(n: number) {
-    this._adsr.release = n || 0.01;
+    this._adsr.r = n || 0.01;
     return this;
   }
 
   public hpf(frequency: number, q: number = 1) {
-    this.filterType = "highpass";
-    this.filterFreq = frequency;
-    this.filterQ = q;
+    this.filter = { value: frequency, type: "highpass", q };
     return this;
   }
 
   public lpf(frequency: number, q: number = 1) {
-    this.filterType = "lowpass";
-    this.filterFreq = frequency;
-    this.filterQ = q;
+    this.filter = { value: frequency, type: "lowpass", q };
     return this;
   }
 
   public lpenv(depthMult: number, env: ADSRParams) {
-    this.filterDepth = depthMult;
+    if (this.filter) {
+      this.filter.depth = depthMult;
+      this.filter.env = env;
+    }
     return this;
   }
 
@@ -152,7 +149,7 @@ class Synth {
   public play(time: number) {
     this.notes?.forEach((frequency, i) => {
       if (frequency === 0) return; // Skip silent notes
-      const { noteOffsets, filterFreq, filterType, filterQ } = this;
+      const { noteOffsets } = this;
       const offset = Array.isArray(noteOffsets) ? noteOffsets[i] : noteOffsets;
       const t = time + offset * i;
 
@@ -163,23 +160,8 @@ class Synth {
         duration: this.drome.duration,
         frequency,
         startTime: t,
-        gain: {
-          value: this._gain,
-          env: {
-            a: this._adsr.attack,
-            d: this._adsr.decay,
-            s: this._adsr.sustain,
-            r: this._adsr.release,
-          },
-        },
-        filter:
-          filterFreq && filterType
-            ? {
-                type: filterType,
-                value: filterFreq,
-                depth: this.filterDepth,
-              }
-            : undefined,
+        gain: { value: this._gain, env: this._adsr },
+        filter: this.filter,
       }).play();
     });
   }
@@ -193,10 +175,8 @@ class Synth {
     this.waveform = "sine";
     this.harmonics = null;
     this._gain = 1;
-    this._adsr = { attack: 0.001, decay: 0.001, sustain: 1.0, release: 0.001 };
-    this.filterType = null;
-    this.filterFreq = null;
-    this.filterQ = 1;
+    this._adsr = { a: 0.001, d: 0.001, s: 1.0, r: 0.001 };
+    this.filter = undefined;
 
     // Drop AudioContext reference (not closing it, since Drome owns it)
     // @ts-expect-error allow nulling for cleanup

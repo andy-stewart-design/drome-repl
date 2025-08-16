@@ -26,16 +26,23 @@ type SampleName =
 type SampleBank = "RolandTR909" | "RolandTR808";
 
 interface ADSRParams {
-  attack: number;
-  decay: number;
-  sustain: number;
-  release: number;
+  a: number;
+  d: number;
+  s: number;
+  r: number;
+}
+
+interface GainParams {
+  value: number;
+  env: ADSRParams;
 }
 
 interface FilterParams {
   type: BiquadFilterType;
-  frequency: number;
-  Q?: number;
+  value: number;
+  q?: number;
+  depth?: number;
+  env?: ADSRParams;
 }
 
 export type {
@@ -48,6 +55,7 @@ export type {
   SampleName,
   SampleBank,
   ADSRParams,
+  GainParams,
   FilterParams,
 };
 

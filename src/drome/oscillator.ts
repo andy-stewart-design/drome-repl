@@ -1,21 +1,4 @@
-interface ADSREnvelope {
-  a: number;
-  d: number;
-  s: number;
-  r: number;
-}
-
-interface GainParams {
-  value: number;
-  env: ADSREnvelope;
-}
-
-interface FilterParams {
-  type: BiquadFilterType;
-  value: number;
-  depth?: number;
-  env?: ADSREnvelope;
-}
+import type { FilterParams, ADSRParams, GainParams } from "./types";
 
 interface OptionalOscillatorParameters {
   type: OscillatorType;
@@ -30,8 +13,8 @@ interface OscillatorParameters extends Partial<OptionalOscillatorParameters> {
   duration: number;
 }
 
-const defaultAdsr = { a: 0.01, d: 0.125, s: 0.0, r: 0.1 };
-const defaultFilterAdsr = { a: 0.01, d: 0.01, s: 1.0, r: 0.1 };
+const defaultGainEnv = { a: 0.01, d: 0.125, s: 0.0, r: 0.1 };
+const defaultFilterEnv = { a: 0.01, d: 0.01, s: 1.0, r: 0.1 };
 
 class Oscillator {
   private ctx: AudioContext;
@@ -52,7 +35,7 @@ class Oscillator {
     this.startTime = params.startTime + 0.01;
     this.gain = {
       value: params.gain?.value ?? 1,
-      env: params.gain?.env ?? defaultAdsr,
+      env: params.gain?.env ?? defaultGainEnv,
     };
     this.filter = params.filter;
 
@@ -76,10 +59,7 @@ class Oscillator {
     if (this.filter) {
       this.filterNode = this.ctx.createBiquadFilter();
       this.filterNode.type = this.filter.type;
-      //   this.filterNode.frequency.setValueAtTime(
-      //     this.filter.value,
-      //     this.startTime
-      //   );
+      this.filterNode.Q.value = this.filter.q ?? 1;
     }
 
     const nodes = [
@@ -104,7 +84,7 @@ class Oscillator {
     target: AudioParam,
     startVal: number,
     maxVal: number,
-    env: ADSREnvelope
+    env: ADSRParams
   ) {
     const sustainLevel = maxVal * env.s;
     const minDuration = env.a + env.d + env.r;
@@ -137,7 +117,7 @@ class Oscillator {
       this.filterNode.frequency,
       this.filter.value,
       this.filter.value * (this.filter.depth ?? 1),
-      this.filter.env ?? defaultFilterAdsr
+      this.filter.env ?? defaultFilterEnv
     );
   }
 
@@ -147,89 +127,6 @@ class Oscillator {
     this.oscNode.start(this.startTime);
     this.oscNode.stop(this.startTime + this.duration);
   }
-
-  //   private applyEnvelope(
-  //     target: AudioParam,
-  //     startVal: number,
-  //     maxVal: number,
-  //     env: ADSREnvelope
-  //   ) {
-  //     const MIN_ENV_TIME = 0.002; // 2 ms safety fade
-  //     const a = Math.max(env.a, MIN_ENV_TIME);
-  //     const d = Math.max(env.d, MIN_ENV_TIME);
-  //     const r = Math.max(env.r, MIN_ENV_TIME);
-
-  //     const sustainLevel = maxVal * env.s;
-  //     const attackEnd = this.startTime + a;
-  //     const decayEnd = attackEnd + d;
-  //     const sustainEnd = this.startTime + this.duration - r;
-  //     const releaseEnd = sustainEnd + r;
-
-  //     // Ensure any prior schedules are cleared
-  //     target.cancelScheduledValues(this.startTime);
-
-  //     // Attack
-  //     target.setValueAtTime(startVal, this.startTime);
-  //     target.linearRampToValueAtTime(maxVal, attackEnd);
-
-  //     // Decay
-  //     target.linearRampToValueAtTime(sustainLevel, decayEnd);
-
-  //     // Sustain
-  //     target.setValueAtTime(sustainLevel, sustainEnd);
-
-  //     // Release (fade to zero)
-  //     target.linearRampToValueAtTime(0, releaseEnd);
-  //   }
-
-  //   private applyGain() {
-  //     this.applyEnvelope(
-  //       this.gainNode.gain,
-  //       0,
-  //       this.baseGain * this.gain.value,
-  //       this.gain.env
-  //     );
-  //   }
-
-  //   private applyFilter() {
-  //     if (!this.filter || !this.filterNode) return;
-  //     this.filterNode.type = this.filter.type;
-  //     const env = this.filter.env ?? { a: 0.01, d: 0.01, s: 1, r: 0.05 };
-  //     this.applyEnvelope(
-  //       this.filterNode.frequency,
-  //       this.filter.value,
-  //       this.filter.value * (this.filter.depth ?? 2),
-  //       env
-  //     );
-  //   }
-
-  //   play(onComplete?: () => void) {
-  //     this.applyGain();
-  //     this.applyFilter();
-
-  //     // Ensure the oscillator lasts through the release phase
-  //     const totalEnvTime = Math.max(
-  //       this.duration,
-  //       this.gain.env.a + this.gain.env.d + this.gain.env.r,
-  //       this.filter?.env
-  //         ? this.filter.env.a + this.filter.env.d + this.filter.env.r
-  //         : 0
-  //     );
-
-  //     const stopTime = this.startTime + totalEnvTime + 0.002; // micro fade cushion
-
-  //     this.oscNode.start(this.startTime);
-  //     this.oscNode.stop(stopTime);
-
-  //     this.oscNode.onended = () => {
-  //       this.oscNode.disconnect();
-  //       this.gainNode.disconnect();
-  //       if (this.filterNode) {
-  //         this.filterNode.disconnect();
-  //       }
-  //       onComplete?.();
-  //     };
-  //   }
 
   get type() {
     return this.oscNode.type;
