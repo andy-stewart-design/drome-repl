@@ -30,7 +30,7 @@ class AudioClock {
 
   private setStepDuration() {
     this._stepDuration = 60.0 / this._bpm / this._stepsPerBeat;
-    this._barDuration = (60 / this._bpm) * this._beatsPerBar;
+    this._barDuration = (60.0 / this._bpm) * this._beatsPerBar;
   }
 
   private scheduler() {
@@ -42,9 +42,8 @@ class AudioClock {
   }
 
   private emitEvents() {
-    console.log(this.ctx.currentTime, this.metronome);
-
     if (this.metronome.step % (this._stepsPerBeat * this._beatsPerBar) === 0) {
+      console.log(this.ctx.currentTime, this.metronome);
       this.listeners.get("bar")?.forEach((cb) => {
         cb(this.metronome);
       });
@@ -125,12 +124,11 @@ class AudioClock {
   }
 
   public bpm(bpm: number) {
-    if (bpm <= 0) return;
-    this._bpm = bpm;
-    this.setStepDuration();
-    if (!this._paused) {
+    if (!this._paused && bpm !== this._bpm) {
       this._nextStepTime = this.ctx.currentTime + this.scheduleAheadTime;
     }
+    this._bpm = bpm;
+    this.setStepDuration();
   }
 
   public on(eventType: DromeEventType, listener: DromeEventCallback) {
