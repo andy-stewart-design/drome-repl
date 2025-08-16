@@ -2,6 +2,7 @@ import { createSignal, onCleanup, onMount } from "solid-js";
 import Drome from "@/drome";
 import { play, stop } from "./repl";
 import { examples, textAreaPlaceholder } from "@/assets/examples";
+import type { Metronome } from "./drome/audio-clock-2";
 
 export type LogType = "input" | "output" | "error";
 
@@ -41,14 +42,14 @@ function App() {
   onMount(() => {
     if (!codeEditor) return;
     codeEditor.addEventListener("keydown", handleKeydown);
-    drome.onStart(() => {
+    drome.on("start", () => {
       setPlaying(true);
       log(`▶ Starting playback loop...`, "output");
     });
-    drome.onIteration((n: number) => {
-      log(`♻️ Starting cycle ${n}`);
+    drome.on("bar", (m: Metronome) => {
+      log(`♻️ Starting cycle ${m.bar}`);
     });
-    drome.onStop(() => {
+    drome.on("stop", () => {
       setPlaying(false);
       log(`⏹ Stopping playback`, "output");
     });

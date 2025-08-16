@@ -12,15 +12,13 @@ class Drome extends AudioClock {
   constructor(bpm = 120) {
     super(bpm);
 
-    this.onIteration((tick: number, phase: number) =>
-      this.handleTick(tick, phase)
-    );
+    this.on("bar", () => this.handleTick());
   }
 
-  private handleTick(tick: number, phase: number) {
-    console.log("instruments", this.instruments);
-
-    this.instruments.forEach((inst) => inst.play(phase, tick));
+  private handleTick() {
+    this.instruments.forEach((inst) =>
+      inst.play(this.barStartTime, this.metronome.bar)
+    );
   }
 
   public async preloadSamples() {
@@ -79,8 +77,6 @@ class Drome extends AudioClock {
 
   public destroy() {
     super.destroy();
-
-    // Destroy instruments if they have their own cleanup
     this.instruments.forEach((inst) => inst.destroy());
     this.instruments = [];
   }
