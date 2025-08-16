@@ -58,8 +58,6 @@ class Oscillator {
       this.filters.set(filter.type, { ...filter, node });
     });
 
-    // const foo = Array.from(this.filters.values(), (f) => f.node)
-
     const nodes = [
       this.oscNode,
       ...Array.from(this.filters.values(), (f) => f.node),

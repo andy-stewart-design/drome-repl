@@ -72,26 +72,6 @@ class Synth {
     return this;
   }
 
-  public att(n: number) {
-    this._adsr.a = n || 0.01;
-    return this;
-  }
-
-  public dec(n: number) {
-    this._adsr.d = n || 0.01;
-    return this;
-  }
-
-  public sus(n: number) {
-    this._adsr.s = n || 0.01;
-    return this;
-  }
-
-  public rel(n: number) {
-    this._adsr.r = n || 0.01;
-    return this;
-  }
-
   public hpf(frequency: number, q: number = 1) {
     this.filters.set("highpass", { value: frequency, type: "highpass", q });
     return this;
@@ -182,8 +162,6 @@ class Synth {
       const { noteOffsets } = this;
       const offset = Array.isArray(noteOffsets) ? noteOffsets[i] : noteOffsets;
       const t = time + offset * i;
-
-      // console.log("filters", this.filters);
 
       new Oscillator({
         ctx: this.drome.ctx,

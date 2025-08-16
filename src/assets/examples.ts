@@ -6,8 +6,8 @@ const examples = [
   {
     title: "Multiple synths",
     code: `drome.stack(
-  drome.synth().note(60).adsr(0.25, 0.1, 0).euclid(4, 4).lpf(400).gain(1.5),
-  drome.synth("sawtooth").note(48).euclid(3, 8).dec(0.5).sus(0.2).lpf(800)
+  drome.synth().note(60).adsr(0.25,0.1,0).euclid(4, 4).lpf(400).gain(1.5),
+  drome.synth("sawtooth").note(48).euclid(3, 8).adsr(0.01,0.5,0.2,0.05).lpf(800)
 )`,
   },
   {
