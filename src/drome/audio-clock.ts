@@ -42,6 +42,8 @@ class AudioClock {
   }
 
   private emitEvents() {
+    console.log(this.ctx.currentTime, this.metronome);
+
     if (this.metronome.step % (this._stepsPerBeat * this._beatsPerBar) === 0) {
       this.listeners.get("bar")?.forEach((cb) => {
         cb(this.metronome);
@@ -61,9 +63,7 @@ class AudioClock {
 
   private nextStep() {
     if (this._paused) return;
-
     this._nextStepTime += this._stepDuration;
-
     this.metronome.step++;
 
     if (this.metronome.step == this.stepCount) {
