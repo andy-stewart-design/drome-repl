@@ -18,6 +18,8 @@ class Drome extends AudioClock {
   }
 
   private handleTick(tick: number, phase: number) {
+    console.log("instruments", this.instruments);
+
     this.instruments.forEach((inst) => inst.play(phase, tick));
   }
 
