@@ -4,7 +4,13 @@ import { euclid } from "./utils/euclid";
 import { hex } from "./utils/hex";
 import { midiToFreq } from "./utils/midi";
 import type Drome from "./drome";
-import type { ADSRParams, OscType, SynthAlias, FilterParams } from "./types";
+import type {
+  ADSRParams,
+  OscType,
+  SynthAlias,
+  FilterParams,
+  FilterType,
+} from "./types";
 
 export const synthAliasMap = {
   saw: "sawtooth",
@@ -25,7 +31,7 @@ class Synth {
   private harmonics: number | null = null; // need to decide what to do about this
   private _gain = 1;
   private _adsr: ADSRParams = { a: 0.001, d: 0.001, s: 1.0, r: 0.001 };
-  private filter: FilterParams | undefined;
+  private filters: Map<FilterType, FilterParams> = new Map();
 
   constructor(drome: Drome, type: OscType = "sine", harmonics?: number) {
     this.drome = drome;
@@ -87,19 +93,43 @@ class Synth {
   }
 
   public hpf(frequency: number, q: number = 1) {
-    this.filter = { value: frequency, type: "highpass", q };
+    this.filters.set("highpass", { value: frequency, type: "highpass", q });
+    return this;
+  }
+
+  public hpenv(depthMult: number, env: ADSRParams) {
+    const filter = this.filters.get("highpass");
+    if (filter) {
+      filter.depth = depthMult;
+      filter.env = env;
+    }
     return this;
   }
 
   public lpf(frequency: number, q: number = 1) {
-    this.filter = { value: frequency, type: "lowpass", q };
+    this.filters.set("lowpass", { value: frequency, type: "lowpass", q });
     return this;
   }
 
   public lpenv(depthMult: number, env: ADSRParams) {
-    if (this.filter) {
-      this.filter.depth = depthMult;
-      this.filter.env = env;
+    const filter = this.filters.get("lowpass");
+    if (filter) {
+      filter.depth = depthMult;
+      filter.env = env;
+    }
+    return this;
+  }
+
+  public bpf(frequency: number, q: number = 1) {
+    this.filters.set("bandpass", { value: frequency, type: "bandpass", q });
+    return this;
+  }
+
+  public bpenv(depthMult: number, env: ADSRParams) {
+    const filter = this.filters.get("bandpass");
+    if (filter) {
+      filter.depth = depthMult;
+      filter.env = env;
     }
     return this;
   }
@@ -153,6 +183,8 @@ class Synth {
       const offset = Array.isArray(noteOffsets) ? noteOffsets[i] : noteOffsets;
       const t = time + offset * i;
 
+      // console.log("filters", this.filters);
+
       new Oscillator({
         ctx: this.drome.ctx,
         type: this.waveform,
@@ -161,7 +193,7 @@ class Synth {
         frequency,
         startTime: t,
         gain: { value: this._gain, env: this._adsr },
-        filter: this.filter,
+        filters: this.filters,
       }).play();
     });
   }
@@ -176,7 +208,7 @@ class Synth {
     this.harmonics = null;
     this._gain = 1;
     this._adsr = { a: 0.001, d: 0.001, s: 1.0, r: 0.001 };
-    this.filter = undefined;
+    this.filters.clear();
 
     // Drop AudioContext reference (not closing it, since Drome owns it)
     // @ts-expect-error allow nulling for cleanup

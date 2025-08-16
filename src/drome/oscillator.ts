@@ -1,9 +1,9 @@
-import type { FilterParams, ADSRParams, GainParams } from "./types";
+import type { FilterParams, ADSRParams, GainParams, FilterType } from "./types";
 
 interface OptionalOscillatorParameters {
   type: OscillatorType;
   gain: Partial<GainParams>;
-  filter: FilterParams;
+  filters: Map<FilterType, FilterParams>;
 }
 
 interface OscillatorParameters extends Partial<OptionalOscillatorParameters> {
@@ -11,6 +11,10 @@ interface OscillatorParameters extends Partial<OptionalOscillatorParameters> {
   frequency: number;
   startTime: number;
   duration: number;
+}
+
+interface FilterParamsWithNode extends FilterParams {
+  node: BiquadFilterNode;
 }
 
 const defaultGainEnv = { a: 0.01, d: 0.125, s: 0.0, r: 0.1 };
@@ -23,11 +27,10 @@ class Oscillator {
   private duration: number;
   private baseGain = 0.2;
   private gain: GainParams;
-  private filter: FilterParams | undefined;
+  private filters: Map<FilterType, FilterParamsWithNode> = new Map();
 
   private oscNode: OscillatorNode;
   private gainNode: GainNode;
-  private filterNode: BiquadFilterNode | undefined;
 
   constructor(params: OscillatorParameters) {
     this.ctx = params.ctx;
@@ -37,17 +40,9 @@ class Oscillator {
       value: params.gain?.value ?? 1,
       env: params.gain?.env ?? defaultGainEnv,
     };
-    this.filter = params.filter;
 
     const gainEnvDuration = this.gain.env.a + this.gain.env.d + this.gain.env.r;
-    const filterEnvDuration =
-      this.filter?.env &&
-      this.filter.env.a + this.filter.env.d + this.filter.env.r;
-    const stopTime = Math.max(
-      params.duration,
-      gainEnvDuration,
-      filterEnvDuration ?? 0
-    );
+    const stopTime = Math.max(params.duration, gainEnvDuration);
     this.duration = stopTime;
 
     this.oscNode = this.ctx.createOscillator();
@@ -56,15 +51,18 @@ class Oscillator {
 
     this.gainNode = this.ctx.createGain();
 
-    if (this.filter) {
-      this.filterNode = this.ctx.createBiquadFilter();
-      this.filterNode.type = this.filter.type;
-      this.filterNode.Q.value = this.filter.q ?? 1;
-    }
+    params.filters?.forEach((filter) => {
+      const node = this.ctx.createBiquadFilter();
+      node.type = filter.type;
+      node.Q.value = filter.q ?? 1;
+      this.filters.set(filter.type, { ...filter, node });
+    });
+
+    // const foo = Array.from(this.filters.values(), (f) => f.node)
 
     const nodes = [
       this.oscNode,
-      this.filterNode,
+      ...Array.from(this.filters.values(), (f) => f.node),
       this.gainNode,
       this.ctx.destination,
     ].filter(Boolean) as AudioNode[];
@@ -76,7 +74,7 @@ class Oscillator {
     this.oscNode.onended = () => {
       this.oscNode.disconnect();
       this.gainNode.disconnect();
-      if (this.filterNode) this.filterNode.disconnect();
+      this.filters.forEach((f) => f.node.disconnect());
     };
   }
 
@@ -112,13 +110,14 @@ class Oscillator {
   }
 
   private applyFilter() {
-    if (!this.filter || !this.filterNode) return;
-    this.applyEnvelope(
-      this.filterNode.frequency,
-      this.filter.value,
-      this.filter.value * (this.filter.depth ?? 1),
-      this.filter.env ?? defaultFilterEnv
-    );
+    this.filters.forEach((filter) => {
+      this.applyEnvelope(
+        filter.node.frequency,
+        filter.value,
+        filter.value * (filter.depth ?? 1),
+        filter.env ?? defaultFilterEnv
+      );
+    });
   }
 
   play() {

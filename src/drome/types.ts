@@ -37,8 +37,13 @@ interface GainParams {
   env: ADSRParams;
 }
 
+type FilterType = Exclude<
+  BiquadFilterType,
+  "allpass" | "highshelf" | "lowshelf" | "notch" | "peaking"
+>;
+
 interface FilterParams {
-  type: BiquadFilterType;
+  type: FilterType;
   value: number;
   q?: number;
   depth?: number;
@@ -56,6 +61,7 @@ export type {
   SampleBank,
   ADSRParams,
   GainParams,
+  FilterType,
   FilterParams,
 };
 
