@@ -31,6 +31,7 @@ interface OscillatorParameters extends Partial<OptionalOscillatorParameters> {
 }
 
 const defaultAdsr = { a: 0.01, d: 0.125, s: 0.0, r: 0.1 };
+const defaultFilterAdsr = { a: 0.01, d: 0.01, s: 1.0, r: 0.1 };
 
 class Oscillator {
   private ctx: AudioContext;
@@ -71,15 +72,14 @@ class Oscillator {
     this.oscNode.frequency.setValueAtTime(this.frequency, this.startTime);
 
     this.gainNode = this.ctx.createGain();
-    this.gainNode.gain.setValueAtTime(0, this.startTime);
 
     if (this.filter) {
       this.filterNode = this.ctx.createBiquadFilter();
       this.filterNode.type = this.filter.type;
-      this.filterNode.frequency.setValueAtTime(
-        this.filter.value,
-        this.startTime
-      );
+      //   this.filterNode.frequency.setValueAtTime(
+      //     this.filter.value,
+      //     this.startTime
+      //   );
     }
 
     const nodes = [
@@ -131,8 +131,19 @@ class Oscillator {
     );
   }
 
+  private applyFilter() {
+    if (!this.filter || !this.filterNode) return;
+    this.applyEnvelope(
+      this.filterNode.frequency,
+      this.filter.value,
+      this.filter.value * (this.filter.depth ?? 1),
+      this.filter.env ?? defaultFilterAdsr
+    );
+  }
+
   play() {
     this.applyGain();
+    this.applyFilter();
     this.oscNode.start(this.startTime);
     this.oscNode.stop(this.startTime + this.duration);
   }

@@ -4,7 +4,7 @@ import { euclid } from "./utils/euclid";
 import { hex } from "./utils/hex";
 import { midiToFreq } from "./utils/midi";
 import type Drome from "./drome";
-import type { OscType, SynthAlias } from "./types";
+import type { ADSRParams, OscType, SynthAlias } from "./types";
 
 export const synthAliasMap = {
   saw: "sawtooth",
@@ -22,11 +22,12 @@ class Synth {
   private notes: number[] = [261.63];
   private noteOffsets: number | number[] = 0;
   private waveform: OscType = "sine";
-  private harmonics: number | null = null;
+  private harmonics: number | null = null; // need to decide what to do about this
   private _gain = 1;
   private _adsr = { attack: 0.001, decay: 0.001, sustain: 1.0, release: 0.001 };
   private filterType: BiquadFilterType | null = null;
   private filterFreq: number | null = null;
+  private filterDepth = 1;
   private filterQ: number = 1;
 
   constructor(drome: Drome, type: OscType = "sine", harmonics?: number) {
@@ -101,6 +102,11 @@ class Synth {
     return this;
   }
 
+  public lpenv(depthMult: number, env: ADSRParams) {
+    this.filterDepth = depthMult;
+    return this;
+  }
+
   public fast(multiplier: number) {
     const newLength = Math.floor(this.notes.length * multiplier);
     this.notes = Array.from(
@@ -150,7 +156,7 @@ class Synth {
       const offset = Array.isArray(noteOffsets) ? noteOffsets[i] : noteOffsets;
       const t = time + offset * i;
 
-      const osc = new Oscillator({
+      new Oscillator({
         ctx: this.drome.ctx,
         type: this.waveform,
         // harmonics: this.harmonics,
@@ -171,10 +177,10 @@ class Synth {
             ? {
                 type: filterType,
                 value: filterFreq,
+                depth: this.filterDepth,
               }
             : undefined,
-      });
-      osc.play();
+      }).play();
     });
   }
 
