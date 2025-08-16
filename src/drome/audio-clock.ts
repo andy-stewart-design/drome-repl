@@ -1,23 +1,30 @@
+interface Metronome {
+  beat: number;
+  bar: number;
+}
+
 type IterationCallback = (tick: number, phase: number) => void;
 
 class AudioClock {
   readonly ctx = new AudioContext();
+  readonly metronome: Metronome = { beat: 0, bar: 0 };
   private intervalID: ReturnType<typeof setInterval> | undefined;
   private _paused = true;
   private _duration = 2;
   private currentBarDuration = 2;
-  private tick = 0;
+  private bar = 0;
   private beat = 0;
-  private phase = 0;
+  private nextBarStart = 0;
   private nextBeatStart = 0;
+  private _beatsPerBar = 4;
   private precision = 10 ** 4;
   private minLatency = 0.01;
   private interval = 0.1;
   private overlap = 0.05;
 
-  private startCallbacks: (() => void)[] = [];
-  private iterationCallbacks: IterationCallback[] = [];
-  private stopCallbacks: (() => void)[] = [];
+  private onStartCallbacks: (() => void)[] = [];
+  private onBarCallbacks: IterationCallback[] = [];
+  private onStopCallbacks: (() => void)[] = [];
 
   constructor(bpm = 120) {
     this.bpm(bpm);
@@ -26,35 +33,33 @@ class AudioClock {
   private onTick() {
     const t = this.ctx.currentTime;
     const lookahead = t + this.interval + this.overlap; // the time window for this tick
-    if (this.phase === 0) {
-      this.phase = t + this.minLatency;
-    }
-    if (this.nextBeatStart === 0) {
-      this.nextBeatStart = t + this.minLatency;
-    }
+
+    if (this.nextBarStart === 0) this.nextBarStart = t + this.minLatency;
+    if (this.nextBeatStart === 0) this.nextBeatStart = t + this.minLatency;
 
     // callback as long as we're inside the lookahead
-    while (this.phase < lookahead) {
-      this.phase = Math.round(this.phase * this.precision) / this.precision;
-      if (this.phase >= t) {
-        this.iterationCallbacks.forEach((cb) => cb(this.tick, this.phase));
+    while (this.nextBarStart < lookahead) {
+      this.nextBarStart =
+        Math.round(this.nextBarStart * this.precision) / this.precision;
+      // TODO: is this necessary?
+      if (this.nextBarStart >= t) {
+        this.onBarCallbacks.forEach((cb) => cb(this.bar, this.nextBarStart));
         this.currentBarDuration = this._duration;
       }
-      this.phase += this._duration; // increment phase by duration
-      console.log("bar", this.tick);
-      this.tick++;
+      this.nextBarStart += this._duration;
+      this.bar++;
+      this.metronome.bar++;
     }
 
     while (this.nextBeatStart < lookahead) {
       this.nextBeatStart =
         Math.round(this.nextBeatStart * this.precision) / this.precision;
 
-      this.nextBeatStart += this.currentBarDuration / 4; // increment phase by duration
-      console.log("beat", this.beat);
-      this.beat = (this.beat + 1) % 4;
+      this.nextBeatStart += this.currentBarDuration / this._beatsPerBar;
+      console.log(this.metronome);
+      this.beat = (this.beat + 1) % this._beatsPerBar;
+      this.metronome.beat = (this.metronome.beat + 1) % this._beatsPerBar;
     }
-
-    // console.log(this.tick, this._duration, this.phase, this.ctx.currentTime);
   }
 
   public async start() {
@@ -62,7 +67,7 @@ class AudioClock {
     this.onTick();
     this.intervalID = setInterval(this.onTick.bind(this), this.interval * 1000);
     this._paused = false;
-    this.startCallbacks.forEach((cb) => cb());
+    this.onStartCallbacks.forEach((cb) => cb());
   }
 
   public pause() {
@@ -71,16 +76,12 @@ class AudioClock {
   }
 
   public stop() {
-    this.tick = 0;
+    this.bar = 0;
     this.beat = 0;
-    this.phase = 0;
+    this.nextBarStart = 0;
     this.nextBeatStart = 0;
     this.pause();
-    this.stopCallbacks.forEach((cb) => cb());
-  }
-
-  public setDuration(setter: (n: number) => number) {
-    this._duration = setter(this._duration);
+    this.onStopCallbacks.forEach((cb) => cb());
   }
 
   public bpm(bpm: number) {
@@ -89,15 +90,15 @@ class AudioClock {
   }
 
   public onStart(cb: () => void) {
-    this.startCallbacks.push(cb);
+    this.onStartCallbacks.push(cb);
   }
 
   public onIteration(cb: IterationCallback) {
-    this.iterationCallbacks.push(cb);
+    this.onBarCallbacks.push(cb);
   }
 
   public onStop(cb: () => void) {
-    this.stopCallbacks.push(cb);
+    this.onStopCallbacks.push(cb);
   }
 
   public destroy() {
@@ -105,9 +106,9 @@ class AudioClock {
     this.stop();
 
     // Clear all callbacks to break references
-    this.startCallbacks = [];
-    this.iterationCallbacks = [];
-    this.stopCallbacks = [];
+    this.onStartCallbacks = [];
+    this.onBarCallbacks = [];
+    this.onStopCallbacks = [];
 
     // Make sure no timers are still running
     if (this.intervalID) {
@@ -122,6 +123,10 @@ class AudioClock {
 
   get paused() {
     return this._paused;
+  }
+
+  get barStartTime() {
+    return this.nextBarStart;
   }
 }
 
