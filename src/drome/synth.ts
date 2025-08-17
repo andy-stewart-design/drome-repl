@@ -45,14 +45,14 @@ class Synth {
     return this;
   }
 
-  public note(n: number | number[] | DromeArray) {
-    const midiArray =
-      n instanceof DromeArray ? n.value : Array.isArray(n) ? n : [n];
-    this.cycles = midiArray.map((n) => midiToFreq(n));
-    return this;
-  }
+  // public note(n: number | number[] | DromeArray) {
+  //   const midiArray =
+  //     n instanceof DromeArray ? n.value : Array.isArray(n) ? n : [n];
+  //   this.cycles = midiArray.map((n) => midiToFreq(n));
+  //   return this;
+  // }
 
-  public note2(...cycles: (number | number[] | DromeArray)[]) {
+  public note(...cycles: (number | number[] | DromeArray)[]) {
     this.cycles = cycles.map((cycle) => {
       const midiArray =
         cycle instanceof DromeArray
@@ -62,6 +62,8 @@ class Synth {
           : [cycle];
       return midiArray.map((n) => midiToFreq(n));
     });
+    console.log(this.cycles);
+
     return this;
   }
 
@@ -183,9 +185,12 @@ class Synth {
   }
 
   public play(time: number) {
-    const cycleIndex = this.cycles?.forEach((frequency, i) => {
+    const cycleIndex = this.drome.metronome.bar % this.cycles.length;
+    const cycle = this.cycles[cycleIndex];
+    const offset = this.drome.duration / cycle.length;
+
+    cycle.forEach((frequency, i) => {
       if (frequency === 0) return; // Skip silent notes
-      const offset = this.drome.duration / this.cycles.length;
       const t = time + offset * i;
 
       const osc = new Oscillator({
