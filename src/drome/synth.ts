@@ -26,7 +26,6 @@ export const synthAliasMap = {
 class Synth {
   private drome;
   private notes: number[] = [261.63];
-  private noteOffsets: number | number[] = 0;
   private waveform: OscType = "sine";
   private harmonics: number | null = null; // need to decide what to do about this
   private _gain = 1;
@@ -50,7 +49,6 @@ class Synth {
     const midiArray =
       n instanceof DromeArray ? n.value : Array.isArray(n) ? n : [n];
     this.notes = midiArray.map((n) => midiToFreq(n));
-    this.noteOffsets = this.drome.duration / this.notes.length;
     return this;
   }
 
@@ -135,13 +133,11 @@ class Synth {
       { length: newLength },
       (_, i) => this.notes[i % this.notes.length]
     );
-    this.noteOffsets = this.drome.duration / this.notes.length;
     return this;
   }
 
   public euclid(pulses: number, steps: number, rotation = 0) {
     const pattern = euclid(pulses, steps, rotation);
-    this.noteOffsets = this.drome.duration / steps;
 
     let noteIndex = 0;
     this.notes = pattern.map((p) => {
@@ -153,7 +149,6 @@ class Synth {
 
   public hex(hexNotation: string | number) {
     const pattern = hex(hexNotation);
-    this.noteOffsets = this.drome.duration / pattern.length;
     let noteIndex = 0;
     this.notes = pattern.map((p) => {
       return p === 0 ? 0 : this.notes[noteIndex++ % this.notes.length];
@@ -163,7 +158,6 @@ class Synth {
 
   public struct(pattern: number[] | DromeArray) {
     const pat = pattern instanceof DromeArray ? pattern.value : pattern;
-    this.noteOffsets = this.drome.duration / pat.length;
     let noteIndex = 0;
     this.notes = pat.map((p) => {
       return p === 0 ? 0 : this.notes[noteIndex++ % this.notes.length];
@@ -174,8 +168,7 @@ class Synth {
   public play(time: number) {
     this.notes?.forEach((frequency, i) => {
       if (frequency === 0) return; // Skip silent notes
-      const { noteOffsets } = this;
-      const offset = Array.isArray(noteOffsets) ? noteOffsets[i] : noteOffsets;
+      const offset = this.drome.duration / this.notes.length;
       const t = time + offset * i;
 
       const osc = new Oscillator({
@@ -202,7 +195,6 @@ class Synth {
   public destroy() {
     // Clear note data
     this.notes = [];
-    this.noteOffsets = 0;
 
     // Reset parameters to defaults
     this.waveform = "sine";
