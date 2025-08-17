@@ -163,8 +163,10 @@ class Synth {
   public hex(hexNotation: string | number) {
     const pattern = hex(hexNotation);
     let noteIndex = 0;
-    this.cycles = pattern.map((p) => {
-      return p === 0 ? 0 : this.cycles[noteIndex++ % this.cycles.length];
+    this.cycles = this.cycles.map((cycle) => {
+      return pattern.map((p) => {
+        return p === 0 ? 0 : cycle[noteIndex++ % cycle.length];
+      });
     });
     return this;
   }
@@ -172,14 +174,16 @@ class Synth {
   public struct(pattern: number[] | DromeArray) {
     const pat = pattern instanceof DromeArray ? pattern.value : pattern;
     let noteIndex = 0;
-    this.cycles = pat.map((p) => {
-      return p === 0 ? 0 : this.cycles[noteIndex++ % this.cycles.length];
+    this.cycles = this.cycles.map((cycle) => {
+      return pat.map((p) => {
+        return p === 0 ? 0 : cycle[noteIndex++ % cycle.length];
+      });
     });
     return this;
   }
 
   public play(time: number) {
-    this.cycles?.forEach((frequency, i) => {
+    const cycleIndex = this.cycles?.forEach((frequency, i) => {
       if (frequency === 0) return; // Skip silent notes
       const offset = this.drome.duration / this.cycles.length;
       const t = time + offset * i;
