@@ -191,7 +191,7 @@ class Synth {
 
       osc.start();
       this.oscillators.add(osc);
-      osc.onended = () => this.oscillators.delete(osc);
+      osc.on("ended", () => this.oscillators.delete(osc));
     });
   }
 

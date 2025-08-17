@@ -17,6 +17,8 @@ interface FilterParamsWithNode extends FilterParams {
   node: BiquadFilterNode;
 }
 
+type OscillatorEventType = "ended" | "destroy";
+
 const defaultGainEnv = { a: 0.01, d: 0.125, s: 0.0, r: 0.1 };
 const defaultFilterEnv = { a: 0.01, d: 0.01, s: 1.0, r: 0.1 };
 
@@ -28,7 +30,7 @@ class Oscillator {
   private baseGain = 0.2;
   private gain: GainParams;
   private filters: Map<FilterType, FilterParamsWithNode> = new Map();
-  private onEndedCallback: (() => void) | undefined;
+  private listeners: Map<OscillatorEventType, (() => void)[]> = new Map();
 
   private oscNode: OscillatorNode;
   private gainNode: GainNode;
@@ -71,10 +73,8 @@ class Oscillator {
     }
 
     this.oscNode.onended = () => {
-      this.oscNode.disconnect();
-      this.gainNode.disconnect();
-      this.filters.forEach((f) => f.node.disconnect());
-      this.onEndedCallback?.();
+      this.listeners.get("ended")?.forEach((cb) => cb());
+      this.destroy();
     };
   }
 
@@ -132,25 +132,48 @@ class Oscillator {
     // if (!this.isPlaying || this.isStopped) return; // Todo: do I need this???
 
     const stopTime = when ?? this.ctx.currentTime;
-    const releaseTime = 0.1;
+    const releaseTime = 0.25;
 
-    // Cancel any scheduled value changes after the stop time
-    this.gainNode.gain.cancelScheduledValues(stopTime);
+    if (this.startTime > this.ctx.currentTime) {
+      this.oscNode.stop();
+    } else {
+      // Cancel any scheduled value changes after the stop time
+      this.gainNode.gain.cancelScheduledValues(stopTime);
 
-    // Apply a quick release envelope to avoid clicks
-    this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, stopTime);
-    this.gainNode.gain.linearRampToValueAtTime(0, stopTime + releaseTime);
+      // Apply a quick release envelope to avoid clicks
+      this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, stopTime);
+      this.gainNode.gain.linearRampToValueAtTime(0, stopTime + releaseTime);
 
-    // Stop the oscillator after the release
-    this.oscNode.stop(stopTime + releaseTime);
+      // Stop the oscillator after the release
+      this.oscNode.stop(stopTime + releaseTime);
+    }
+  }
+
+  public on(eventType: OscillatorEventType, listener: () => void) {
+    if (!this.listeners.has(eventType)) {
+      this.listeners.set(eventType, []);
+    }
+    this.listeners.get(eventType)?.push(listener);
+  }
+
+  public off(eventType: OscillatorEventType, listener: () => void) {
+    const arr = this.listeners.get(eventType);
+    if (!arr) return;
+    const idx = arr.indexOf(listener);
+    if (idx !== -1) arr.splice(idx, 1);
+  }
+
+  public destroy() {
+    this.oscNode.disconnect();
+    this.gainNode.disconnect();
+    this.filters.forEach((f) => f.node.disconnect());
+    this.listeners.get("destroy")?.forEach((cb) => cb());
+    this.listeners.clear();
+    this.filters.clear();
   }
 
   get type() {
     return this.oscNode.type;
-  }
-
-  set onended(cb: () => void) {
-    this.onEndedCallback = cb;
   }
 }
 
