@@ -6,15 +6,15 @@ const examples = [
   {
     title: "Multiple synths",
     code: `drome.stack(
-  drome.synth().note(60).adsr(0.25,0.1,0).euclid(4, 4).lpf(400).gain(1.5),
-  drome.synth("sawtooth").note(48).euclid(3, 8).adsr(0.01,0.5,0.2,0.05).lpf(800)
+  drome.synth().note(60).adsr(0.25,0.1,0).euclid(4, 4).lpf(400).gain(1),
+  drome.synth("sawtooth").note(48).euclid(3, 8).adsr(0.01,0.5,0.2,0.05).lpf(400).lpenv(2,{a: 0.125})
 )`,
   },
   {
     title: "Multiple speeds",
     code: `drome.stack(
-  drome.synth("sawtooth").note(57).euclid(3,8).adsr(0.001,0.333).lpf(2400), // can use either "saw" or "sawtooth"
-  drome.synth("saw").note([43,43,43,50,43,43,53,54]).lpf(1000).adsr(0.001,0.25).fast(2).gain(1.5)
+  drome.synth("sawtooth").note(57).euclid(3,8).adsr(0.001,0.333).lpf(1600), // can use either "saw" or "sawtooth"
+  drome.synth("saw").note([43,43,43,50,43,43,53,54]).lpf(400).lpenv(1.5,{a:0.125,d:0.1,s:0.01,r:0.01}).adsr(0.001,0.2).fast(2).gain(1.5),
 )`,
   },
   {
@@ -22,7 +22,7 @@ const examples = [
     code: `const struct = drome.euclid(5,8)
 
 drome.stack(
-  drome.synth("saw").note(48).struct(struct).adsr(0, 0.333).lpf(1200).gain(1.25),
+  drome.synth("saw").note(48).struct(struct).adsr(0, 0.333).lpf(800).gain(1.25),
   drome.synth("sq").note(60).struct(struct.rotate(4).stretch(3)).adsr(0, 0.1).lpf(1600).gain(0.75)
 )`,
   },

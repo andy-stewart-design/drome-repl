@@ -3,7 +3,6 @@ import Oscillator from "./oscillator";
 import { euclid } from "./utils/euclid";
 import { hex } from "./utils/hex";
 import { midiToFreq } from "./utils/midi";
-import DEFAULTS from "@/assets/defaults";
 import type Drome from "./drome";
 import type {
   ADSRParams,
@@ -26,17 +25,20 @@ export const synthAliasMap = {
 
 class Synth {
   private drome;
-  private notes: number[] = [midiToFreq(60)];
+  private notes: number[] = [261.63];
   private noteOffsets: number | number[] = 0;
   private waveform: OscType = "sine";
+  private harmonics: number | null = null; // need to decide what to do about this
   private _gain = 1;
-  private _adsr: ADSRParams = { ...DEFAULTS.env };
+  private _adsr: ADSRParams = { a: 0.01, d: 0.01, s: 1.0, r: 0.1 };
   private filters: Map<FilterType, FilterParams> = new Map();
   private oscillators: Set<Oscillator> = new Set();
 
-  constructor(drome: Drome, type: OscType = "sine") {
+  constructor(drome: Drome, type: OscType = "sine", harmonics?: number) {
     this.drome = drome;
     this.waveform = type;
+    if (harmonics) this.harmonics = harmonics;
+    console.log("temporary log to make ts happy", this.harmonics);
   }
 
   public push() {
@@ -52,8 +54,9 @@ class Synth {
     return this;
   }
 
-  public sound(type: SynthAlias) {
+  public sound(type: SynthAlias, harmonics?: number) {
     this.waveform = synthAliasMap[type];
+    if (harmonics) this.harmonics = harmonics;
     return this;
   }
 
@@ -71,15 +74,15 @@ class Synth {
     r?: number
   ) {
     if (typeof param1 === "number") {
-      this._adsr.a = param1 || DEFAULTS.env.a;
-      this._adsr.d = d || DEFAULTS.env.d;
-      this._adsr.s = s || DEFAULTS.env.s;
-      this._adsr.r = r || DEFAULTS.env.r;
+      this._adsr.a = param1 || 0.001;
+      this._adsr.d = d || 0.001;
+      this._adsr.s = s || 0;
+      this._adsr.r = r || 0.001;
     } else {
-      this._adsr.a = param1.a || DEFAULTS.env.a;
-      this._adsr.d = param1.d || DEFAULTS.env.d;
-      this._adsr.s = param1.s || DEFAULTS.env.s;
-      this._adsr.r = param1.r || DEFAULTS.env.r;
+      this._adsr.a = param1.a || 0.001;
+      this._adsr.d = param1.d || 0.001;
+      this._adsr.s = param1.s || 0;
+      this._adsr.r = param1.r || 0.001;
     }
     return this;
   }
@@ -203,6 +206,7 @@ class Synth {
 
     // Reset parameters to defaults
     this.waveform = "sine";
+    this.harmonics = null;
     this._gain = 1;
     this._adsr = { a: 0.001, d: 0.001, s: 1.0, r: 0.001 };
     this.filters.clear();
