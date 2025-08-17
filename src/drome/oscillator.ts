@@ -1,3 +1,4 @@
+import DEFAULTS from "@/assets/defaults";
 import type { FilterParams, ADSRParams, GainParams, FilterType } from "./types";
 
 interface OptionalOscillatorParameters {
@@ -19,9 +20,6 @@ interface FilterParamsWithNode extends FilterParams {
 
 type OscillatorEventType = "ended" | "destroy";
 
-const defaultGainEnv = { a: 0.01, d: 0.125, s: 0.0, r: 0.1 };
-const defaultFilterEnv = { a: 0.01, d: 0.01, s: 1.0, r: 0.1 };
-
 class Oscillator {
   private ctx: AudioContext;
   private frequency: number;
@@ -41,7 +39,7 @@ class Oscillator {
     this.startTime = params.startTime + 0.01;
     this.gain = {
       value: params.gain?.value ?? 1,
-      env: params.gain?.env ?? defaultGainEnv,
+      env: params.gain?.env ?? DEFAULTS.env,
     };
 
     const gainEnvDuration = this.gain.env.a + this.gain.env.d + this.gain.env.r;
@@ -84,7 +82,7 @@ class Oscillator {
     maxVal: number,
     env: Partial<ADSRParams>
   ) {
-    const adsr = { ...defaultFilterEnv, ...env };
+    const adsr = { ...DEFAULTS.env, ...env };
     const sustainLevel = maxVal * adsr.s;
     const minDuration = adsr.a + adsr.d + adsr.r;
     const scale = this.duration < minDuration ? this.duration / minDuration : 1;
@@ -116,7 +114,7 @@ class Oscillator {
         filter.node.frequency,
         filter.value,
         filter.value * (filter.depth ?? 1),
-        filter.env ?? defaultFilterEnv
+        filter.env ?? DEFAULTS.env
       );
     });
   }
@@ -130,7 +128,6 @@ class Oscillator {
 
   public stop(when?: number) {
     // if (!this.isPlaying || this.isStopped) return; // Todo: do I need this???
-
     const stopTime = when ?? this.ctx.currentTime;
     const releaseTime = 0.25;
 
