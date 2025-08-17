@@ -82,9 +82,9 @@ class Sample {
     return this;
   }
 
-  public async play(time: number, tick?: number) {
+  public async play(time: number) {
     const { drome, sounds, sampleMap, sampleBank, soundOffsets } = this;
-    if (tick && tick > 0) {
+    if (this.drome.metronome.bar && this.drome.metronome.bar > 0) {
       await Promise.all(loadSamples(drome, sampleMap, sampleBank));
     }
 

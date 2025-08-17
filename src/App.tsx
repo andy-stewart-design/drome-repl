@@ -1,7 +1,8 @@
-import { createSignal, onCleanup, onMount } from "solid-js";
+import { createSignal, onCleanup, onMount, Show } from "solid-js";
 import Drome from "@/drome";
 import { play, stop } from "./repl";
 import { examples, textAreaPlaceholder } from "@/assets/examples";
+import type { Metronome } from "./drome/audio-clock";
 
 export type LogType = "input" | "output" | "error";
 
@@ -14,6 +15,7 @@ function App() {
   const [playing, setPlaying] = createSignal(false);
   const [code, setCode] = createSignal("");
   const [logs, setLogs] = createSignal<ReplLog[]>([]);
+  const [metronome, setMetronome] = createSignal<Metronome | null>(null);
   const drome = new Drome(120);
   let codeEditor: HTMLTextAreaElement | undefined;
   let logOutput: HTMLDivElement | undefined;
@@ -26,6 +28,7 @@ function App() {
 
   function handleStop() {
     stop(drome);
+    setMetronome(null);
   }
 
   function handleKeydown(e: KeyboardEvent) {
@@ -41,14 +44,12 @@ function App() {
   onMount(() => {
     if (!codeEditor) return;
     codeEditor.addEventListener("keydown", handleKeydown);
-    drome.onStart(() => {
+    drome.on("start", () => {
       setPlaying(true);
       log(`▶ Starting playback loop...`, "output");
     });
-    drome.onIterationStart((n: number) => {
-      log(`♻️ Starting cycle ${n}`);
-    });
-    drome.onStop(() => {
+    drome.on("beat", (m) => setMetronome(m));
+    drome.on("stop", () => {
       setPlaying(false);
       log(`⏹ Stopping playback`, "output");
     });
@@ -77,6 +78,11 @@ function App() {
       <div class="header">
         <div class="title">Drome REPL</div>
         <div class="controls">
+          <Show when={metronome()}>
+            <span>
+              {metronome()?.beat} / {metronome()?.bar}
+            </span>
+          </Show>
           <div class="status">
             <div class="status-dot" id="statusDot" data-playing={playing()} />
             <span id="statusText">{playing() ? "Playing" : "Stopped"}</span>

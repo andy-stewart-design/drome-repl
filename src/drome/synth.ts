@@ -1,10 +1,17 @@
 import DromeArray from "./drome-array";
-import { oscillator } from "./utils/oscillator";
+import Oscillator from "./oscillator";
 import { euclid } from "./utils/euclid";
 import { hex } from "./utils/hex";
 import { midiToFreq } from "./utils/midi";
+import DEFAULTS from "@/assets/defaults";
 import type Drome from "./drome";
-import type { OscType, SynthAlias } from "./types";
+import type {
+  ADSRParams,
+  OscType,
+  SynthAlias,
+  FilterParams,
+  FilterType,
+} from "./types";
 
 export const synthAliasMap = {
   saw: "sawtooth",
@@ -19,20 +26,17 @@ export const synthAliasMap = {
 
 class Synth {
   private drome;
-  private notes: number[] = [261.63];
+  private notes: number[] = [midiToFreq(60)];
   private noteOffsets: number | number[] = 0;
   private waveform: OscType = "sine";
-  private harmonics: number | null = null;
   private _gain = 1;
-  private _adsr = { attack: 0.001, decay: 0.001, sustain: 1.0, release: 0.001 };
-  private filterType: BiquadFilterType | null = null;
-  private filterFreq: number | null = null;
-  private filterQ: number = 1;
+  private _adsr: ADSRParams = { ...DEFAULTS.env };
+  private filters: Map<FilterType, FilterParams> = new Map();
+  private oscillators: Set<Oscillator> = new Set();
 
-  constructor(drome: Drome, type: OscType = "sine", harmonics?: number) {
+  constructor(drome: Drome, type: OscType = "sine") {
     this.drome = drome;
     this.waveform = type;
-    if (harmonics) this.harmonics = harmonics;
   }
 
   public push() {
@@ -48,9 +52,8 @@ class Synth {
     return this;
   }
 
-  public sound(type: SynthAlias, harmonics?: number) {
+  public sound(type: SynthAlias) {
     this.waveform = synthAliasMap[type];
-    if (harmonics) this.harmonics = harmonics;
     return this;
   }
 
@@ -59,45 +62,67 @@ class Synth {
     return this;
   }
 
-  public adsr(a: number, d?: number, s?: number, r?: number) {
-    this._adsr.attack = a || 0.001;
-    this._adsr.decay = d || 0.001;
-    this._adsr.sustain = s || 0;
-    this._adsr.release = r || 0.001;
-    return this;
-  }
-
-  public att(n: number) {
-    this._adsr.attack = n || 0.01;
-    return this;
-  }
-
-  public dec(n: number) {
-    this._adsr.decay = n || 0.01;
-    return this;
-  }
-
-  public sus(n: number) {
-    this._adsr.sustain = n || 0.01;
-    return this;
-  }
-
-  public rel(n: number) {
-    this._adsr.release = n || 0.01;
+  public adsr(a: Partial<ADSRParams>): this;
+  public adsr(a: number, d?: number, s?: number, r?: number): this;
+  public adsr(
+    param1: Partial<ADSRParams> | number,
+    d?: number,
+    s?: number,
+    r?: number
+  ) {
+    if (typeof param1 === "number") {
+      this._adsr.a = param1 || DEFAULTS.env.a;
+      this._adsr.d = d || DEFAULTS.env.d;
+      this._adsr.s = s || DEFAULTS.env.s;
+      this._adsr.r = r || DEFAULTS.env.r;
+    } else {
+      this._adsr.a = param1.a || DEFAULTS.env.a;
+      this._adsr.d = param1.d || DEFAULTS.env.d;
+      this._adsr.s = param1.s || DEFAULTS.env.s;
+      this._adsr.r = param1.r || DEFAULTS.env.r;
+    }
     return this;
   }
 
   public hpf(frequency: number, q: number = 1) {
-    this.filterType = "highpass";
-    this.filterFreq = frequency;
-    this.filterQ = q;
+    this.filters.set("highpass", { value: frequency, type: "highpass", q });
+    return this;
+  }
+
+  public hpenv(depthMult: number, env: ADSRParams) {
+    const filter = this.filters.get("highpass");
+    if (filter) {
+      filter.depth = depthMult;
+      filter.env = env;
+    }
     return this;
   }
 
   public lpf(frequency: number, q: number = 1) {
-    this.filterType = "lowpass";
-    this.filterFreq = frequency;
-    this.filterQ = q;
+    this.filters.set("lowpass", { value: frequency, type: "lowpass", q });
+    return this;
+  }
+
+  public lpenv(depthMult: number, env: ADSRParams) {
+    const filter = this.filters.get("lowpass");
+    if (filter) {
+      filter.depth = depthMult;
+      filter.env = env;
+    }
+    return this;
+  }
+
+  public bpf(frequency: number, q: number = 1) {
+    this.filters.set("bandpass", { value: frequency, type: "bandpass", q });
+    return this;
+  }
+
+  public bpenv(depthMult: number, env: ADSRParams) {
+    const filter = this.filters.get("bandpass");
+    if (filter) {
+      filter.depth = depthMult;
+      filter.env = env;
+    }
     return this;
   }
 
@@ -146,29 +171,29 @@ class Synth {
   public play(time: number) {
     this.notes?.forEach((frequency, i) => {
       if (frequency === 0) return; // Skip silent notes
-      const { noteOffsets, filterFreq, filterType, filterQ } = this;
+      const { noteOffsets } = this;
       const offset = Array.isArray(noteOffsets) ? noteOffsets[i] : noteOffsets;
       const t = time + offset * i;
 
-      oscillator({
+      const osc = new Oscillator({
         ctx: this.drome.ctx,
-        waveform: this.waveform,
-        harmonics: this.harmonics,
+        type: this.waveform,
+        // harmonics: this.harmonics,
         duration: this.drome.duration,
         frequency,
-        time: t,
-        adsr: this._adsr,
-        gain: this._gain,
-        filter:
-          filterFreq && filterType
-            ? {
-                type: filterType,
-                frequency: filterFreq,
-                Q: filterQ,
-              }
-            : undefined,
+        startTime: t,
+        gain: { value: this._gain, env: this._adsr },
+        filters: this.filters,
       });
+
+      osc.start();
+      this.oscillators.add(osc);
+      osc.on("ended", () => this.oscillators.delete(osc));
     });
+  }
+
+  stop() {
+    this.oscillators.forEach((osc) => osc.stop());
   }
 
   public destroy() {
@@ -178,12 +203,9 @@ class Synth {
 
     // Reset parameters to defaults
     this.waveform = "sine";
-    this.harmonics = null;
     this._gain = 1;
-    this._adsr = { attack: 0.001, decay: 0.001, sustain: 1.0, release: 0.001 };
-    this.filterType = null;
-    this.filterFreq = null;
-    this.filterQ = 1;
+    this._adsr = { a: 0.001, d: 0.001, s: 1.0, r: 0.001 };
+    this.filters.clear();
 
     // Drop AudioContext reference (not closing it, since Drome owns it)
     // @ts-expect-error allow nulling for cleanup
