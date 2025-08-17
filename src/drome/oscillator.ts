@@ -28,6 +28,7 @@ class Oscillator {
   private baseGain = 0.2;
   private gain: GainParams;
   private filters: Map<FilterType, FilterParamsWithNode> = new Map();
+  private onEndedCallback: (() => void) | undefined;
 
   private oscNode: OscillatorNode;
   private gainNode: GainNode;
@@ -73,6 +74,7 @@ class Oscillator {
       this.oscNode.disconnect();
       this.gainNode.disconnect();
       this.filters.forEach((f) => f.node.disconnect());
+      this.onEndedCallback?.();
     };
   }
 
@@ -80,15 +82,16 @@ class Oscillator {
     target: AudioParam,
     startVal: number,
     maxVal: number,
-    env: ADSRParams
+    env: Partial<ADSRParams>
   ) {
-    const sustainLevel = maxVal * env.s;
-    const minDuration = env.a + env.d + env.r;
+    const adsr = { ...defaultFilterEnv, ...env };
+    const sustainLevel = maxVal * adsr.s;
+    const minDuration = adsr.a + adsr.d + adsr.r;
     const scale = this.duration < minDuration ? this.duration / minDuration : 1;
 
-    const attackEnd = this.startTime + env.a * scale;
-    const decayEnd = attackEnd + env.d * scale;
-    const sustainEnd = this.startTime + this.duration - env.r * scale;
+    const attackEnd = this.startTime + adsr.a * scale;
+    const decayEnd = attackEnd + adsr.d * scale;
+    const sustainEnd = this.startTime + this.duration - adsr.r * scale;
     const releaseEnd = this.startTime + this.duration;
 
     target.setValueAtTime(startVal, this.startTime);
@@ -118,15 +121,36 @@ class Oscillator {
     });
   }
 
-  play() {
+  public start() {
     this.applyGain();
     this.applyFilter();
     this.oscNode.start(this.startTime);
     this.oscNode.stop(this.startTime + this.duration);
   }
 
+  public stop(when?: number) {
+    // if (!this.isPlaying || this.isStopped) return; // Todo: do I need this???
+
+    const stopTime = when ?? this.ctx.currentTime;
+    const releaseTime = 0.1;
+
+    // Cancel any scheduled value changes after the stop time
+    this.gainNode.gain.cancelScheduledValues(stopTime);
+
+    // Apply a quick release envelope to avoid clicks
+    this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, stopTime);
+    this.gainNode.gain.linearRampToValueAtTime(0, stopTime + releaseTime);
+
+    // Stop the oscillator after the release
+    this.oscNode.stop(stopTime + releaseTime);
+  }
+
   get type() {
     return this.oscNode.type;
+  }
+
+  set onended(cb: () => void) {
+    this.onEndedCallback = cb;
   }
 }
 

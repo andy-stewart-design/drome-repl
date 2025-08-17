@@ -6,7 +6,7 @@ import { loadSamples } from "./utils/sample-helpers";
 import type { SampleName, SynthAlias } from "./types";
 
 class Drome extends AudioClock {
-  private instruments: (Synth | Sample)[] = [];
+  private instruments: Set<Synth | Sample> = new Set();
   readonly sampleBuffers = new Map<string, AudioBuffer>();
 
   constructor(bpm = 120) {
@@ -35,13 +35,17 @@ class Drome extends AudioClock {
     super.start(); // will set up the scheduler after samples are loaded
   }
 
-  public addInstrument(inst: Synth | Sample, replace = false) {
-    if (replace) this.instruments = [inst];
-    else this.instruments.push(inst);
+  public stop() {
+    super.stop();
+    this.instruments.forEach((inst) => inst instanceof Synth && inst.stop());
+  }
+
+  public addInstrument(inst: Synth | Sample) {
+    this.instruments.add(inst);
   }
 
   public clearInstruments() {
-    this.instruments.length = 0;
+    this.instruments.clear();
   }
 
   public synth(type: SynthAlias = "sine", harmonics?: number) {
@@ -71,7 +75,7 @@ class Drome extends AudioClock {
   public destroy() {
     super.destroy();
     this.instruments.forEach((inst) => inst.destroy());
-    this.instruments = [];
+    this.instruments.clear();
   }
 }
 

@@ -47,7 +47,7 @@ interface FilterParams {
   value: number;
   q?: number;
   depth?: number;
-  env?: ADSRParams;
+  env?: Partial<ADSRParams>;
 }
 
 export type {

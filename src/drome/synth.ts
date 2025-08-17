@@ -32,12 +32,13 @@ class Synth {
   private _gain = 1;
   private _adsr: ADSRParams = { a: 0.001, d: 0.001, s: 1.0, r: 0.001 };
   private filters: Map<FilterType, FilterParams> = new Map();
+  private oscillators: Set<Oscillator> = new Set();
 
   constructor(drome: Drome, type: OscType = "sine", harmonics?: number) {
     this.drome = drome;
     this.waveform = type;
     if (harmonics) this.harmonics = harmonics;
-    console.log(this.harmonics);
+    console.log("temporary log to make ts happy", this.harmonics);
   }
 
   public push() {
@@ -177,7 +178,7 @@ class Synth {
       const offset = Array.isArray(noteOffsets) ? noteOffsets[i] : noteOffsets;
       const t = time + offset * i;
 
-      new Oscillator({
+      const osc = new Oscillator({
         ctx: this.drome.ctx,
         type: this.waveform,
         // harmonics: this.harmonics,
@@ -186,8 +187,16 @@ class Synth {
         startTime: t,
         gain: { value: this._gain, env: this._adsr },
         filters: this.filters,
-      }).play();
+      });
+
+      osc.start();
+      this.oscillators.add(osc);
+      osc.onended = () => this.oscillators.delete(osc);
     });
+  }
+
+  stop() {
+    this.oscillators.forEach((osc) => osc.stop());
   }
 
   public destroy() {
