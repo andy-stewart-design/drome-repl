@@ -25,7 +25,7 @@ export const synthAliasMap = {
 
 class Synth {
   private drome;
-  private notes: number[] = [261.63];
+  private cycles: number[][] = [[midiToFreq(60)]];
   private waveform: OscType = "sine";
   private harmonics: number | null = null; // need to decide what to do about this
   private _gain = 1;
@@ -48,7 +48,20 @@ class Synth {
   public note(n: number | number[] | DromeArray) {
     const midiArray =
       n instanceof DromeArray ? n.value : Array.isArray(n) ? n : [n];
-    this.notes = midiArray.map((n) => midiToFreq(n));
+    this.cycles = midiArray.map((n) => midiToFreq(n));
+    return this;
+  }
+
+  public note2(...cycles: (number | number[] | DromeArray)[]) {
+    this.cycles = cycles.map((cycle) => {
+      const midiArray =
+        cycle instanceof DromeArray
+          ? cycle.value
+          : Array.isArray(cycle)
+          ? cycle
+          : [cycle];
+      return midiArray.map((n) => midiToFreq(n));
+    });
     return this;
   }
 
@@ -128,30 +141,30 @@ class Synth {
   }
 
   public fast(multiplier: number) {
-    const newLength = Math.floor(this.notes.length * multiplier);
-    this.notes = Array.from(
+    const newLength = Math.floor(this.cycles.length * multiplier);
+    this.cycles = Array.from(
       { length: newLength },
-      (_, i) => this.notes[i % this.notes.length]
+      (_, i) => this.cycles[i % this.cycles.length]
     );
     return this;
   }
 
   public euclid(pulses: number, steps: number, rotation = 0) {
     const pattern = euclid(pulses, steps, rotation);
-
     let noteIndex = 0;
-    this.notes = pattern.map((p) => {
-      return p === 0 ? 0 : this.notes[noteIndex++ % this.notes.length];
+    this.cycles = this.cycles.map((cycle) => {
+      return pattern.map((p) => {
+        return p === 0 ? 0 : cycle[noteIndex++ % cycle.length];
+      });
     });
-
     return this;
   }
 
   public hex(hexNotation: string | number) {
     const pattern = hex(hexNotation);
     let noteIndex = 0;
-    this.notes = pattern.map((p) => {
-      return p === 0 ? 0 : this.notes[noteIndex++ % this.notes.length];
+    this.cycles = pattern.map((p) => {
+      return p === 0 ? 0 : this.cycles[noteIndex++ % this.cycles.length];
     });
     return this;
   }
@@ -159,22 +172,21 @@ class Synth {
   public struct(pattern: number[] | DromeArray) {
     const pat = pattern instanceof DromeArray ? pattern.value : pattern;
     let noteIndex = 0;
-    this.notes = pat.map((p) => {
-      return p === 0 ? 0 : this.notes[noteIndex++ % this.notes.length];
+    this.cycles = pat.map((p) => {
+      return p === 0 ? 0 : this.cycles[noteIndex++ % this.cycles.length];
     });
     return this;
   }
 
   public play(time: number) {
-    this.notes?.forEach((frequency, i) => {
+    this.cycles?.forEach((frequency, i) => {
       if (frequency === 0) return; // Skip silent notes
-      const offset = this.drome.duration / this.notes.length;
+      const offset = this.drome.duration / this.cycles.length;
       const t = time + offset * i;
 
       const osc = new Oscillator({
         ctx: this.drome.ctx,
         type: this.waveform,
-        // harmonics: this.harmonics,
         duration: this.drome.duration,
         frequency,
         startTime: t,
@@ -194,7 +206,7 @@ class Synth {
 
   public destroy() {
     // Clear note data
-    this.notes = [];
+    this.cycles = [];
 
     // Reset parameters to defaults
     this.waveform = "sine";
