@@ -64,11 +64,25 @@ class Synth {
     return this;
   }
 
-  public adsr(a: number, d?: number, s?: number, r?: number) {
-    this._adsr.a = a || 0.001;
-    this._adsr.d = d || 0.001;
-    this._adsr.s = s || 0;
-    this._adsr.r = r || 0.001;
+  public adsr(a: Partial<ADSRParams>): this;
+  public adsr(a: number, d?: number, s?: number, r?: number): this;
+  public adsr(
+    param1: Partial<ADSRParams> | number,
+    d?: number,
+    s?: number,
+    r?: number
+  ) {
+    if (typeof param1 === "number") {
+      this._adsr.a = param1 || 0.001;
+      this._adsr.d = d || 0.001;
+      this._adsr.s = s || 0;
+      this._adsr.r = r || 0.001;
+    } else {
+      this._adsr.a = param1.a || 0.001;
+      this._adsr.d = param1.d || 0.001;
+      this._adsr.s = param1.s || 0;
+      this._adsr.r = param1.r || 0.001;
+    }
     return this;
   }
 
