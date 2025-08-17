@@ -14,7 +14,7 @@ const examples = [
     title: "Multiple speeds",
     code: `drome.stack(
   drome.synth("sawtooth").note(57).euclid(3,8).adsr(0.001,0.333).lpf(1600), // can use either "saw" or "sawtooth"
-  drome.synth("saw").note([43,43,43,50,43,43,53,54]).lpf(400).lpenv(1.5,{a:0.125,d:0.1,s:0.01,r:0.01}).adsr(0.001,0.2).fast(2).gain(1.5),
+  drome.synth("saw").note([43,43,43,50,43,43,53,54]).lpf(400).lpenv(2,{a:0.125,d:0.1,s:0.01,r:0.01}).adsr(0.001,0.2).fast(2).gain(1.5),
 )`,
   },
   {
@@ -38,6 +38,20 @@ drome.stack(
   
 const kick = drome.sample("bd", 2).hex("f")
 kick.push()`,
+  },
+  {
+    title: "Custom struct",
+    code: `const risset = Array.from({ length: 14 + 1 }, (_, i) => Array.from({ length: i }, (_, j) => j === i - 1 ? 1 : 0)).flat().reverse().slice(0, -1)
+
+drome.synth("saw").note(69).adsr(0.01, 0.1, 0.01, 0.01).struct(risset).bpf(800).bpenv(3,{a:0.01, d:0.1, s:0.01, r:0.01}).gain(0.625).push() 
+
+drome.synth("saw").note(45).lpf(200).adsr(0.5, 0.01, 0.01, 0.1).lpenv(2,{a:0.5, d:0.01, s:0.01, r:0.1}).euclid(4,4).push()
+
+d.stack(
+  drome.sample("bd").bank("RolandTR909").euclid(4,4),
+  drome.sample("hh").bank("RolandTR808").euclid(4,8,1).gain(0.75),
+  drome.sample("cp").bank("RolandTR808").euclid(2,4,1).gain(0.75),
+)`,
   },
 ];
 
