@@ -25,7 +25,7 @@ export const synthAliasMap = {
 
 class Synth {
   private drome;
-  private cycles: number[][] = [[midiToFreq(60)]];
+  private cycles: (number | number[])[][] = [[midiToFreq(60)]];
   private waveform: OscType = "sine";
   private harmonics: number | null = null; // need to decide what to do about this
   private _gain = 1;
@@ -45,14 +45,7 @@ class Synth {
     return this;
   }
 
-  // public note(n: number | number[] | DromeArray) {
-  //   const midiArray =
-  //     n instanceof DromeArray ? n.value : Array.isArray(n) ? n : [n];
-  //   this.cycles = midiArray.map((n) => midiToFreq(n));
-  //   return this;
-  // }
-
-  public note(...cycles: (number | number[] | DromeArray)[]) {
+  public note(...cycles: (number | number[] | number[][] | DromeArray)[]) {
     this.cycles = cycles.map((cycle) => {
       const midiArray =
         cycle instanceof DromeArray
@@ -60,10 +53,11 @@ class Synth {
           : Array.isArray(cycle)
           ? cycle
           : [cycle];
-      return midiArray.map((n) => midiToFreq(n));
+      return midiArray.map((n) => {
+        if (Array.isArray(n)) return n.map(midiToFreq);
+        else return midiToFreq(n);
+      });
     });
-    console.log(this.cycles);
-
     return this;
   }
 
@@ -189,23 +183,41 @@ class Synth {
     const cycle = this.cycles[cycleIndex];
     const offset = this.drome.duration / cycle.length;
 
-    cycle.forEach((frequency, i) => {
-      if (frequency === 0) return; // Skip silent notes
+    cycle.forEach((pattern, i) => {
+      if (pattern === 0) return; // Skip silent notes
       const t = time + offset * i;
 
-      const osc = new Oscillator({
-        ctx: this.drome.ctx,
-        type: this.waveform,
-        duration: this.drome.duration,
-        frequency,
-        startTime: t,
-        gain: { value: this._gain, env: this._adsr },
-        filters: this.filters,
-      });
+      if (Array.isArray(pattern)) {
+        pattern.forEach((frequency) => {
+          const osc = new Oscillator({
+            ctx: this.drome.ctx,
+            type: this.waveform,
+            duration: this.drome.duration,
+            frequency,
+            startTime: t,
+            gain: { value: this._gain, env: this._adsr },
+            filters: this.filters,
+          });
 
-      osc.start();
-      this.oscillators.add(osc);
-      osc.on("ended", () => this.oscillators.delete(osc));
+          osc.start();
+          this.oscillators.add(osc);
+          osc.on("ended", () => this.oscillators.delete(osc));
+        });
+      } else {
+        const osc = new Oscillator({
+          ctx: this.drome.ctx,
+          type: this.waveform,
+          duration: this.drome.duration,
+          frequency: pattern,
+          startTime: t,
+          gain: { value: this._gain, env: this._adsr },
+          filters: this.filters,
+        });
+
+        osc.start();
+        this.oscillators.add(osc);
+        osc.on("ended", () => this.oscillators.delete(osc));
+      }
     });
   }
 

@@ -27,6 +27,12 @@ drome.stack(
 )`,
   },
   {
+    title: "Chords and melodies",
+    code: `drome.synth().note([[60,64,67]],[[62,65,69]]).adsr(0.01,0.75).push() 
+
+drome.synth("saw").note([72,76,79],[81,79,76]).adsr(0.01,0.5).lpf(800).push()`,
+  },
+  {
     title: "Samples",
     code: `drome.bpm(140)
 
