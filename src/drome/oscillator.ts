@@ -39,7 +39,7 @@ class Oscillator {
     this.startTime = params.startTime + 0.01;
     this.gain = {
       value: params.gain?.value ?? 1,
-      env: params.gain?.env ?? DEFAULTS.env,
+      env: params.gain?.env ?? { ...DEFAULTS.env },
     };
 
     const gainEnvDuration = this.gain.env.a + this.gain.env.d + this.gain.env.r;
@@ -114,7 +114,7 @@ class Oscillator {
         filter.node.frequency,
         filter.value,
         filter.value * (filter.depth ?? 1),
-        filter.env ?? DEFAULTS.env
+        filter.env ?? { ...DEFAULTS.env }
       );
     });
   }

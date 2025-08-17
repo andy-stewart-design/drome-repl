@@ -48,8 +48,8 @@ class Drome extends AudioClock {
     this.instruments.clear();
   }
 
-  public synth(type: SynthAlias = "sine", harmonics?: number) {
-    return new Synth(this, synthAliasMap[type], harmonics);
+  public synth(type: SynthAlias = "sine") {
+    return new Synth(this, synthAliasMap[type]);
   }
 
   public sample(name: SampleName = "bd", index = 0) {

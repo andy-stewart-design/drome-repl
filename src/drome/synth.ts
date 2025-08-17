@@ -26,20 +26,17 @@ export const synthAliasMap = {
 
 class Synth {
   private drome;
-  private notes: number[] = [261.63];
+  private notes: number[] = [midiToFreq(60)];
   private noteOffsets: number | number[] = 0;
   private waveform: OscType = "sine";
-  private harmonics: number | null = null; // need to decide what to do about this
   private _gain = 1;
-  private _adsr: ADSRParams = DEFAULTS.env;
+  private _adsr: ADSRParams = { ...DEFAULTS.env };
   private filters: Map<FilterType, FilterParams> = new Map();
   private oscillators: Set<Oscillator> = new Set();
 
-  constructor(drome: Drome, type: OscType = "sine", harmonics?: number) {
+  constructor(drome: Drome, type: OscType = "sine") {
     this.drome = drome;
     this.waveform = type;
-    if (harmonics) this.harmonics = harmonics;
-    console.log("temporary log to make ts happy", this.harmonics);
   }
 
   public push() {
@@ -55,9 +52,8 @@ class Synth {
     return this;
   }
 
-  public sound(type: SynthAlias, harmonics?: number) {
+  public sound(type: SynthAlias) {
     this.waveform = synthAliasMap[type];
-    if (harmonics) this.harmonics = harmonics;
     return this;
   }
 
@@ -207,7 +203,6 @@ class Synth {
 
     // Reset parameters to defaults
     this.waveform = "sine";
-    this.harmonics = null;
     this._gain = 1;
     this._adsr = { a: 0.001, d: 0.001, s: 1.0, r: 0.001 };
     this.filters.clear();
