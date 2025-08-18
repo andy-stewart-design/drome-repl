@@ -151,27 +151,34 @@ class Synth {
     return this;
   }
 
-  public slow() {
+  public slow(n: number) {
+    if (n <= 1) return this;
+
     const nextCycles: (number | number[])[][] = [];
 
     for (const cycle of this.cycles) {
-      // interleave 0 after every note
-      const expanded = new Array(cycle.length * 2);
-      for (let i = 0; i < cycle.length; i++) {
-        expanded[i * 2] = cycle[i];
-        expanded[i * 2 + 1] = 0;
-      }
+      const chunkSize = Math.ceil((cycle.length * n) / n); // equals cycle.length
 
-      // split in half
-      const mid = expanded.length / 2;
-      nextCycles.push(expanded.slice(0, mid), expanded.slice(mid));
+      // Create n chunks directly
+      for (let k = 0; k < n; k++) {
+        const chunk: (number | number[])[] = [];
+        const startPos = k * chunkSize;
+        const endPos = Math.min((k + 1) * chunkSize, cycle.length * n);
+
+        for (let pos = startPos; pos < endPos; pos++) {
+          if (pos % n === 0) chunk.push(cycle[pos / n]);
+          else chunk.push(0);
+        }
+
+        nextCycles.push(chunk);
+      }
     }
 
     this.cycles = nextCycles;
     return this;
   }
 
-  // d.synth().note([[60,64,67,71]]).euclid(3,8).fast(2).adsr(0.01,0.333).push()
+  // d.synth().note([60,64,67,71]).slow(2).adsr(0.01,0.333).push()
 
   public euclid(pulses: number, steps: number, rotation = 0) {
     const pattern = euclid(pulses, steps, rotation);
