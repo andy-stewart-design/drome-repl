@@ -55,6 +55,7 @@ class Synth {
           : [cycle];
       return midiArray.map((n) => {
         if (Array.isArray(n)) return n.map(midiToFreq);
+        else if (n === 0) return n;
         else return midiToFreq(n);
       });
     });

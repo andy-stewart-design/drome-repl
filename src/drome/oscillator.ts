@@ -26,7 +26,7 @@ class Oscillator {
   private frequency: number;
   private startTime: number;
   private duration: number;
-  private baseGain = 0.2;
+  private baseGain = 0.15;
   private gain: GainParams;
   private filters: Map<FilterType, FilterParamsWithNode> = new Map();
   private listeners: Map<OscillatorEventType, (() => void)[]> = new Map();
