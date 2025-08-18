@@ -137,8 +137,8 @@ class Synth {
   }
 
   public fast(multiplier: number) {
-    const clamped = Math.max(1, multiplier);
-    const length = Math.ceil(this.cycles.length / clamped);
+    if (multiplier <= 1) return this;
+    const length = Math.ceil(this.cycles.length / multiplier);
     const numLoops = multiplier * length;
     const nextCyles: typeof this.cycles = Array.from({ length }, () => []);
 
@@ -151,26 +151,26 @@ class Synth {
     return this;
   }
 
-  public slow(multiplier: number) {
-    const clamped = Math.max(1, multiplier);
-    const length = this.cycles.length * clamped;
-    const nextCycles: typeof this.cycles = Array.from({ length }, () => []);
+  public slow() {
+    const nextCycles: (number | number[])[][] = [];
 
-    for (let i = 0; i < this.cycles.length; i++) {
-      const cycle = this.cycles[i];
-      const chunkSize = Math.ceil(cycle.length / clamped);
-
-      for (let j = 0; j < clamped; j++) {
-        const start = j * chunkSize;
-        const end = start + chunkSize;
-        const chunk = cycle.slice(start, end);
-        nextCycles[i * clamped + j].push(...chunk);
+    for (const cycle of this.cycles) {
+      // interleave 0 after every note
+      const expanded = new Array(cycle.length * 2);
+      for (let i = 0; i < cycle.length; i++) {
+        expanded[i * 2] = cycle[i];
+        expanded[i * 2 + 1] = 0;
       }
+
+      // split in half
+      const mid = expanded.length / 2;
+      nextCycles.push(expanded.slice(0, mid), expanded.slice(mid));
     }
 
     this.cycles = nextCycles;
     return this;
   }
+
   // d.synth().note([[60,64,67,71]]).euclid(3,8).fast(2).adsr(0.01,0.333).push()
 
   public euclid(pulses: number, steps: number, rotation = 0) {
