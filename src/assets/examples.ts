@@ -28,9 +28,9 @@ drome.stack(
   },
   {
     title: "Chords and melodies",
-    code: `drome.synth().note([[60,64,67]],[[62,65,69]]).adsr(0.01,0.75).push() 
+    code: `drome.synth("sq").note([[60,64,67]],[[62,65,69]]).lpf(600).adsr(0.01,2).push() 
 
-drome.synth("saw").note([72,76,79],[81,79,76]).adsr(0.01,0.5).lpf(800).push()`,
+drome.synth("saw").note([72,76,79,81,79,76]).adsr(0.01,0.5).fast(2).lpf(2000).gain(0.75).push()`,
   },
   {
     title: "Samples",
