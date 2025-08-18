@@ -137,13 +137,41 @@ class Synth {
   }
 
   public fast(multiplier: number) {
-    const newLength = Math.floor(this.cycles.length * multiplier);
-    this.cycles = Array.from(
-      { length: newLength },
-      (_, i) => this.cycles[i % this.cycles.length]
-    );
+    const clamped = Math.max(1, multiplier);
+    const length = Math.ceil(this.cycles.length / clamped);
+    const numLoops = multiplier * length;
+    const nextCyles: typeof this.cycles = Array.from({ length }, () => []);
+
+    for (let i = 0; i < numLoops; i++) {
+      const currentIndex = Math.floor(i / multiplier);
+      nextCyles[currentIndex].push(...this.cycles[i % this.cycles.length]);
+    }
+
+    this.cycles = nextCyles;
     return this;
   }
+
+  public slow(multiplier: number) {
+    const clamped = Math.max(1, multiplier);
+    const length = this.cycles.length * clamped;
+    const nextCycles: typeof this.cycles = Array.from({ length }, () => []);
+
+    for (let i = 0; i < this.cycles.length; i++) {
+      const cycle = this.cycles[i];
+      const chunkSize = Math.ceil(cycle.length / clamped);
+
+      for (let j = 0; j < clamped; j++) {
+        const start = j * chunkSize;
+        const end = start + chunkSize;
+        const chunk = cycle.slice(start, end);
+        nextCycles[i * clamped + j].push(...chunk);
+      }
+    }
+
+    this.cycles = nextCycles;
+    return this;
+  }
+  // d.synth().note([[60,64,67,71]]).euclid(3,8).fast(2).adsr(0.01,0.333).push()
 
   public euclid(pulses: number, steps: number, rotation = 0) {
     const pattern = euclid(pulses, steps, rotation);
