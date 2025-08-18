@@ -21,6 +21,8 @@ export const synthAliasMap = {
   square: "square",
   sin: "sine",
   sine: "sine",
+  supersaw: "supersaw",
+  ssaw: "supersaw",
 } satisfies Record<string, OscType>;
 
 class Synth {
@@ -228,7 +230,7 @@ class Synth {
           const osc = new Oscillator({
             ctx: this.drome.ctx,
             type: this.waveform,
-            duration: this.drome.duration,
+            duration: offset,
             frequency,
             startTime: t,
             gain: { value: this._gain, env: this._adsr },
@@ -243,7 +245,7 @@ class Synth {
         const osc = new Oscillator({
           ctx: this.drome.ctx,
           type: this.waveform,
-          duration: this.drome.duration,
+          duration: offset,
           frequency: pattern,
           startTime: t,
           gain: { value: this._gain, env: this._adsr },

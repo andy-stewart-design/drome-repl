@@ -1,9 +1,17 @@
-import type { FilterParams, ADSRParams, GainParams, FilterType } from "./types";
+import type {
+  FilterParams,
+  ADSRParams,
+  GainParams,
+  FilterType,
+  OscType,
+} from "./types";
 
 interface OptionalOscillatorParameters {
-  type: OscillatorType;
+  type: OscType;
   gain: Partial<GainParams>;
   filters: Map<FilterType, FilterParams>;
+  voices: number;
+  detune: number;
 }
 
 interface OscillatorParameters extends Partial<OptionalOscillatorParameters> {
@@ -19,39 +27,52 @@ interface FilterParamsWithNode extends FilterParams {
 
 type OscillatorEventType = "ended" | "destroy";
 
-const defaultEnv = { a: 0.01, d: 0.01, s: 1.0, r: 0.1 };
+const defaultEnv = { a: 0.001, d: 0.01, s: 1.0, r: 0.01 };
 
 class Oscillator {
   private ctx: AudioContext;
   private frequency: number;
   private startTime: number;
   private duration: number;
+  private totalDuration: number;
   private baseGain = 0.15;
   private gain: GainParams;
   private filters: Map<FilterType, FilterParamsWithNode> = new Map();
   private listeners: Map<OscillatorEventType, (() => void)[]> = new Map();
 
-  private oscNode: OscillatorNode;
+  private oscNodes: OscillatorNode[] = [];
   private gainNode: GainNode;
 
   constructor(params: OscillatorParameters) {
     this.ctx = params.ctx;
     this.frequency = params.frequency;
     this.startTime = params.startTime + 0.01;
+    this.duration = params.duration;
     this.gain = {
       value: params.gain?.value ?? 1,
       env: params.gain?.env ?? defaultEnv,
     };
-
-    const gainEnvDuration = this.gain.env.a + this.gain.env.d + this.gain.env.r;
-    const stopTime = Math.max(params.duration, gainEnvDuration);
-    this.duration = stopTime;
-
-    this.oscNode = this.ctx.createOscillator();
-    this.oscNode.type = params.type ?? "sine";
-    this.oscNode.frequency.setValueAtTime(this.frequency, this.startTime);
+    const releaseTime = this.gain.env.r;
+    this.totalDuration = this.duration + releaseTime;
 
     this.gainNode = this.ctx.createGain();
+
+    const voices = params.type === "supersaw" ? params.voices ?? 7 : 1;
+    const detune = params.detune ?? 12;
+
+    for (let i = 0; i < voices; i++) {
+      const osc = this.ctx.createOscillator();
+      osc.type =
+        params.type === "supersaw" ? "sawtooth" : params.type ?? "sine";
+      osc.frequency.setValueAtTime(this.frequency, this.startTime);
+
+      if (params.type === "supersaw") {
+        const detuneAmount = (i / (voices - 1) - 0.5) * 2 * detune;
+        osc.detune.setValueAtTime(detuneAmount, this.startTime);
+      }
+
+      this.oscNodes.push(osc);
+    }
 
     params.filters?.forEach((filter) => {
       const node = this.ctx.createBiquadFilter();
@@ -60,18 +81,16 @@ class Oscillator {
       this.filters.set(filter.type, { ...filter, node });
     });
 
-    const nodes = [
-      this.oscNode,
-      ...Array.from(this.filters.values(), (f) => f.node),
-      this.gainNode,
-      this.ctx.destination,
-    ].filter(Boolean) as AudioNode[];
+    const filterNodes = Array.from(this.filters.values(), (f) => f.node);
 
-    for (let i = 0; i < nodes.length - 1; i++) {
-      nodes[i].connect(nodes[i + 1]);
+    for (const osc of this.oscNodes) {
+      const nodes = [osc, ...filterNodes, this.gainNode, this.ctx.destination];
+      for (let i = 0; i < nodes.length - 1; i++) {
+        nodes[i].connect(nodes[i + 1]);
+      }
     }
 
-    this.oscNode.onended = () => {
+    this.oscNodes[0].onended = () => {
       this.listeners.get("ended")?.forEach((cb) => cb());
       this.destroy();
     };
@@ -85,13 +104,16 @@ class Oscillator {
   ) {
     const adsr = { ...defaultEnv, ...env };
     const sustainLevel = maxVal * adsr.s;
-    const minDuration = adsr.a + adsr.d + adsr.r;
-    const scale = this.duration < minDuration ? this.duration / minDuration : 1;
 
-    const attackEnd = this.startTime + adsr.a * scale;
-    const decayEnd = attackEnd + adsr.d * scale;
-    const sustainEnd = this.startTime + this.duration - adsr.r * scale;
-    const releaseEnd = this.startTime + this.duration;
+    // Calculate time points using relative durations
+    const attackDuration = this.duration * adsr.a;
+    const decayDuration = this.duration * adsr.d;
+    const releaseDuration = adsr.r; // Release is absolute time, not relative
+
+    const attackEnd = this.startTime + attackDuration;
+    const decayEnd = attackEnd + decayDuration;
+    const sustainEnd = this.startTime + this.duration; // End of note duration
+    const releaseEnd = sustainEnd + releaseDuration; // Release extends beyond note
 
     target.setValueAtTime(startVal, this.startTime);
     target.linearRampToValueAtTime(maxVal, attackEnd); // Attack
@@ -104,7 +126,7 @@ class Oscillator {
     this.applyEnvelope(
       this.gainNode.gain,
       0,
-      this.gain.value * this.baseGain,
+      (this.gain.value * this.baseGain) / Math.sqrt(this.oscNodes.length),
       this.gain.env
     );
   }
@@ -123,8 +145,11 @@ class Oscillator {
   public start() {
     this.applyGain();
     this.applyFilter();
-    this.oscNode.start(this.startTime);
-    this.oscNode.stop(this.startTime + this.duration);
+    this.oscNodes.forEach((osc) => {
+      const jitter = this.oscNodes.length > 1 ? Math.random() * 0.002 : 0;
+      osc.start(this.startTime + jitter);
+      osc.stop(this.startTime + this.totalDuration);
+    });
   }
 
   public stop(when?: number) {
@@ -133,7 +158,7 @@ class Oscillator {
     const releaseTime = 0.25;
 
     if (this.startTime > this.ctx.currentTime) {
-      this.oscNode.stop();
+      this.oscNodes.forEach((osc) => osc.stop());
     } else {
       // Cancel any scheduled value changes after the stop time
       this.gainNode.gain.cancelScheduledValues(stopTime);
@@ -143,7 +168,7 @@ class Oscillator {
       this.gainNode.gain.linearRampToValueAtTime(0, stopTime + releaseTime);
 
       // Stop the oscillator after the release
-      this.oscNode.stop(stopTime + releaseTime);
+      this.oscNodes.forEach((osc) => osc.stop(stopTime + releaseTime));
     }
   }
 
@@ -162,7 +187,7 @@ class Oscillator {
   }
 
   public destroy() {
-    this.oscNode.disconnect();
+    this.oscNodes.forEach((osc) => osc.disconnect());
     this.gainNode.disconnect();
     this.filters.forEach((f) => f.node.disconnect());
     this.listeners.get("destroy")?.forEach((cb) => cb());
@@ -171,7 +196,7 @@ class Oscillator {
   }
 
   get type() {
-    return this.oscNode.type;
+    return this.oscNodes[0].type;
   }
 }
 
