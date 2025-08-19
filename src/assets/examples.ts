@@ -6,15 +6,15 @@ const examples = [
   {
     title: "Multiple synths",
     code: `drome.stack(
-  drome.synth().note(60).adsr(0.25,0.1,0).euclid(4, 4).lpf(400).gain(1),
-  drome.synth("sawtooth").note(48).euclid(3, 8).adsr(0.01,0.5,0.2,0.05).lpf(400).lpenv(2,{a: 0.125})
+  drome.synth().note(60).adsr(0.9,0.1,0).euclid(4, 4).lpf(400).gain(1),
+  drome.synth("sawtooth").note(48).euclid(3, 8).adsr(0.01,0.99,0.2,0.05).lpf(400).lpenv(2)
 )`,
   },
   {
     title: "Multiple speeds",
     code: `drome.stack(
-  drome.synth("sawtooth").note(57).euclid(3,8).adsr(0.001,0.333).lpf(1600), // can use either "saw" or "sawtooth"
-  drome.synth("saw").note([43,43,43,50,43,43,53,54]).lpf(400).lpenv(2,{a:0.125,d:0.1,s:0.01,r:0.01}).adsr(0.001,0.2).fast(2).gain(1.5),
+  drome.synth("sawtooth").note(57).euclid(3,8).adsr(0.001,0.666).lpf(1600), // can use either "saw" or "sawtooth"
+  drome.synth("saw").note([43,43,43,50,43,43,53,54]).lpf(400).lpenv(2).adsr(0.001,0.75).fast(2).gain(1.5),
 )`,
   },
   {
@@ -22,8 +22,8 @@ const examples = [
     code: `const struct = drome.euclid(5,8)
 
 drome.stack(
-  drome.synth("saw").note(48).struct(struct).adsr(0, 0.333).lpf(800).gain(1.25),
-  drome.synth("sq").note(60).struct(struct.rotate(4).stretch(3)).adsr(0, 0.1).lpf(1600).gain(0.75)
+  drome.synth("saw").note(48).struct(struct).adsr(0.01, 0.99).lpf(800).gain(1.25),
+  drome.synth("sq").note(60).struct(struct.rotate(4).stretch(3)).adsr(0, 0.5).lpf(1600).gain(0.75)
 )`,
   },
   {
@@ -51,9 +51,9 @@ kick.push()`,
     title: "Custom struct",
     code: `const risset = Array.from({ length: 14 + 1 }, (_, i) => Array.from({ length: i }, (_, j) => j === i - 1 ? 1 : 0)).flat().reverse().slice(0, -1)
 
-drome.synth("saw").note(69).adsr(0.01, 0.1, 0.01, 0.01).struct(risset).bpf(800).bpenv(3,{a:0.01, d:0.1, s:0.01, r:0.01}).gain(0.625).push() 
+drome.synth("saw").note(69).adsr(0.01, 0.333, 0.01, 0.01).struct(risset).bpf(800).bpenv(3).gain(0.625).push() 
 
-drome.synth("saw").note(45).lpf(200).adsr(0.5, 0.01, 0.01, 0.1).lpenv(2,{a:0.5, d:0.01, s:0.01, r:0.1}).euclid(4,4).push()
+drome.synth("ssaw").note(45).adsr(0.95, 0.05, 0.25, 0.1).lpf(200).lpenv(1.5).euclid(4,4).gain(1.25).push()
 
 d.stack(
   drome.sample("bd").bank("RolandTR909").euclid(4,4),

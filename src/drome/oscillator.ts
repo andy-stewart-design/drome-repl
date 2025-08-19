@@ -5,6 +5,7 @@ import type {
   FilterType,
   OscType,
 } from "./types";
+import { clamp } from "./utils/math";
 
 interface OptionalOscillatorParameters {
   type: OscType;
@@ -27,7 +28,7 @@ interface FilterParamsWithNode extends FilterParams {
 
 type OscillatorEventType = "ended" | "destroy";
 
-const defaultEnv = { a: 0.001, d: 0.01, s: 1.0, r: 0.01 };
+const defaultEnv = { a: 0.01, d: 0.01, s: 1.0, r: 0.025 };
 
 class Oscillator {
   private ctx: AudioContext;
@@ -50,7 +51,7 @@ class Oscillator {
     this.duration = params.duration;
     this.gain = {
       value: params.gain?.value ?? 1,
-      env: params.gain?.env ?? defaultEnv,
+      env: params.gain?.env ?? { ...{ ...defaultEnv } },
     };
     const releaseTime = this.gain.env.r;
     this.totalDuration = this.duration + releaseTime;
@@ -102,24 +103,21 @@ class Oscillator {
     maxVal: number,
     env: Partial<ADSRParams>
   ) {
-    const adsr = { ...defaultEnv, ...env };
-    const sustainLevel = maxVal * adsr.s;
-
-    // Calculate time points using relative durations
-    const attackDuration = this.duration * adsr.a;
-    const decayDuration = this.duration * adsr.d;
-    const releaseDuration = adsr.r; // Release is absolute time, not relative
-
-    const attackEnd = this.startTime + attackDuration;
-    const decayEnd = attackEnd + decayDuration;
-    const sustainEnd = this.startTime + this.duration; // End of note duration
-    const releaseEnd = sustainEnd + releaseDuration; // Release extends beyond note
+    const adsr = { ...{ ...defaultEnv }, ...env };
+    const attDur = clamp(env.a || 0.01, 0.01, 0.98) * this.duration;
+    const attEnd = this.startTime + attDur;
+    const decDur = clamp(env.d || 0.01, 0.01, 0.98) * this.duration;
+    const decEnd = attEnd + decDur;
+    const susVal = maxVal * adsr.s;
+    const susEnd = this.startTime + this.duration;
+    const relDur = adsr.r * this.duration;
+    const relEnd = susEnd + relDur;
 
     target.setValueAtTime(startVal, this.startTime);
-    target.linearRampToValueAtTime(maxVal, attackEnd); // Attack
-    target.linearRampToValueAtTime(sustainLevel, decayEnd); // Decay
-    target.setValueAtTime(sustainLevel, sustainEnd); // Sustain
-    target.linearRampToValueAtTime(0, releaseEnd); // Release
+    target.linearRampToValueAtTime(maxVal, attEnd); // Attack
+    target.linearRampToValueAtTime(susVal, decEnd); // Decay
+    target.setValueAtTime(susVal, susEnd); // Sustain
+    target.linearRampToValueAtTime(0, relEnd); // Release
   }
 
   private applyGain() {
@@ -137,7 +135,7 @@ class Oscillator {
         filter.node.frequency,
         filter.value,
         filter.value * (filter.depth ?? 1),
-        filter.env ?? defaultEnv
+        filter.env ?? { ...this.gain.env }
       );
     });
   }

@@ -31,7 +31,7 @@ class Synth {
   private waveform: OscType = "sine";
   private harmonics: number | null = null; // need to decide what to do about this
   private _gain = 1;
-  private _adsr: ADSRParams = { a: 0.01, d: 0.01, s: 1.0, r: 0.1 };
+  private _adsr: ADSRParams = { a: 0.01, d: 0.01, s: 1.0, r: 0.025 };
   private filters: Map<FilterType, FilterParams> = new Map();
   private oscillators: Set<Oscillator> = new Set();
 
@@ -220,6 +220,7 @@ class Synth {
     const cycleIndex = this.drome.metronome.bar % this.cycles.length;
     const cycle = this.cycles[cycleIndex];
     const offset = this.drome.duration / cycle.length;
+    const duration = Math.max(offset, this.drome.duration / 8);
 
     cycle.forEach((pattern, i) => {
       if (pattern === 0) return; // Skip silent notes
@@ -230,7 +231,7 @@ class Synth {
           const osc = new Oscillator({
             ctx: this.drome.ctx,
             type: this.waveform,
-            duration: offset,
+            duration,
             frequency,
             startTime: t,
             gain: { value: this._gain, env: this._adsr },
@@ -245,7 +246,7 @@ class Synth {
         const osc = new Oscillator({
           ctx: this.drome.ctx,
           type: this.waveform,
-          duration: offset,
+          duration,
           frequency: pattern,
           startTime: t,
           gain: { value: this._gain, env: this._adsr },
