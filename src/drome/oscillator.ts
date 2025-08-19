@@ -153,7 +153,7 @@ class Oscillator {
   public stop(when?: number) {
     // if (!this.isPlaying || this.isStopped) return; // Todo: do I need this???
     const stopTime = when ?? this.ctx.currentTime;
-    const releaseTime = 0.25;
+    const releaseTime = 0.125;
 
     if (this.startTime > this.ctx.currentTime) {
       this.oscNodes.forEach((osc) => osc.stop());

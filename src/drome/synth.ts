@@ -251,8 +251,8 @@ class Synth {
 
   public euclid(pulses: number, steps: number, rotation = 0) {
     const pattern = euclid(pulses, steps, rotation);
-    let noteIndex = 0;
     this.cycles = this.cycles.map((cycle) => {
+      let noteIndex = 0;
       return pattern.map((p) => {
         return p === 0 ? 0 : cycle[noteIndex++ % cycle.length];
       });

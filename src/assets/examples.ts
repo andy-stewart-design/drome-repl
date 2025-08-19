@@ -5,10 +5,15 @@ const examples = [
   },
   {
     title: "Multiple synths",
-    code: `drome.stack(
-  drome.synth().note(60).adsr(0.9,0.1,0).euclid(4, 4).lpf(400).gain(1),
-  drome.synth("sawtooth").note(48).euclid(3, 8).adsr(0.01,0.99,0.2,0.05).lpf(400).lpenv(2)
-)`,
+    code: `d.bpm(135)
+
+d.stack(
+  d.synth("saw").note([48,60],[43,55]).adsr(0.1,0.25,0.5,1).lpf(800).lpenv(2).euclid(5,8,2),
+  d.synth("sine").note([48,60],[43,55]).adsr(0.1,0.25,0.5,1).euclid(5,8,2),
+  d.synth("ssaw").note([75,74,70],[70,69,67]).adsr(0.01,0.75,0.75,1.5).lpf(1600).lpenv(2).euclid(3,8,1),
+)
+
+d.sample("bd",1).hex("f").gain(0.75).push()`,
   },
   {
     title: "Multiple speeds",
