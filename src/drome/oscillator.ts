@@ -103,7 +103,7 @@ class Oscillator {
     maxVal: number,
     env: Partial<ADSRParams>
   ) {
-    const adsr = { ...{ ...defaultEnv }, ...env };
+    const adsr = { ...defaultEnv, ...env };
     const attDur = clamp(env.a || 0.01, 0.01, 0.98) * this.duration;
     const attEnd = this.startTime + attDur;
     const decDur = clamp(env.d || 0.01, 0.01, 0.98) * this.duration;

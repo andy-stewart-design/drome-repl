@@ -102,11 +102,33 @@ class Synth {
     return this;
   }
 
-  public hpenv(depthMult: number, env: ADSRParams) {
+  public hpenv(depth: number, a?: Partial<ADSRParams>): this;
+  public hpenv(
+    depth: number,
+    a?: number,
+    d?: number,
+    s?: number,
+    r?: number
+  ): this;
+  public hpenv(
+    depth: number,
+    p1?: Partial<ADSRParams> | number,
+    d?: number,
+    s?: number,
+    r?: number
+  ) {
     const filter = this.filters.get("highpass");
-    if (filter) {
-      filter.depth = depthMult;
-      filter.env = env;
+    if (!filter) return this;
+    filter.depth = depth;
+    if (typeof p1 === "number") {
+      filter.env = {
+        a: p1 ?? this._adsr.a,
+        d: d ?? this._adsr.d,
+        s: s ?? this._adsr.s,
+        r: r ?? this._adsr.r,
+      };
+    } else {
+      filter.env = p1;
     }
     return this;
   }
@@ -116,11 +138,33 @@ class Synth {
     return this;
   }
 
-  public lpenv(depthMult: number, env: ADSRParams) {
+  public lpenv(depth: number, a?: Partial<ADSRParams>): this;
+  public lpenv(
+    depth: number,
+    a?: number,
+    d?: number,
+    s?: number,
+    r?: number
+  ): this;
+  public lpenv(
+    depth: number,
+    p1?: Partial<ADSRParams> | number,
+    d?: number,
+    s?: number,
+    r?: number
+  ) {
     const filter = this.filters.get("lowpass");
-    if (filter) {
-      filter.depth = depthMult;
-      filter.env = env;
+    if (!filter) return this;
+    filter.depth = depth;
+    if (typeof p1 === "number") {
+      filter.env = {
+        a: p1 ?? this._adsr.a,
+        d: d ?? this._adsr.d,
+        s: s ?? this._adsr.s,
+        r: r ?? this._adsr.r,
+      };
+    } else {
+      filter.env = p1;
     }
     return this;
   }
@@ -130,11 +174,33 @@ class Synth {
     return this;
   }
 
-  public bpenv(depthMult: number, env: ADSRParams) {
+  public bpenv(depth: number, a?: Partial<ADSRParams>): this;
+  public bpenv(
+    depth: number,
+    a?: number,
+    d?: number,
+    s?: number,
+    r?: number
+  ): this;
+  public bpenv(
+    depth: number,
+    p1?: Partial<ADSRParams> | number,
+    d?: number,
+    s?: number,
+    r?: number
+  ) {
     const filter = this.filters.get("bandpass");
-    if (filter) {
-      filter.depth = depthMult;
-      filter.env = env;
+    if (!filter) return this;
+    filter.depth = depth;
+    if (typeof p1 === "number") {
+      filter.env = {
+        a: p1 ?? this._adsr.a,
+        d: d ?? this._adsr.d,
+        s: s ?? this._adsr.s,
+        r: r ?? this._adsr.r,
+      };
+    } else {
+      filter.env = p1;
     }
     return this;
   }
