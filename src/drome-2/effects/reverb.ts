@@ -7,6 +7,7 @@ interface ReverbEffectOptions {
 class ReverbEffect {
   private convolver: ConvolverNode;
   private wet: GainNode;
+  private dry: GainNode;
   readonly input: GainNode;
   private output: GainNode;
 
@@ -20,9 +21,11 @@ class ReverbEffect {
     this.convolver.buffer = generateImpulseResponse(ctx, duration, decay);
 
     this.wet = new GainNode(ctx, { gain: mix });
+    this.dry = new GainNode(ctx, { gain: 1 - mix / 2 });
 
     // Dry path
-    this.input.connect(this.output);
+    this.input.connect(this.dry).connect(this.output);
+
     // Wet path
     this.input.connect(this.convolver);
     this.convolver.connect(this.wet).connect(this.output);
@@ -38,6 +41,7 @@ class ReverbEffect {
 
   setWetLevel(v: number) {
     this.wet.gain.value = v;
+    this.dry.gain.value = 1 - v;
   }
 
   get inputNode() {
