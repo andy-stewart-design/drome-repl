@@ -3,6 +3,7 @@ import MainGain from "./drome-2/core/main-gain";
 import PulseOscillator from "./drome-2/instruments/pulse-oscillator";
 import FilterEffect from "./drome-2/effects/filter";
 import DelayEffect from "./drome-2/effects/delay";
+import ReverbEffect from "./drome-2/effects/reverb";
 
 export default function TestDemo() {
   const [ctx, setCtx] = createSignal<AudioContext | null>(null);
@@ -17,8 +18,10 @@ export default function TestDemo() {
       feedback: 0.2,
       mix: 0.2,
     });
+    const reverb = new ReverbEffect(ctx, { duration: 2, decay: 2, mix: 0.4 });
 
-    filter.connect(delay.input);
+    filter.connect(reverb.input);
+    reverb.connect(delay.input);
     delay.connect(master.input);
     master.connect(ctx.destination);
 
@@ -30,7 +33,7 @@ export default function TestDemo() {
     const _ctx = ctx();
     const _filter = filter();
     if (!_ctx || !_filter) return;
-    const pulse = new PulseOscillator(_ctx, { frequency: 130.81 });
+    const pulse = new PulseOscillator(_ctx, { frequency: 220 });
 
     if (_ctx.state === "suspended") _ctx.resume();
     pulse.trigger(_filter.input);

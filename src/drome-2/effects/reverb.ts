@@ -1,0 +1,69 @@
+interface ReverbEffectOptions {
+  duration?: number; // IR length in seconds
+  decay?: number; // exponential decay factor
+  mix?: number; // 0 = dry only, 1 = wet only
+}
+
+class ReverbEffect {
+  private convolver: ConvolverNode;
+  private wet: GainNode;
+  readonly input: GainNode;
+  private output: GainNode;
+
+  constructor(
+    ctx: AudioContext,
+    { duration = 3, decay = 2.0, mix = 0.5 }: ReverbEffectOptions = {}
+  ) {
+    this.input = new GainNode(ctx);
+    this.output = new GainNode(ctx);
+    this.convolver = new ConvolverNode(ctx);
+    this.convolver.buffer = generateImpulseResponse(ctx, duration, decay);
+
+    this.wet = new GainNode(ctx, { gain: mix });
+
+    // Dry path
+    this.input.connect(this.output);
+    // Wet path
+    this.input.connect(this.convolver);
+    this.convolver.connect(this.wet).connect(this.output);
+  }
+
+  connect(dest: AudioNode) {
+    this.output.connect(dest);
+  }
+
+  disconnect() {
+    this.output.disconnect();
+  }
+
+  setWetLevel(v: number) {
+    this.wet.gain.value = v;
+  }
+
+  get inputNode() {
+    return this.input;
+  }
+}
+
+function generateImpulseResponse(
+  ctx: AudioContext,
+  duration = 3,
+  decay = 2.0
+): AudioBuffer {
+  const sampleRate = ctx.sampleRate;
+  const length = sampleRate * duration;
+  const impulse = ctx.createBuffer(2, length, sampleRate);
+
+  for (let channel = 0; channel < 2; channel++) {
+    const channelData = impulse.getChannelData(channel);
+    for (let i = 0; i < length; i++) {
+      const n = i;
+      channelData[i] =
+        (Math.random() * 2 - 1) * Math.pow(1 - n / length, decay);
+    }
+  }
+
+  return impulse;
+}
+
+export default ReverbEffect;

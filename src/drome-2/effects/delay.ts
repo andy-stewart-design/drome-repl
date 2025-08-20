@@ -10,7 +10,6 @@ class DelayEffect {
   private output: GainNode;
   private feedback: GainNode;
   private wet: GainNode;
-  private dry: GainNode;
 
   constructor(
     ctx: AudioContext,
@@ -21,28 +20,20 @@ class DelayEffect {
     this.delay = new DelayNode(ctx, { delayTime });
     this.feedback = new GainNode(ctx, { gain: feedback });
     this.wet = new GainNode(ctx, { gain: mix });
-    this.dry = new GainNode(ctx, { gain: 1 - mix });
 
-    // Routing
-    this.input.connect(this.dry).connect(this.output);
-    this.input.connect(this.delay).connect(this.wet).connect(this.output);
+    // Dry signal passes through
+    this.input.connect(this.output);
+    // Wet signal with feedback
+    this.input.connect(this.delay);
+    this.delay.connect(this.wet).connect(this.output);
     this.delay.connect(this.feedback).connect(this.delay);
   }
+
   connect(dest: AudioNode) {
     this.output.connect(dest);
   }
-  disconnect() {
-    this.output.disconnect();
-  }
-  setDelayTime(v: number) {
-    this.delay.delayTime.value = v;
-  }
-  setFeedback(v: number) {
-    this.feedback.gain.value = v;
-  }
-  setMix(v: number) {
+  setWetLevel(v: number) {
     this.wet.gain.value = v;
-    this.dry.gain.value = 1 - v;
   }
 }
 
