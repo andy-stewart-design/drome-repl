@@ -2,7 +2,7 @@ import { synthAliasMap } from "./synth";
 
 type DromeStatus = "stopped" | "stopping" | "playing" | "queued";
 
-type OscType = Exclude<OscillatorType, "custom">;
+type OscType = Exclude<OscillatorType, "custom"> | "supersaw";
 type SynthTypeMap = typeof synthAliasMap;
 type SynthAlias = keyof SynthTypeMap;
 type SynthType = SynthTypeMap[keyof SynthTypeMap];

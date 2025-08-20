@@ -21,15 +21,17 @@ export const synthAliasMap = {
   square: "square",
   sin: "sine",
   sine: "sine",
+  supersaw: "supersaw",
+  ssaw: "supersaw",
 } satisfies Record<string, OscType>;
 
 class Synth {
   private drome;
-  private notes: number[] = [261.63];
+  private cycles: (number | number[])[][] = [[midiToFreq(60)]];
   private waveform: OscType = "sine";
   private harmonics: number | null = null; // need to decide what to do about this
   private _gain = 1;
-  private _adsr: ADSRParams = { a: 0.01, d: 0.01, s: 1.0, r: 0.1 };
+  private _adsr: ADSRParams = { a: 0.01, d: 0.01, s: 1.0, r: 0.025 };
   private filters: Map<FilterType, FilterParams> = new Map();
   private oscillators: Set<Oscillator> = new Set();
 
@@ -45,10 +47,20 @@ class Synth {
     return this;
   }
 
-  public note(n: number | number[] | DromeArray) {
-    const midiArray =
-      n instanceof DromeArray ? n.value : Array.isArray(n) ? n : [n];
-    this.notes = midiArray.map((n) => midiToFreq(n));
+  public note(...cycles: (number | number[] | number[][] | DromeArray)[]) {
+    this.cycles = cycles.map((cycle) => {
+      const midiArray =
+        cycle instanceof DromeArray
+          ? cycle.value
+          : Array.isArray(cycle)
+          ? cycle
+          : [cycle];
+      return midiArray.map((n) => {
+        if (Array.isArray(n)) return n.map(midiToFreq);
+        else if (n === 0) return n;
+        else return midiToFreq(n);
+      });
+    });
     return this;
   }
 
@@ -90,11 +102,33 @@ class Synth {
     return this;
   }
 
-  public hpenv(depthMult: number, env: ADSRParams) {
+  public hpenv(depth: number, a?: Partial<ADSRParams>): this;
+  public hpenv(
+    depth: number,
+    a?: number,
+    d?: number,
+    s?: number,
+    r?: number
+  ): this;
+  public hpenv(
+    depth: number,
+    p1?: Partial<ADSRParams> | number,
+    d?: number,
+    s?: number,
+    r?: number
+  ) {
     const filter = this.filters.get("highpass");
-    if (filter) {
-      filter.depth = depthMult;
-      filter.env = env;
+    if (!filter) return this;
+    filter.depth = depth;
+    if (typeof p1 === "number") {
+      filter.env = {
+        a: p1 ?? this._adsr.a,
+        d: d ?? this._adsr.d,
+        s: s ?? this._adsr.s,
+        r: r ?? this._adsr.r,
+      };
+    } else {
+      filter.env = p1;
     }
     return this;
   }
@@ -104,11 +138,33 @@ class Synth {
     return this;
   }
 
-  public lpenv(depthMult: number, env: ADSRParams) {
+  public lpenv(depth: number, a?: Partial<ADSRParams>): this;
+  public lpenv(
+    depth: number,
+    a?: number,
+    d?: number,
+    s?: number,
+    r?: number
+  ): this;
+  public lpenv(
+    depth: number,
+    p1?: Partial<ADSRParams> | number,
+    d?: number,
+    s?: number,
+    r?: number
+  ) {
     const filter = this.filters.get("lowpass");
-    if (filter) {
-      filter.depth = depthMult;
-      filter.env = env;
+    if (!filter) return this;
+    filter.depth = depth;
+    if (typeof p1 === "number") {
+      filter.env = {
+        a: p1 ?? this._adsr.a,
+        d: d ?? this._adsr.d,
+        s: s ?? this._adsr.s,
+        r: r ?? this._adsr.r,
+      };
+    } else {
+      filter.env = p1;
     }
     return this;
   }
@@ -118,40 +174,99 @@ class Synth {
     return this;
   }
 
-  public bpenv(depthMult: number, env: ADSRParams) {
+  public bpenv(depth: number, a?: Partial<ADSRParams>): this;
+  public bpenv(
+    depth: number,
+    a?: number,
+    d?: number,
+    s?: number,
+    r?: number
+  ): this;
+  public bpenv(
+    depth: number,
+    p1?: Partial<ADSRParams> | number,
+    d?: number,
+    s?: number,
+    r?: number
+  ) {
     const filter = this.filters.get("bandpass");
-    if (filter) {
-      filter.depth = depthMult;
-      filter.env = env;
+    if (!filter) return this;
+    filter.depth = depth;
+    if (typeof p1 === "number") {
+      filter.env = {
+        a: p1 ?? this._adsr.a,
+        d: d ?? this._adsr.d,
+        s: s ?? this._adsr.s,
+        r: r ?? this._adsr.r,
+      };
+    } else {
+      filter.env = p1;
     }
     return this;
   }
 
   public fast(multiplier: number) {
-    const newLength = Math.floor(this.notes.length * multiplier);
-    this.notes = Array.from(
-      { length: newLength },
-      (_, i) => this.notes[i % this.notes.length]
-    );
+    if (multiplier <= 1) return this;
+    const length = Math.ceil(this.cycles.length / multiplier);
+    const numLoops = multiplier * length;
+    const nextCyles: typeof this.cycles = Array.from({ length }, () => []);
+
+    for (let i = 0; i < numLoops; i++) {
+      const currentIndex = Math.floor(i / multiplier);
+      nextCyles[currentIndex].push(...this.cycles[i % this.cycles.length]);
+    }
+
+    this.cycles = nextCyles;
     return this;
   }
 
+  public slow(n: number) {
+    if (n <= 1) return this;
+
+    const nextCycles: (number | number[])[][] = [];
+
+    for (const cycle of this.cycles) {
+      const chunkSize = Math.ceil((cycle.length * n) / n); // equals cycle.length
+
+      // Create n chunks directly
+      for (let k = 0; k < n; k++) {
+        const chunk: (number | number[])[] = [];
+        const startPos = k * chunkSize;
+        const endPos = Math.min((k + 1) * chunkSize, cycle.length * n);
+
+        for (let pos = startPos; pos < endPos; pos++) {
+          if (pos % n === 0) chunk.push(cycle[pos / n]);
+          else chunk.push(0);
+        }
+
+        nextCycles.push(chunk);
+      }
+    }
+
+    this.cycles = nextCycles;
+    return this;
+  }
+
+  // d.synth().note([60,64,67,71]).slow(2).adsr(0.01,0.333).push()
+
   public euclid(pulses: number, steps: number, rotation = 0) {
     const pattern = euclid(pulses, steps, rotation);
-
-    let noteIndex = 0;
-    this.notes = pattern.map((p) => {
-      return p === 0 ? 0 : this.notes[noteIndex++ % this.notes.length];
+    this.cycles = this.cycles.map((cycle) => {
+      let noteIndex = 0;
+      return pattern.map((p) => {
+        return p === 0 ? 0 : cycle[noteIndex++ % cycle.length];
+      });
     });
-
     return this;
   }
 
   public hex(hexNotation: string | number) {
     const pattern = hex(hexNotation);
     let noteIndex = 0;
-    this.notes = pattern.map((p) => {
-      return p === 0 ? 0 : this.notes[noteIndex++ % this.notes.length];
+    this.cycles = this.cycles.map((cycle) => {
+      return pattern.map((p) => {
+        return p === 0 ? 0 : cycle[noteIndex++ % cycle.length];
+      });
     });
     return this;
   }
@@ -159,32 +274,55 @@ class Synth {
   public struct(pattern: number[] | DromeArray) {
     const pat = pattern instanceof DromeArray ? pattern.value : pattern;
     let noteIndex = 0;
-    this.notes = pat.map((p) => {
-      return p === 0 ? 0 : this.notes[noteIndex++ % this.notes.length];
+    this.cycles = this.cycles.map((cycle) => {
+      return pat.map((p) => {
+        return p === 0 ? 0 : cycle[noteIndex++ % cycle.length];
+      });
     });
     return this;
   }
 
   public play(time: number) {
-    this.notes?.forEach((frequency, i) => {
-      if (frequency === 0) return; // Skip silent notes
-      const offset = this.drome.duration / this.notes.length;
+    const cycleIndex = this.drome.metronome.bar % this.cycles.length;
+    const cycle = this.cycles[cycleIndex];
+    const offset = this.drome.duration / cycle.length;
+    const duration = Math.max(offset, this.drome.duration / 8);
+
+    cycle.forEach((pattern, i) => {
+      if (pattern === 0) return; // Skip silent notes
       const t = time + offset * i;
 
-      const osc = new Oscillator({
-        ctx: this.drome.ctx,
-        type: this.waveform,
-        // harmonics: this.harmonics,
-        duration: this.drome.duration,
-        frequency,
-        startTime: t,
-        gain: { value: this._gain, env: this._adsr },
-        filters: this.filters,
-      });
+      if (Array.isArray(pattern)) {
+        pattern.forEach((frequency) => {
+          const osc = new Oscillator({
+            ctx: this.drome.ctx,
+            type: this.waveform,
+            duration,
+            frequency,
+            startTime: t,
+            gain: { value: this._gain, env: this._adsr },
+            filters: this.filters,
+          });
 
-      osc.start();
-      this.oscillators.add(osc);
-      osc.on("ended", () => this.oscillators.delete(osc));
+          osc.start();
+          this.oscillators.add(osc);
+          osc.on("ended", () => this.oscillators.delete(osc));
+        });
+      } else {
+        const osc = new Oscillator({
+          ctx: this.drome.ctx,
+          type: this.waveform,
+          duration,
+          frequency: pattern,
+          startTime: t,
+          gain: { value: this._gain, env: this._adsr },
+          filters: this.filters,
+        });
+
+        osc.start();
+        this.oscillators.add(osc);
+        osc.on("ended", () => this.oscillators.delete(osc));
+      }
     });
   }
 
@@ -194,7 +332,7 @@ class Synth {
 
   public destroy() {
     // Clear note data
-    this.notes = [];
+    this.cycles = [];
 
     // Reset parameters to defaults
     this.waveform = "sine";
