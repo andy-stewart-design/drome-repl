@@ -3,6 +3,7 @@ import DelayEffect from "../effects/delay";
 import FilterEffect from "../effects/filter";
 import ReverbEffect from "../effects/reverb";
 import Oscillator from "./oscillator";
+import type { ADSRParams } from "@/drome-2/types";
 
 type FilterType = Exclude<
   BiquadFilterType,
@@ -19,6 +20,7 @@ class Synth {
   private _delay: DelayEffect | undefined;
   private _reverb: ReverbEffect | undefined;
   private _destination: DromeAudioNode;
+  private _env: ADSRParams = { a: 0.01, d: 0.125, s: 0.5, r: 0.01 };
 
   constructor(
     ctx: AudioContext,
@@ -46,6 +48,23 @@ class Synth {
     return nodes[0];
   }
 
+  adsr(p1: Partial<ADSRParams>): this;
+  adsr(p1: number, d?: number, s?: number, r?: number): this;
+  adsr(p1: Partial<ADSRParams> | number, d?: number, s?: number, r?: number) {
+    if (typeof p1 === "number") {
+      this._env.a = p1;
+      if (typeof d === "number") this._env.d = d;
+      if (typeof s === "number") this._env.s = s;
+      if (typeof r === "number") this._env.r = r;
+    } else {
+      if (typeof p1.a === "number") this._env.a = p1.a;
+      if (typeof p1.d === "number") this._env.d = p1.d;
+      if (typeof p1.s === "number") this._env.s = p1.s;
+      if (typeof p1.r === "number") this._env.r = p1.r;
+    }
+    return this;
+  }
+
   bpf(frequency: number) {
     const lpf = new FilterEffect(this.ctx, { type: "bandpass", frequency });
     this._filters.set("bandpass", lpf);
@@ -59,7 +78,11 @@ class Synth {
   }
 
   lpf(frequency: number) {
-    const lpf = new FilterEffect(this.ctx, { type: "lowpass", frequency });
+    const lpf = new FilterEffect(this.ctx, {
+      type: "lowpass",
+      frequency,
+      env: { depth: 2, adsr: { a: 0.01, d: 0.01, s: 1.0, r: 0.01 } },
+    });
     this._filters.set("lowpass", lpf);
     return this;
   }
@@ -76,13 +99,13 @@ class Synth {
 
   play() {
     const destination = this.connectChain();
-    const pulse = new Oscillator(this.ctx, {
+    const osc = new Oscillator(this.ctx, destination.input, {
       type: this.type,
       frequency: 130.81,
       duration: 1,
+      env: this._env,
     });
-    if (this.ctx.state === "suspended") this.ctx.resume();
-    pulse.trigger(destination.input);
+    osc.play();
   }
 }
 
