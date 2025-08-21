@@ -2,7 +2,7 @@ import type MasterGain from "../core/master-gain";
 import DelayEffect from "../effects/delay";
 import FilterEffect from "../effects/filter";
 import ReverbEffect from "../effects/reverb";
-import PulseOscillator from "./pulse-oscillator";
+import Oscillator from "./oscillator";
 
 type FilterType = Exclude<
   BiquadFilterType,
@@ -76,9 +76,10 @@ class Synth {
 
   play() {
     const destination = this.connectChain();
-    const pulse = new PulseOscillator(this.ctx, {
+    const pulse = new Oscillator(this.ctx, {
       type: this.type,
       frequency: 130.81,
+      duration: 1,
     });
     if (this.ctx.state === "suspended") this.ctx.resume();
     pulse.trigger(destination.input);

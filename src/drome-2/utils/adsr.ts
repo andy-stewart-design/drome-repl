@@ -13,7 +13,7 @@ interface ApplyEnvArgs {
   duration: number;
   startVal: number;
   maxVal: number;
-  env: Partial<ADSRParams>;
+  env?: Partial<ADSRParams>;
 }
 
 const defaultEnv = { a: 0.01, d: 0.01, s: 1.0, r: 0.025 };
@@ -24,12 +24,12 @@ function applyEnvelope({
   duration,
   startVal,
   maxVal,
-  env,
+  env = {},
 }: ApplyEnvArgs) {
   const adsr = { ...defaultEnv, ...env };
-  const attDur = clamp(env.a || 0.01, 0.01, 0.98) * duration;
+  const attDur = clamp(adsr.a, 0.01, 0.98) * duration;
   const attEnd = startTime + attDur;
-  const decDur = clamp(env.d || 0.01, 0.01, 0.98) * duration;
+  const decDur = clamp(adsr.d, 0.01, 0.98) * duration;
   const decEnd = attEnd + decDur;
   const susVal = maxVal * adsr.s;
   const susEnd = startTime + duration;
