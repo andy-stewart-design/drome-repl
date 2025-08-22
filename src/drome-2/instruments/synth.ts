@@ -91,12 +91,12 @@ class Synth {
     return this;
   }
 
-  delay(delayTime = 0.25, feedback = 0.25, mix = 0.3) {
+  delay(feedback: number, delayTime = 0.25, mix = 0.3) {
     this._delay = new DelayEffect(this.ctx, { delayTime, feedback, mix });
     return this;
   }
 
-  reverb(duration = 1, decay = 1, mix = 0.5) {
+  reverb(duration: number, decay = 0.1, mix = 0.5) {
     this._reverb = new ReverbEffect(this.ctx, { duration, decay, mix });
     return this;
   }
