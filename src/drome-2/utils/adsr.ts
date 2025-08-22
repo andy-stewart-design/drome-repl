@@ -1,11 +1,5 @@
 import { clamp } from "./math";
-
-interface ADSRParams {
-  a: number;
-  d: number;
-  s: number;
-  r: number;
-}
+import type { ADSRParams } from "../types";
 
 interface ApplyEnvArgs {
   target: AudioParam;

@@ -1,26 +1,23 @@
-import type MasterGain from "../core/master-gain";
 import DelayEffect from "../effects/delay";
 import FilterEffect from "../effects/filter";
 import ReverbEffect from "../effects/reverb";
 import Oscillator from "./oscillator";
-import type { ADSRParams } from "@/drome-2/types";
-
-type FilterType = Exclude<
-  BiquadFilterType,
-  "allpass" | "highshelf" | "lowshelf" | "notch" | "peaking"
->;
-
-type DromeAudioNode = DelayEffect | FilterEffect | ReverbEffect | MasterGain;
+import type {
+  ADSRParams,
+  DromeAudioNode,
+  FilterOptions,
+  FilterType,
+} from "../types";
 
 class Synth {
   private ctx: AudioContext;
 
   private type: OscillatorType;
-  private _filters: Map<FilterType, FilterEffect> = new Map();
+  private _filters: Map<FilterType, FilterOptions> = new Map();
   private _delay: DelayEffect | undefined;
   private _reverb: ReverbEffect | undefined;
   private _destination: DromeAudioNode;
-  private _env: ADSRParams = { a: 0.01, d: 0.125, s: 0.5, r: 0.01 };
+  private _env: ADSRParams = { a: 0.01, d: 0.125, s: 1.0, r: 0.1 };
 
   constructor(
     ctx: AudioContext,
@@ -32,20 +29,19 @@ class Synth {
     this.type = type;
   }
 
-  private connectChain() {
-    const nodes = [
-      ...this._filters.values(),
-      this._reverb,
-      this._delay,
-      this._destination,
-    ].filter(isAudioNode);
+  private addFilter(type: FilterType, frequency: number) {
+    const env = { depth: 1, adsr: { ...this._env } };
+    this._filters.set(type, { type, frequency, env, q: 1 });
+  }
 
-    nodes.forEach((node, i) => {
-      const nextInput = nodes[i + 1]?.input ?? this.ctx.destination;
-      node.connect(nextInput);
-    });
-
-    return nodes[0];
+  private updateFilter(t: FilterType, de: number, env: Partial<ADSRParams>) {
+    const filter = this._filters.get(t);
+    if (!filter) return this;
+    filter.env.depth = de;
+    if (typeof env.a === "number") filter.env.adsr.a = env.a;
+    if (typeof env.d === "number") filter.env.adsr.d = env.d;
+    if (typeof env.s === "number") filter.env.adsr.s = env.s;
+    if (typeof env.r === "number") filter.env.adsr.r = env.r;
   }
 
   adsr(p1: Partial<ADSRParams>): this;
@@ -66,24 +62,32 @@ class Synth {
   }
 
   bpf(frequency: number) {
-    const lpf = new FilterEffect(this.ctx, { type: "bandpass", frequency });
-    this._filters.set("bandpass", lpf);
+    this.addFilter("bandpass", frequency);
+    return this;
+  }
+
+  bpenv(depth: number, a?: number, d?: number, s?: number, r?: number) {
+    this.updateFilter("bandpass", depth, { a, d, s, r });
     return this;
   }
 
   hpf(frequency: number) {
-    const lpf = new FilterEffect(this.ctx, { type: "highpass", frequency });
-    this._filters.set("highpass", lpf);
+    this.addFilter("highpass", frequency);
+    return this;
+  }
+
+  hpenv(depth: number, a?: number, d?: number, s?: number, r?: number) {
+    this.updateFilter("highpass", depth, { a, d, s, r });
     return this;
   }
 
   lpf(frequency: number) {
-    const lpf = new FilterEffect(this.ctx, {
-      type: "lowpass",
-      frequency,
-      env: { depth: 2, adsr: { a: 0.01, d: 0.01, s: 1.0, r: 0.01 } },
-    });
-    this._filters.set("lowpass", lpf);
+    this.addFilter("lowpass", frequency);
+    return this;
+  }
+
+  lpenv(depth: number, a?: number, d?: number, s?: number, r?: number) {
+    this.updateFilter("lowpass", depth, { a, d, s, r });
     return this;
   }
 
@@ -98,14 +102,32 @@ class Synth {
   }
 
   play() {
-    const destination = this.connectChain();
-    const osc = new Oscillator(this.ctx, destination.input, {
+    const startTime = this.ctx.currentTime + 0.01;
+    const duration = 1;
+    const filters = [...(this._filters?.values() ?? [])].map(
+      (options) => new FilterEffect(this.ctx, options)
+    );
+
+    const nodes = [
+      ...filters,
+      this._reverb,
+      this._delay,
+      this._destination,
+    ].filter(isAudioNode);
+
+    nodes.forEach((node, i) => {
+      const nextInput = nodes[i + 1]?.input ?? this.ctx.destination;
+      node.connect(nextInput);
+      if (node instanceof FilterEffect) node.apply(startTime, duration);
+    });
+
+    const osc = new Oscillator(this.ctx, nodes[0].input, {
       type: this.type,
       frequency: 130.81,
-      duration: 1,
       env: this._env,
     });
-    osc.play();
+
+    osc.play(startTime, duration);
   }
 }
 

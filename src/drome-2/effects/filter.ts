@@ -1,18 +1,7 @@
 import { applyEnvelope } from "../utils/adsr";
+import type { ADSRParams, FilterOptions } from "../types";
 
-interface ADSRParams {
-  a: number;
-  d: number;
-  s: number;
-  r: number;
-}
-
-interface FilterOptions {
-  type?: BiquadFilterType;
-  frequency?: number;
-  q?: number;
-  env?: { depth: number; adsr: ADSRParams };
-}
+type FEOptions = Partial<FilterOptions>;
 
 class FilterEffect {
   private filter: BiquadFilterNode;
@@ -20,7 +9,7 @@ class FilterEffect {
 
   constructor(
     ctx: AudioContext,
-    { type = "lowpass", frequency = 600, q: Q = 1, env }: FilterOptions = {}
+    { type = "lowpass", frequency = 600, q: Q = 1, env }: FEOptions = {}
   ) {
     this.filter = new BiquadFilterNode(ctx, { type, frequency, Q });
     this.env = env;
@@ -52,3 +41,4 @@ class FilterEffect {
 }
 
 export default FilterEffect;
+export type { FilterOptions };
