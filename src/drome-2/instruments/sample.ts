@@ -1,6 +1,7 @@
 import DelayEffect from "../effects/delay";
 import FilterEffect from "../effects/filter";
 import ReverbEffect from "../effects/reverb";
+import DistortionEffect from "../effects/distortion";
 import type {
   ADSRParams,
   DromeAudioNode,
@@ -20,6 +21,7 @@ class Sample {
   private _filters: Map<FilterType, FilterOptions> = new Map();
   private _delay: DelayEffect | undefined;
   private _reverb: ReverbEffect | undefined;
+  private _distortion: DistortionEffect | undefined;
   private _env: ADSRParams = { a: 0.001, d: 0.125, s: 1.0, r: 0.1 };
   private _playbackRate = 1;
 
@@ -112,6 +114,15 @@ class Sample {
     return this;
   }
 
+  distort(amount: number, mix = 1, oversample: OverSampleType = "2x") {
+    this._distortion = new DistortionEffect(this.ctx, {
+      amount,
+      mix,
+      oversample,
+    });
+    return this;
+  }
+
   async play() {
     const buffer = this.buffer ?? (await this.loadSample());
     if (!buffer) return;
@@ -124,6 +135,7 @@ class Sample {
 
     const nodes = [
       ...filters,
+      this._distortion,
       this._reverb,
       this._delay,
       this._destination,

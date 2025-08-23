@@ -2,6 +2,7 @@ import type DelayEffect from "./effects/delay";
 import type FilterEffect from "./effects/filter";
 import type MasterGain from "./core/master-gain";
 import type ReverbEffect from "./effects/reverb";
+import type DistortionEffect from "./effects/distortion";
 
 interface ADSRParams {
   a: number;
@@ -10,7 +11,12 @@ interface ADSRParams {
   r: number;
 }
 
-type DromeAudioNode = DelayEffect | FilterEffect | ReverbEffect | MasterGain;
+type DromeAudioNode =
+  | DelayEffect
+  | FilterEffect
+  | ReverbEffect
+  | DistortionEffect
+  | MasterGain;
 
 type FilterType = Exclude<
   BiquadFilterType,

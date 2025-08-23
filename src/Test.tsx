@@ -18,10 +18,10 @@ export default function TestDemo() {
       .reverb(0.5)
       .delay(0.1);
 
-    const sample = new Sample(ctx, master).reverb(0.1);
+    const sample = new Sample(ctx, master).distort(200, 1).reverb(0.1);
     // .adsr(0.001, 0.125, 0.0);
     // .reverb(0.2)
-    // .delay(0.1)
+    // .delay(0.1)=
     // .lpf(1600)
 
     setCtx(ctx);

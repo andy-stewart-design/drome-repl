@@ -5,6 +5,7 @@
 import DelayEffect from "../effects/delay";
 import FilterEffect from "../effects/filter";
 import ReverbEffect from "../effects/reverb";
+import DistortionEffect from "../effects/distortion";
 import Oscillator from "./oscillator";
 import type {
   ADSRParams,
@@ -21,6 +22,7 @@ class Synth {
   private _filters: Map<FilterType, FilterOptions> = new Map();
   private _delay: DelayEffect | undefined;
   private _reverb: ReverbEffect | undefined;
+  private _distortion: DistortionEffect | undefined;
   private _env: ADSRParams = { a: 0.01, d: 0.125, s: 1.0, r: 0.1 };
 
   constructor(
@@ -105,6 +107,15 @@ class Synth {
     return this;
   }
 
+  distort(amount: number, mix = 1, oversample: OverSampleType = "2x") {
+    this._distortion = new DistortionEffect(this.ctx, {
+      amount,
+      mix,
+      oversample,
+    });
+    return this;
+  }
+
   play() {
     const startTime = this.ctx.currentTime + 0.01;
     const duration = 1;
@@ -114,6 +125,7 @@ class Synth {
 
     const nodes = [
       ...filters,
+      this._distortion,
       this._reverb,
       this._delay,
       this._destination,
