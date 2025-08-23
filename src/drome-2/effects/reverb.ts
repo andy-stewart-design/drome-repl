@@ -1,8 +1,7 @@
-import { generateImpulseResponse } from "../utils/reverb";
+import { generateHighQualityImpulseResponse } from "../utils/reverb";
 
 interface ReverbEffectOptions {
   duration?: number; // IR length in seconds
-  decay?: number; // exponential decay factor
   mix?: number; // 0 = dry only, 1 = wet only
 }
 
@@ -15,12 +14,14 @@ class ReverbEffect {
 
   constructor(
     ctx: AudioContext,
-    { duration = 3, decay = 2.0, mix = 0.5 }: ReverbEffectOptions = {}
+    { duration = 3, mix = 0.5 }: ReverbEffectOptions = {}
   ) {
     this.input = new GainNode(ctx);
     this.output = new GainNode(ctx);
     this.convolver = new ConvolverNode(ctx);
-    this.convolver.buffer = generateImpulseResponse(ctx, duration, decay);
+    generateHighQualityImpulseResponse(ctx, duration).then((buffer) => {
+      this.convolver.buffer = buffer;
+    });
 
     this.wet = new GainNode(ctx, { gain: mix });
     this.dry = new GainNode(ctx, { gain: 1 });

@@ -18,10 +18,9 @@ export default function TestDemo() {
       .reverb(0.5)
       .delay(0.1);
 
-    const sample = new Sample(ctx, master)
-      .reverb(0.25)
-      // .delay(0.1)
-      .lpf(1600);
+    const sample = new Sample(ctx, master).reverb(0.2);
+    // .delay(0.1)
+    // .lpf(1600);
 
     setCtx(ctx);
     setSynth(synth);

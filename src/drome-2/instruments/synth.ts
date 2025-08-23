@@ -1,4 +1,4 @@
-// TODO: distorion effect (waveshaper node)
+// TODO: distortion effect (waveshaper node)
 // TODO: vibrato effect (waveshaper node)
 // TODO: panning
 
@@ -100,12 +100,8 @@ class Synth {
     return this;
   }
 
-  reverb(mix: number, duration = 1, decay = 0.75) {
-    this._reverb = new ReverbEffect(this.ctx, {
-      duration,
-      decay,
-      mix: mix * 2,
-    });
+  reverb(mix: number, duration = 2) {
+    this._reverb = new ReverbEffect(this.ctx, { duration, mix });
     return this;
   }
 

@@ -104,12 +104,8 @@ class Sample {
     return this;
   }
 
-  reverb(mix: number, duration = 1, decay = 0.75) {
-    this._reverb = new ReverbEffect(this.ctx, {
-      duration,
-      decay,
-      mix: mix * 2,
-    });
+  reverb(mix: number, duration = 2) {
+    this._reverb = new ReverbEffect(this.ctx, { duration, mix });
     return this;
   }
 
@@ -144,14 +140,6 @@ class Sample {
     gainNode.connect(nodes[0].input);
     source.start(startTime);
     source.stop(startTime + duration);
-
-    //   const osc = new Oscillator(this.ctx, nodes[0].input, {
-    //     type: this.type,
-    //     frequency: 130.81,
-    //     env: this._env,
-    //   });
-
-    //   osc.play(startTime, duration);
   }
 }
 
