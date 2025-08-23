@@ -1,5 +1,5 @@
 import { createSignal, onMount } from "solid-js";
-import MasterGain from "./drome-2/core/master-gain";
+import DromeGain from "./drome-2/core/drome-gain";
 import Synth from "./drome-2/instruments/synth";
 import Sample from "./drome-2/instruments/sample";
 
@@ -10,7 +10,7 @@ export default function TestDemo() {
 
   onMount(() => {
     const ctx = new AudioContext();
-    const master = new MasterGain(ctx, 0.5);
+    const master = new DromeGain(ctx, 0.5);
     const synth = new Synth(ctx, master, "sawtooth")
       .lpf(300)
       .lpenv(2, 0.125, 0.125, 0.5, 0.5)
@@ -18,7 +18,9 @@ export default function TestDemo() {
       .reverb(0.5)
       .delay(0.1);
 
-    const sample = new Sample(ctx, master).distort(200, 1).reverb(0.1);
+    const sample = new Sample(ctx, master).reverb(0.1);
+    // .distort(50, 1)
+    // .postGain(0.5);
     // .adsr(0.001, 0.125, 0.0);
     // .reverb(0.2)
     // .delay(0.1)=

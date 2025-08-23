@@ -2,6 +2,7 @@ import DelayEffect from "../effects/delay";
 import FilterEffect from "../effects/filter";
 import ReverbEffect from "../effects/reverb";
 import DistortionEffect from "../effects/distortion";
+import DromeGain from "../core/drome-gain";
 import type {
   ADSRParams,
   DromeAudioNode,
@@ -22,12 +23,15 @@ class Sample {
   private _delay: DelayEffect | undefined;
   private _reverb: ReverbEffect | undefined;
   private _distortion: DistortionEffect | undefined;
+  private _postgain: DromeGain;
+  private _gain = 1;
   private _env: ADSRParams = { a: 0.001, d: 0.125, s: 1.0, r: 0.1 };
   private _playbackRate = 1;
 
   constructor(ctx: AudioContext, destination: DromeAudioNode) {
     this.ctx = ctx;
     this._destination = destination;
+    this._postgain = new DromeGain(this.ctx, 1);
   }
 
   async loadSample() {
@@ -55,6 +59,16 @@ class Sample {
     if (typeof env.d === "number") filter.env.adsr.d = env.d;
     if (typeof env.s === "number") filter.env.adsr.s = env.s;
     if (typeof env.r === "number") filter.env.adsr.r = env.r;
+  }
+
+  gain(n: number) {
+    this._gain = n;
+    return this;
+  }
+
+  postgain(n: number) {
+    this._postgain.volume = n;
+    return this;
   }
 
   adsr(p1: Partial<ADSRParams>): this;
@@ -109,6 +123,11 @@ class Sample {
     return this;
   }
 
+  rate(n: number) {
+    this._playbackRate = n;
+    return this;
+  }
+
   reverb(mix: number, duration = 2) {
     this._reverb = new ReverbEffect(this.ctx, { duration, mix });
     return this;
@@ -138,6 +157,7 @@ class Sample {
       this._distortion,
       this._reverb,
       this._delay,
+      this._postgain,
       this._destination,
     ].filter(isAudioNode);
 
@@ -148,13 +168,13 @@ class Sample {
     });
 
     const gainNode = this.ctx.createGain();
-    gainNode.gain.value = 1;
+    gainNode.gain.value = this._gain;
 
     applyEnvelope({
       target: gainNode.gain,
       startTime,
       duration,
-      maxVal: 1,
+      maxVal: this._gain,
       startVal: 0,
       env: this._env,
     });
@@ -165,6 +185,7 @@ class Sample {
     source.buffer = buffer;
     source.connect(gainNode);
     gainNode.connect(nodes[0].input);
+
     source.start(startTime);
     source.stop(startTime + duration + 0.1);
   }

@@ -6,6 +6,7 @@ import DelayEffect from "../effects/delay";
 import FilterEffect from "../effects/filter";
 import ReverbEffect from "../effects/reverb";
 import DistortionEffect from "../effects/distortion";
+import DromeGain from "../core/drome-gain";
 import Oscillator from "./oscillator";
 import type {
   ADSRParams,
@@ -23,6 +24,8 @@ class Synth {
   private _delay: DelayEffect | undefined;
   private _reverb: ReverbEffect | undefined;
   private _distortion: DistortionEffect | undefined;
+  private _postgain: DromeGain;
+  private _gain = 1;
   private _env: ADSRParams = { a: 0.01, d: 0.125, s: 1.0, r: 0.1 };
 
   constructor(
@@ -33,6 +36,7 @@ class Synth {
     this.ctx = ctx;
     this._destination = destination;
     this.type = type;
+    this._postgain = new DromeGain(this.ctx, 1);
   }
 
   private addFilter(type: FilterType, frequency: number) {
@@ -48,6 +52,16 @@ class Synth {
     if (typeof env.d === "number") filter.env.adsr.d = env.d;
     if (typeof env.s === "number") filter.env.adsr.s = env.s;
     if (typeof env.r === "number") filter.env.adsr.r = env.r;
+  }
+
+  gain(n: number) {
+    this._gain = n;
+    return this;
+  }
+
+  postgain(n: number) {
+    this._postgain.volume = n;
+    return this;
   }
 
   adsr(p1: Partial<ADSRParams>): this;
@@ -128,6 +142,7 @@ class Synth {
       this._distortion,
       this._reverb,
       this._delay,
+      this._postgain,
       this._destination,
     ].filter(isAudioNode);
 
@@ -141,6 +156,7 @@ class Synth {
       type: this.type,
       frequency: 130.81,
       env: this._env,
+      gain: this._gain,
     });
 
     osc.play(startTime, duration);

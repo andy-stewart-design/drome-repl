@@ -1,6 +1,6 @@
 import type DelayEffect from "./effects/delay";
 import type FilterEffect from "./effects/filter";
-import type MasterGain from "./core/master-gain";
+import type DromeGain from "./core/drome-gain";
 import type ReverbEffect from "./effects/reverb";
 import type DistortionEffect from "./effects/distortion";
 
@@ -16,7 +16,7 @@ type DromeAudioNode =
   | FilterEffect
   | ReverbEffect
   | DistortionEffect
-  | MasterGain;
+  | DromeGain;
 
 type FilterType = Exclude<
   BiquadFilterType,
