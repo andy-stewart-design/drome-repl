@@ -10,7 +10,7 @@ export default function TestDemo() {
 
   onMount(() => {
     const ctx = new AudioContext();
-    const master = new MasterGain(ctx, 0.7);
+    const master = new MasterGain(ctx, 0.5);
     const synth = new Synth(ctx, master, "sawtooth")
       .lpf(300)
       .lpenv(2, 0.125, 0.125, 0.5, 0.5)
@@ -18,9 +18,11 @@ export default function TestDemo() {
       .reverb(0.5)
       .delay(0.1);
 
-    const sample = new Sample(ctx, master).reverb(0.2);
+    const sample = new Sample(ctx, master).reverb(0.1);
+    // .adsr(0.001, 0.125, 0.0);
+    // .reverb(0.2)
     // .delay(0.1)
-    // .lpf(1600);
+    // .lpf(1600)
 
     setCtx(ctx);
     setSynth(synth);
