@@ -6,11 +6,13 @@ import DromeGain from "./drome-gain";
 class Drome extends AudioClock {
   private instruments: Set<DromeSynth | DromeSample> = new Set();
   private master: DromeGain;
+  readonly sampleBuffers: Map<string, AudioBuffer> = new Map();
 
   constructor(bpm?: number) {
     super(bpm);
     this.master = new DromeGain(this.ctx, 0.5);
     this.on("bar", this.handleTick.bind(this));
+    this.on("bar", (met) => console.log(met));
   }
 
   private handleTick() {
@@ -43,6 +45,12 @@ class Drome extends AudioClock {
   //   public sample(name: SampleName = "bd", index = 0) {
   public sample() {
     return new DromeSample(this, this.master);
+  }
+
+  public destroy() {
+    super.destroy();
+    // this.instruments.forEach((inst) => inst.destroy());
+    this.instruments.clear();
   }
 }
 

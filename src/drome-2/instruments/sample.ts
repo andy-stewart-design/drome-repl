@@ -2,11 +2,7 @@ import DromeInstrument from "./drome-instrument";
 import DromeBuffer from "./drome-buffer";
 import type { DromeAudioNode } from "../types";
 
-const sampleUrl =
-  "https://raw.githubusercontent.com/ritchse/tidal-drum-machines/main/machines/RolandTR909/rolandtr909-bd/Bassdrum-04.wav";
-
 class Sample extends DromeInstrument {
-  private buffer: AudioBuffer | undefined;
   private sources: Set<DromeBuffer> = new Set();
   private _playbackRate = 1;
 
@@ -14,13 +10,12 @@ class Sample extends DromeInstrument {
     super(ctx, destination);
   }
 
-  async loadSample() {
+  async loadSample(sampleUrl: string) {
     try {
       const response = await fetch(sampleUrl);
       const arrayBuffer = await response.arrayBuffer();
-      this.buffer = await this.ctx.decodeAudioData(arrayBuffer);
-
-      return this.buffer;
+      const audioBuffer = await this.ctx.decodeAudioData(arrayBuffer);
+      return audioBuffer;
     } catch (error) {
       console.error("Error loading or playing sample:", error);
     }
@@ -31,11 +26,7 @@ class Sample extends DromeInstrument {
     return this;
   }
 
-  async play(time?: number, dur?: number) {
-    // TODO: Move this out of instrument
-    const buffer = this.buffer ?? (await this.loadSample());
-    if (!buffer) return;
-
+  play(buffer: AudioBuffer, time?: number, dur?: number) {
     const startTime = time ?? this.ctx.currentTime;
     const duration = dur ?? 1;
     const destination = super._play(startTime, duration);
