@@ -2,7 +2,7 @@ import DromeInstrument from "./drome-instrument";
 import DromeOscillator from "./drome-oscillator";
 import type { DromeAudioNode } from "../types";
 
-class DromeSynth extends DromeInstrument {
+class Synth extends DromeInstrument {
   private type: OscillatorType;
   private oscillators: Set<DromeOscillator> = new Set();
 
@@ -37,4 +37,4 @@ class DromeSynth extends DromeInstrument {
   }
 }
 
-export default DromeSynth;
+export default Synth;

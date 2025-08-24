@@ -64,6 +64,7 @@ class AudioClock {
 
   public async start() {
     if (!this._paused) return;
+    if (this.ctx.state === "suspended") this.ctx.resume();
     this.onTick();
     this.intervalID = setInterval(this.onTick.bind(this), this.interval * 1000);
     this._paused = false;

@@ -5,7 +5,7 @@ import type { DromeAudioNode } from "../types";
 const sampleUrl =
   "https://raw.githubusercontent.com/ritchse/tidal-drum-machines/main/machines/RolandTR909/rolandtr909-bd/Bassdrum-04.wav";
 
-class DromeSample extends DromeInstrument {
+class Sample extends DromeInstrument {
   private buffer: AudioBuffer | undefined;
   private sources: Set<DromeBuffer> = new Set();
   private _playbackRate = 1;
@@ -49,6 +49,10 @@ class DromeSample extends DromeInstrument {
     this.sources.add(source);
     source.node.onended = () => this.sources.delete(source);
   }
+
+  stop() {
+    this.sources.forEach((src) => src.stop());
+  }
 }
 
-export default DromeSample;
+export default Sample;
