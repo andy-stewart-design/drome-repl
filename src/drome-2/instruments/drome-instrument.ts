@@ -21,7 +21,7 @@ class DromeInstrument {
   private _reverb: ReverbEffect | undefined;
   private _distortion: DistortionEffect | undefined;
   private _postgain: DromeGain;
-  public _env: ADSRParams = { a: 0.001, d: 0.125, s: 1.0, r: 0.1 };
+  readonly _env: ADSRParams = { a: 0.001, d: 0.125, s: 1.0, r: 0.1 };
 
   constructor(ctx: AudioContext, destination: DromeAudioNode) {
     this.ctx = ctx;
@@ -51,6 +51,23 @@ class DromeInstrument {
 
   postgain(n: number) {
     this._postgain.volume = n;
+    return this;
+  }
+
+  adsr(p1: Partial<ADSRParams>): this;
+  adsr(p1: number, d?: number, s?: number, r?: number): this;
+  adsr(p1: Partial<ADSRParams> | number, d?: number, s?: number, r?: number) {
+    if (typeof p1 === "number") {
+      this._env.a = p1;
+      if (typeof d === "number") this._env.d = d;
+      if (typeof s === "number") this._env.s = s;
+      if (typeof r === "number") this._env.r = r;
+    } else {
+      if (typeof p1.a === "number") this._env.a = p1.a;
+      if (typeof p1.d === "number") this._env.d = p1.d;
+      if (typeof p1.s === "number") this._env.s = p1.s;
+      if (typeof p1.r === "number") this._env.r = p1.r;
+    }
     return this;
   }
 

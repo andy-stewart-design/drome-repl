@@ -1,6 +1,6 @@
 import { createSignal, onMount } from "solid-js";
 import DromeGain from "./drome-2/core/drome-gain";
-import Synth from "./drome-2/instruments/synth";
+import Synth from "./drome-2/instruments/drome-synth";
 import DromeSample from "./drome-2/instruments/drome-sample";
 
 export default function TestDemo() {
@@ -18,13 +18,12 @@ export default function TestDemo() {
       .reverb(0.5)
       .delay(0.1);
 
-    const sample = new DromeSample(ctx, master)
-      .reverb(0.1)
-      // .distort(50, 1)
-      // .postgain(0.75);
-      // .adsr(0.001, 0.125, 0.0);
-      .delay(0.1)
-      .lpf(1600);
+    const sample = new DromeSample(ctx, master).reverb(0.1);
+    // .distort(50, 1)
+    // .postgain(0.75);
+    // .adsr(0.001, 0.125, 0.0);
+    // .delay(0.1)
+    // .lpf(1600);
 
     setCtx(ctx);
     setSynth(synth);
