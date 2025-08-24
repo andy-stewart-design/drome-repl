@@ -52,12 +52,12 @@ class AudioClock {
     while (this.nextBeatStart < lookahead) {
       this.nextBeatStart =
         Math.round(this.nextBeatStart * this.precision) / this.precision;
-      this.nextBeatStart += this.currentBarDuration / this._beatsPerBar;
 
       this.listeners.get("beat")?.forEach((cb) => {
         cb({ ...this.metronome, beat: this.metronome.beat + 1 });
       });
 
+      this.nextBeatStart += this.currentBarDuration / this._beatsPerBar;
       this.metronome.beat = (this.metronome.beat + 1) % this._beatsPerBar;
     }
   }
@@ -131,6 +131,10 @@ class AudioClock {
 
   get paused() {
     return this._paused;
+  }
+
+  get beatStartTime() {
+    return this.nextBeatStart;
   }
 
   get barStartTime() {

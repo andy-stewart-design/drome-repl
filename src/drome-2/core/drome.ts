@@ -11,8 +11,8 @@ class Drome extends AudioClock {
   constructor(bpm?: number) {
     super(bpm);
     this.master = new DromeGain(this.ctx, 0.5);
-    this.on("bar", this.handleTick.bind(this));
-    this.on("bar", (met) => console.log(met));
+    this.on("beat", this.handleTick.bind(this));
+    this.on("beat", (met) => console.log(met));
   }
 
   private handleTick() {

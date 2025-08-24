@@ -15,7 +15,7 @@ class DromeSynth extends Synth {
   }
 
   start() {
-    const startTime = this.drome.ctx.currentTime + 0.01;
+    const startTime = this.drome.beatStartTime + 0.01;
     const duration = 1;
     this.play(130.81, startTime, duration);
   }

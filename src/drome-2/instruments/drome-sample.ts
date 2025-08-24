@@ -14,7 +14,7 @@ class DromeSample extends Sample {
   }
 
   async start() {
-    const startTime = this.drome.ctx.currentTime + 0.01;
+    const startTime = this.drome.beatStartTime + 0.01;
     const duration = 1;
 
     let buffer =
@@ -26,7 +26,6 @@ class DromeSample extends Sample {
       return;
     }
 
-    // console.log("starting sample", this.drome.sampleBuffers);
     this.drome.sampleBuffers.set(sampleUrl, buffer);
     this.play(buffer, startTime, duration);
   }
