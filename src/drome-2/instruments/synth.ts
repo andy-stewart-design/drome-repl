@@ -20,12 +20,12 @@ class Synth {
   private _destination: DromeAudioNode;
 
   private type: OscillatorType;
+  private _gain = 1;
   private _filters: Map<FilterType, FilterOptions> = new Map();
   private _delay: DelayEffect | undefined;
   private _reverb: ReverbEffect | undefined;
   private _distortion: DistortionEffect | undefined;
   private _postgain: DromeGain;
-  private _gain = 1;
   private _env: ADSRParams = { a: 0.01, d: 0.125, s: 1.0, r: 0.1 };
 
   constructor(
