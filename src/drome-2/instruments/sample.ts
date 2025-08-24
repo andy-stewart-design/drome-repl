@@ -31,14 +31,14 @@ class Sample extends DromeInstrument {
     return this;
   }
 
-  async play() {
+  async play(time?: number, dur?: number) {
+    // TODO: Move this out of instrument
     const buffer = this.buffer ?? (await this.loadSample());
     if (!buffer) return;
 
-    const startTime = this.ctx.currentTime + 0.01;
-    const duration = buffer.duration;
+    const startTime = time ?? this.ctx.currentTime;
+    const duration = dur ?? 1;
     const destination = super._play(startTime, duration);
-
     const source = new DromeBuffer(this.ctx, destination.input, buffer, {
       rate: this._playbackRate,
       gain: this._gain,

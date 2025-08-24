@@ -24,7 +24,8 @@ export default function TestDemo() {
   function handlePlay() {
     const d = drome();
     if (!d) return;
-    d.start();
+    if (d.paused) d.start();
+    else d.stop();
   }
 
   return (

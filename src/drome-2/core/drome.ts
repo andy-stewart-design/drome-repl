@@ -1,10 +1,10 @@
 import AudioClock from "./audio-clock";
-import Synth from "../instruments/synth";
-import Sample from "../instruments/sample";
+import DromeSynth from "../instruments/drome-synth";
+import DromeSample from "../instruments/drome-sample";
 import DromeGain from "./drome-gain";
 
 class Drome extends AudioClock {
-  private instruments: Set<Synth | Sample> = new Set();
+  private instruments: Set<DromeSynth | DromeSample> = new Set();
   private master: DromeGain;
 
   constructor(bpm?: number) {
@@ -14,7 +14,7 @@ class Drome extends AudioClock {
   }
 
   private handleTick() {
-    this.instruments.forEach((inst) => inst.play());
+    this.instruments.forEach((inst) => inst.start());
   }
 
   public async start() {
@@ -28,7 +28,7 @@ class Drome extends AudioClock {
     this.instruments.forEach((inst) => inst.stop());
   }
 
-  public addInstrument(inst: Synth | Sample) {
+  public addInstrument(inst: DromeSynth | DromeSample) {
     this.instruments.add(inst);
   }
 
@@ -37,12 +37,12 @@ class Drome extends AudioClock {
   }
 
   public synth(type: OscillatorType = "sine") {
-    return new Synth(this.ctx, this.master, type);
+    return new DromeSynth(this, this.master, type);
   }
 
   //   public sample(name: SampleName = "bd", index = 0) {
   public sample() {
-    return new Sample(this.ctx, this.master);
+    return new DromeSample(this, this.master);
   }
 }
 

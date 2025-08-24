@@ -15,14 +15,14 @@ class Synth extends DromeInstrument {
     this.type = type;
   }
 
-  play() {
-    const startTime = this.ctx.currentTime + 0.01;
-    const duration = 1;
+  play(frequency: number, time?: number, dur?: number) {
+    const startTime = time ?? this.ctx.currentTime;
+    const duration = dur ?? 1;
     const destination = super._play(startTime, duration);
 
     const osc = new DromeOscillator(this.ctx, destination.input, {
       type: this.type,
-      frequency: 130.81,
+      frequency,
       env: this._env,
       gain: this._gain,
     });
