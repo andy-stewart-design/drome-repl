@@ -1,9 +1,10 @@
 import DromeInstrument from "./drome-instrument";
-import Oscillator from "./oscillator";
+import DromeOscillator from "./drome-oscillator";
 import type { DromeAudioNode } from "../types";
 
 class DromeSynth extends DromeInstrument {
   private type: OscillatorType;
+  private oscillators: Set<DromeOscillator> = new Set();
 
   constructor(
     ctx: AudioContext,
@@ -19,7 +20,7 @@ class DromeSynth extends DromeInstrument {
     const duration = 1;
     const destination = super._play(startTime, duration);
 
-    const osc = new Oscillator(this.ctx, destination.input, {
+    const osc = new DromeOscillator(this.ctx, destination.input, {
       type: this.type,
       frequency: 130.81,
       env: this._env,
@@ -27,6 +28,12 @@ class DromeSynth extends DromeInstrument {
     });
 
     osc.play(startTime, duration);
+    this.oscillators.add(osc);
+    osc.node.onended = () => this.oscillators.delete(osc);
+  }
+
+  stop() {
+    this.oscillators.forEach((osc) => osc.stop());
   }
 }
 

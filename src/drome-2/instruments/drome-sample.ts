@@ -1,12 +1,13 @@
-import type { DromeAudioNode } from "../types";
-import { applyEnvelope } from "../utils/adsr";
 import DromeInstrument from "./drome-instrument";
+import DromeBuffer from "./drome-buffer";
+import type { DromeAudioNode } from "../types";
 
 const sampleUrl =
   "https://raw.githubusercontent.com/ritchse/tidal-drum-machines/main/machines/RolandTR909/rolandtr909-bd/Bassdrum-04.wav";
 
 class DromeSample extends DromeInstrument {
   private buffer: AudioBuffer | undefined;
+  private sources: Set<DromeBuffer> = new Set();
   private _playbackRate = 1;
 
   constructor(ctx: AudioContext, destination: DromeAudioNode) {
@@ -38,27 +39,15 @@ class DromeSample extends DromeInstrument {
     const duration = buffer.duration;
     const destination = super._play(startTime, duration);
 
-    const gainNode = this.ctx.createGain();
-    gainNode.gain.value = this._gain;
-
-    applyEnvelope({
-      target: gainNode.gain,
-      startTime,
-      duration,
-      maxVal: this._gain,
-      startVal: 0,
+    const source = new DromeBuffer(this.ctx, destination.input, buffer, {
+      rate: this._playbackRate,
+      gain: this._gain,
       env: this._env,
     });
 
-    const source = new AudioBufferSourceNode(this.ctx, {
-      playbackRate: this._playbackRate,
-    });
-    source.buffer = buffer;
-    source.connect(gainNode);
-    gainNode.connect(destination.input);
-
-    source.start(startTime);
-    source.stop(startTime + duration + 0.1);
+    source.play(startTime, duration);
+    this.sources.add(source);
+    source.node.onended = () => this.sources.delete(source);
   }
 }
 
