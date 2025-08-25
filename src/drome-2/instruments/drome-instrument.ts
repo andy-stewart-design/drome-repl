@@ -15,6 +15,8 @@ class DromeInstrument {
   readonly ctx: AudioContext;
   private _destination: DromeAudioNode;
 
+  readonly notes: (string | number)[] = [];
+
   public _gain = 1;
   private _filters: Map<FilterType, FilterOptions> = new Map();
   private _delay: DelayEffect | undefined;
@@ -27,6 +29,11 @@ class DromeInstrument {
     this.ctx = ctx;
     this._destination = destination;
     this._postgain = new DromeGain(this.ctx, 1);
+  }
+
+  note(...args: (string | number)[]) {
+    this.notes.push(...args);
+    return this;
   }
 
   _addFilter(type: FilterType, frequency: number) {
