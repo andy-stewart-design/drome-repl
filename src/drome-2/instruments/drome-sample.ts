@@ -56,6 +56,11 @@ class DromeSample extends DromeInstrument {
     });
   }
 
+  bank(bank: SampleBank) {
+    this.sampleBank = bank;
+    return this;
+  }
+
   rate(n: number) {
     this._playbackRate = n;
     return this;

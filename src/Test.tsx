@@ -6,15 +6,15 @@ export default function TestDemo() {
 
   onMount(() => {
     const drome = new Drome();
-    const inst = drome
-      .synth("sawtooth")
-      .lpf(300)
-      .note(130.81)
-      .adsr(0.01, 0.333, 0.0, 0.5)
-      .lpenv(2, 0.125, 0.125, 0.5, 0.5)
-      .reverb(0.5);
+    // const inst = drome
+    //   .synth("sawtooth")
+    //   .lpf(300)
+    //   .note(130.81)
+    //   .adsr(0.01, 0.333, 0.0, 0.5)
+    //   .lpenv(2, 0.125, 0.125, 0.5, 0.5)
+    //   .reverb(0.5);
     // .delay(0.1);
-    // const inst = drome.sample().note("bd:3");
+    const inst = drome.sample().note("bd:3");
     // .distort(50, 1).postgain(0.75)
     // .adsr(0.001, 0.125, 0.0);
     // .delay(0.1)
