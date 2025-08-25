@@ -133,12 +133,20 @@ class AudioClock {
     return this._paused;
   }
 
+  get barStartTime() {
+    return this.nextBarStart;
+  }
+
   get beatStartTime() {
     return this.nextBeatStart;
   }
 
-  get barStartTime() {
-    return this.nextBarStart;
+  get barDuration() {
+    return this.currentBarDuration;
+  }
+
+  get beatDuration() {
+    return this.barDuration / this._beatsPerBar;
   }
 }
 

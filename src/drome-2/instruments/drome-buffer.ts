@@ -12,6 +12,7 @@ class DromeBuffer {
   private gainNode: GainNode;
   private maxGain: number;
   private srcNodes: AudioBufferSourceNode[] = [];
+  private sampleDuration: number;
   private env: ADSRParams;
   private startTime: number | undefined;
 
@@ -30,6 +31,7 @@ class DromeBuffer {
     this.maxGain = gain;
     const src = new AudioBufferSourceNode(this.ctx, { playbackRate });
     src.buffer = buffer;
+    this.sampleDuration = buffer.duration;
     this.srcNodes.push(src);
     this.env = env;
     this.srcNodes.forEach((node) =>
@@ -41,7 +43,7 @@ class DromeBuffer {
     applyEnvelope({
       target: this.gainNode.gain,
       startTime,
-      duration,
+      duration: this.sampleDuration,
       maxVal: this.maxGain,
       startVal: 0,
       env: this.env,
@@ -49,7 +51,7 @@ class DromeBuffer {
 
     this.srcNodes.forEach((node) => {
       node.start(startTime);
-      node.stop(startTime + duration + 0.05);
+      node.stop(startTime + Math.max(this.sampleDuration, duration) + 0.05);
     });
 
     this.startTime = startTime;
