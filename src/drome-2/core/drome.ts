@@ -18,9 +18,17 @@ class Drome extends AudioClock {
     this.instruments.forEach((inst) => inst.start());
   }
 
+  private async preloadSamples() {
+    const samplePromises = [...this.instruments].flatMap((inst) => {
+      if (inst instanceof DromeSynth) return [];
+      return inst.preloadSamples();
+    });
+    await Promise.all(samplePromises);
+  }
+
   public async start() {
     if (!this.paused) return;
-    // await this.preloadSamples();
+    await this.preloadSamples();
     super.start();
   }
 

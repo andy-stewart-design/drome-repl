@@ -4,6 +4,8 @@ import type { DromeAudioNode } from "../types";
 import DromeInstrument from "./drome-instrument";
 import DromeBuffer from "./drome-buffer";
 
+const sampleIndex = 3;
+
 class DromeSample extends DromeInstrument {
   private drome: Drome;
   readonly notes: string[] = [];
@@ -27,6 +29,30 @@ class DromeSample extends DromeInstrument {
     }
   }
 
+  preloadSamples() {
+    const baseUrl = drumMachines._base;
+    const notes = [...new Set(this.notes)].filter(Boolean);
+
+    return notes.map(async (note) => {
+      const sampleSlugs = (drumMachines as unknown as Record<string, string[]>)[
+        `${this.sampleBank}_${note}`
+      ] as string[];
+      const sampleSlug = sampleSlugs[sampleIndex % sampleSlugs.length];
+      const sampleUrl = `${baseUrl}${sampleSlug}`;
+      let buffer =
+        this.drome.sampleBuffers.get(sampleUrl) ??
+        (await this.loadSample(sampleUrl));
+
+      if (!buffer) {
+        console.error(`[DromeSample]: couldn't load sample from ${sampleUrl}`);
+        return;
+      }
+
+      this.drome.sampleBuffers.set(sampleUrl, buffer);
+      return [sampleUrl, buffer] as const;
+    });
+  }
+
   rate(n: number) {
     this._playbackRate = n;
     return this;
@@ -44,7 +70,7 @@ class DromeSample extends DromeInstrument {
       const sampleSlugs = (drumMachines as unknown as Record<string, string[]>)[
         `${this.sampleBank}_${note}`
       ] as string[];
-      const sampleSlug = sampleSlugs[3 % sampleSlugs.length];
+      const sampleSlug = sampleSlugs[sampleIndex % sampleSlugs.length];
       const sampleUrl = `${baseUrl}${sampleSlug}`;
 
       let buffer =
