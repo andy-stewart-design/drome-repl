@@ -1,10 +1,8 @@
+import DromeInstrument from "./drome-instrument";
+import DromeBuffer from "./drome-buffer";
 import drumMachines from "../sample-dictionaries/drum-machines.json";
 import type Drome from "../core/drome";
 import type { DromeAudioNode } from "../types";
-import DromeInstrument from "./drome-instrument";
-import DromeBuffer from "./drome-buffer";
-
-const sampleIndex = 3;
 
 class DromeSample extends DromeInstrument {
   private drome: Drome;
@@ -18,35 +16,40 @@ class DromeSample extends DromeInstrument {
     this.drome = drome;
   }
 
-  async loadSample(sampleUrl: string) {
+  async loadSample(note: string) {
+    const baseUrl = drumMachines._base;
+    const [name, _index] = note.split(":");
+    const index = parseInt(_index) || 0;
+    // TODO: FIX THIS
+    const sampleSlugs = (drumMachines as unknown as Record<string, string[]>)[
+      `${this.sampleBank}_${name}`
+    ] as string[];
+    const sampleSlug = sampleSlugs[index % sampleSlugs.length];
+    const sampleUrl = `${baseUrl}${sampleSlug}`;
+
+    if (this.drome.sampleBuffers.has(sampleUrl)) {
+      const audioBuffer = this.drome.sampleBuffers.get(sampleUrl)!;
+      return [audioBuffer, sampleUrl] as const;
+    }
+
     try {
       const response = await fetch(sampleUrl);
       const arrayBuffer = await response.arrayBuffer();
       const audioBuffer = await this.ctx.decodeAudioData(arrayBuffer);
-      return audioBuffer;
+      this.drome.sampleBuffers.set(sampleUrl, audioBuffer);
+      return [audioBuffer, sampleUrl] as const;
     } catch (error) {
-      console.error("Error loading or playing sample:", error);
+      console.error(`[DromeSample]: couldn't load sample from ${sampleUrl}`);
+    } finally {
+      return [undefined, sampleUrl] as const;
     }
   }
 
   preloadSamples() {
-    const baseUrl = drumMachines._base;
     const notes = [...new Set(this.notes)].filter(Boolean);
-
     return notes.map(async (note) => {
-      const sampleSlugs = (drumMachines as unknown as Record<string, string[]>)[
-        `${this.sampleBank}_${note}`
-      ] as string[];
-      const sampleSlug = sampleSlugs[sampleIndex % sampleSlugs.length];
-      const sampleUrl = `${baseUrl}${sampleSlug}`;
-      let buffer =
-        this.drome.sampleBuffers.get(sampleUrl) ??
-        (await this.loadSample(sampleUrl));
-
-      if (!buffer) {
-        console.error(`[DromeSample]: couldn't load sample from ${sampleUrl}`);
-        return;
-      }
+      let [buffer, sampleUrl] = await this.loadSample(note);
+      if (!buffer) return;
 
       this.drome.sampleBuffers.set(sampleUrl, buffer);
       return [sampleUrl, buffer] as const;
@@ -62,27 +65,11 @@ class DromeSample extends DromeInstrument {
     const startTime = this.drome.barStartTime;
     const duration = this.drome.barDuration;
     const offset = duration / this.notes.length;
-    const baseUrl = drumMachines._base;
     const destination = super._play(startTime, duration);
 
     this.notes.forEach(async (note, i) => {
-      // TODO: FIX THIS
-      const sampleSlugs = (drumMachines as unknown as Record<string, string[]>)[
-        `${this.sampleBank}_${note}`
-      ] as string[];
-      const sampleSlug = sampleSlugs[sampleIndex % sampleSlugs.length];
-      const sampleUrl = `${baseUrl}${sampleSlug}`;
-
-      let buffer =
-        this.drome.sampleBuffers.get(sampleUrl) ??
-        (await this.loadSample(sampleUrl));
-
-      if (!buffer) {
-        console.error(`[DromeSample]: couldn't load sample from ${sampleUrl}`);
-        return;
-      }
-
-      this.drome.sampleBuffers.set(sampleUrl, buffer);
+      let [buffer] = await this.loadSample(note);
+      if (!buffer) return;
 
       const source = new DromeBuffer(this.ctx, destination.input, buffer, {
         rate: this._playbackRate,
@@ -90,7 +77,6 @@ class DromeSample extends DromeInstrument {
         env: this._env,
       });
 
-      //   this.play(buffer, startTime + offset * i, duration);
       source.play(startTime + offset * i, duration);
       this.sources.add(source);
       source.node.onended = () => this.sources.delete(source);

@@ -32,6 +32,7 @@ class DromeInstrument {
   }
 
   note(...args: (string | number)[]) {
+    this.notes.length = 0;
     this.notes.push(...args);
     return this;
   }
