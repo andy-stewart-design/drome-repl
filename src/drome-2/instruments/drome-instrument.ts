@@ -8,6 +8,7 @@ import type {
   DromeAudioNode,
   FilterOptions,
   FilterType,
+  SampleNote,
 } from "../types";
 // import { applyEnvelope } from "../utils/adsr";
 
@@ -15,7 +16,7 @@ class DromeInstrument {
   readonly ctx: AudioContext;
   private _destination: DromeAudioNode;
 
-  readonly notes: (string | number)[] = [];
+  readonly notes: (SampleNote | number)[] = [];
 
   public _gain = 1;
   private _filters: Map<FilterType, FilterOptions> = new Map();
@@ -31,7 +32,7 @@ class DromeInstrument {
     this._postgain = new DromeGain(this.ctx, 1);
   }
 
-  note(...args: (string | number)[]) {
+  note(...args: (SampleNote | number)[]) {
     this.notes.length = 0;
     this.notes.push(...args);
     return this;

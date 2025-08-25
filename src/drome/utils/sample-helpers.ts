@@ -2,7 +2,7 @@ import type { SampleBank, SampleId, SampleName } from "../types";
 import rawSampleMap from "../samples/drum-machines.json";
 import type Drome from "../drome";
 
-const sampleMap = rawSampleMap as unknown as Record<string, string[]>;
+const sampleMap = rawSampleMap as Record<string, string[]>;
 const baseUrl =
   "https://raw.githubusercontent.com/ritchse/tidal-drum-machines/main/machines/";
 

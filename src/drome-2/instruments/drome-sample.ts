@@ -1,13 +1,13 @@
 import DromeInstrument from "./drome-instrument";
 import DromeBuffer from "./drome-buffer";
-import drumMachines from "../sample-dictionaries/drum-machines.json";
+import drumMachines from "../dictionaries/samples/drum-machines.json";
 import type Drome from "../core/drome";
-import type { DromeAudioNode } from "../types";
+import type { DromeAudioNode, SampleBank, SampleNote } from "../types";
 
 class DromeSample extends DromeInstrument {
   private drome: Drome;
-  readonly notes: string[] = [];
-  private sampleBank: string = "RolandTR909";
+  readonly notes: SampleNote[] = [];
+  private sampleBank: SampleBank = "RolandTR909";
   private sources: Set<DromeBuffer> = new Set();
   private _playbackRate = 1;
 
@@ -16,7 +16,7 @@ class DromeSample extends DromeInstrument {
     this.drome = drome;
   }
 
-  async loadSample(note: string) {
+  async loadSample(note: SampleNote) {
     const baseUrl = drumMachines._base;
     const [name, _index] = note.split(":");
     const index = parseInt(_index) || 0;

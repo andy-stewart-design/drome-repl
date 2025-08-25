@@ -30,4 +30,29 @@ interface FilterOptions {
   env: { depth: number; adsr: ADSRParams };
 }
 
-export type { ADSRParams, DromeAudioNode, FilterType, FilterOptions };
+type SampleName =
+  | "bd"
+  | "hh"
+  | "oh"
+  | "cp"
+  | "cr"
+  | "ht"
+  | "lt"
+  | "mt"
+  | "sd"
+  | "rim"
+  | "rd";
+
+type SampleNote = SampleName | `${SampleName}:${number}`;
+
+type SampleBank = "RolandTR909" | "RolandTR808";
+
+export type {
+  ADSRParams,
+  DromeAudioNode,
+  FilterType,
+  FilterOptions,
+  SampleName,
+  SampleNote,
+  SampleBank,
+};
