@@ -24,6 +24,7 @@ class AudioClock {
 
   constructor(bpm = 120) {
     this.bpm(bpm);
+    this.currentBarDuration = this._duration;
   }
 
   private onTick() {

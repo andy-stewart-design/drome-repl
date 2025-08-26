@@ -5,26 +5,70 @@ export default function TestDemo() {
   const [drome, setDrome] = createSignal<Drome | null>(null);
 
   onMount(() => {
-    const drome = new Drome();
+    const drome = new Drome(140);
+    const inst = drome
+      .synth("square")
+      .note(130.81)
+      .adsr(0.01, 0.333, 0, 0)
+      .euclid(5, 8, 2)
+      .lpf(800);
+
+    const foo = drome
+      .synth("sawtooth")
+      .note2(
+        [
+          [60, 64, 67, 71],
+          [60, 64, 67, 71],
+          [60, 64, 67, 71],
+          [60, 64, 67, 71],
+          [60, 64, 67, 71],
+          [60, 64, 67, 71],
+          [60, 64, 67, 71],
+          [60, 64, 67, 71],
+        ],
+        [
+          [57, 60, 64, 67],
+          [57, 60, 64, 67],
+          [57, 60, 64, 67],
+          [57, 60, 64, 67],
+          [57, 60, 64, 67],
+          [57, 60, 64, 67],
+          [57, 60, 64, 67],
+          [57, 60, 64, 67],
+        ]
+      )
+      .lpf(300)
+      .lpenv(2, 0.333, 0.333, 0.0, 0.5)
+      .reverb(0.5)
+      .distort(1)
+      .postgain(0.375);
+    const foo2 = drome.sample().note2(["bd:3", "bd:3", "bd:3", "bd:3"]);
+    console.log(foo);
+
     // const inst = drome
     //   .synth("sawtooth")
     //   .note(130.81)
-    //   .euclid(3, 8)
-    //   // .adsr(0.01, 0.99, 0.0, 0.5)
+    //   .euclid(5, 8, 2)
     //   .lpf(300)
     //   .lpenv(2, 0.333, 0.333, 0.25, 0.5)
-    //   .reverb(0.25);
+    //   .reverb(0.25)
+    //   .postgain(0.875);
 
-    // .delay(0.1);
-    const inst = drome.sample().note("bd:2").euclid(3, 8).reverb(0.1);
-    // .delay(0.1)
-    // .distort(50, 1)
-    // .postgain(0.75);
-    // .adsr(0.001, 0.125, 0.0);
-    // .lpf(1600);
-    console.log(inst);
+    // const inst2 = drome
+    //   .sample("bd:2")
+    //   .euclid(5, 8)
+    //   .reverb(0.2)
+    //   .distort(20, 1)
+    //   .postgain(1.25);
 
-    drome.addInstrument(inst);
+    // const inst3 = drome.sample("hh:2").euclid(8, 8).gain(0.25);
+    // const inst4 = drome.sample("oh:1").euclid(4, 8, 1).gain(0.5);
+
+    drome.addInstrument(foo);
+    drome.addInstrument(foo2);
+    // drome.addInstrument(inst2);
+    // drome.addInstrument(inst3);
+    // drome.addInstrument(inst4);
     setDrome(drome);
   });
 

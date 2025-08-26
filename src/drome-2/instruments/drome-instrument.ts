@@ -4,6 +4,7 @@ import ReverbEffect from "../effects/reverb";
 import DistortionEffect from "../effects/distortion";
 import DromeGain from "../core/drome-gain";
 import { euclid } from "../utils/euclid";
+import { midiToFreq } from "../utils/midi-to-frequency";
 import type {
   ADSRParams,
   DromeAudioNode,
@@ -17,6 +18,7 @@ class DromeInstrument<T extends SampleNote | number> {
   private _destination: DromeAudioNode;
 
   readonly notes: T[] = [];
+  public cycles: (T | T[])[][] = [];
 
   public _gain = 1;
   readonly _filters: Map<FilterType, FilterOptions> = new Map();
@@ -35,6 +37,22 @@ class DromeInstrument<T extends SampleNote | number> {
   note(...args: T[]) {
     this.notes.length = 0;
     this.notes.push(...args);
+    return this;
+  }
+
+  note2(...cycles: (T | T[] | T[][])[]) {
+    this.cycles = cycles.map((cycle) => {
+      const patternArray = Array.isArray(cycle) ? cycle : [cycle];
+      return patternArray.map((note) => {
+        if (Array.isArray(note)) {
+          return note.map((n) =>
+            typeof n === "number" ? midiToFreq(n) : n
+          ) as T[];
+        } else if (typeof note === "number") {
+          return midiToFreq(note) as T;
+        } else return note;
+      });
+    });
     return this;
   }
 

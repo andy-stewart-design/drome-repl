@@ -2,6 +2,7 @@ import AudioClock from "./audio-clock";
 import DromeSynth from "../instruments/drome-synth";
 import DromeSample from "../instruments/drome-sample";
 import DromeGain from "./drome-gain";
+import type { SampleNote } from "../types";
 
 class Drome extends AudioClock {
   private instruments: Set<DromeSynth | DromeSample> = new Set();
@@ -15,7 +16,7 @@ class Drome extends AudioClock {
   }
 
   private handleTick() {
-    this.instruments.forEach((inst) => inst.start());
+    this.instruments.forEach((inst) => inst.start2());
   }
 
   private async preloadSamples() {
@@ -50,8 +51,8 @@ class Drome extends AudioClock {
   }
 
   //   public sample(name: SampleName = "bd", index = 0) {
-  public sample() {
-    return new DromeSample(this, this.master);
+  public sample(name?: SampleNote) {
+    return new DromeSample(this, this.master, name);
   }
 
   public destroy() {
