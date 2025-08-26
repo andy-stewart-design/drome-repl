@@ -19,13 +19,18 @@ function applyEnvelope({
   startVal,
   maxVal,
   env = {},
-}: ApplyEnvArgs) {
+}: // ctx,
+ApplyEnvArgs) {
   const adsr = { ...defaultEnv, ...env };
+
+  // Cancel anything that was already scheduled
+  target.cancelScheduledValues(startTime);
+
   const attDur = clamp(adsr.a, 0.01, 0.98) * duration;
   const attEnd = startTime + attDur;
   const decDur = clamp(adsr.d, 0.01, 0.98) * duration;
   const decEnd = attEnd + decDur;
-  const susVal = maxVal * adsr.s;
+  const susVal = maxVal * Math.max(adsr.s, 0.01);
   const susEnd = startTime + duration;
   const relDur = adsr.r * duration;
   const relEnd = susEnd + relDur;

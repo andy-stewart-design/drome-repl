@@ -3,6 +3,7 @@ import FilterEffect from "../effects/filter";
 import ReverbEffect from "../effects/reverb";
 import DistortionEffect from "../effects/distortion";
 import DromeGain from "../core/drome-gain";
+import { euclid } from "../utils/euclid";
 import type {
   ADSRParams,
   DromeAudioNode,
@@ -10,7 +11,6 @@ import type {
   FilterType,
   SampleNote,
 } from "../types";
-// import { applyEnvelope } from "../utils/adsr";
 
 class DromeInstrument {
   readonly ctx: AudioContext;
@@ -19,7 +19,7 @@ class DromeInstrument {
   readonly notes: (SampleNote | number)[] = [];
 
   public _gain = 1;
-  private _filters: Map<FilterType, FilterOptions> = new Map();
+  readonly _filters: Map<FilterType, FilterOptions> = new Map();
   private _delay: DelayEffect | undefined;
   private _reverb: ReverbEffect | undefined;
   private _distortion: DistortionEffect | undefined;
@@ -35,6 +35,17 @@ class DromeInstrument {
   note(...args: (SampleNote | number)[]) {
     this.notes.length = 0;
     this.notes.push(...args);
+    return this;
+  }
+
+  euclid(pulses: number, steps: number, rotation = 0) {
+    const pattern = euclid(pulses, steps, rotation);
+    let noteIndex = 0;
+    const nextNotes = pattern.map((p) => {
+      return p === 0 ? 0 : this.notes[noteIndex++ % this.notes.length];
+    });
+    this.notes.length = 0;
+    this.notes.push(...nextNotes);
     return this;
   }
 
@@ -129,7 +140,7 @@ class DromeInstrument {
     return this;
   }
 
-  _play(startTime: number, duration: number) {
+  connectChain() {
     const filters = [...(this._filters?.values() ?? [])].map(
       (options) => new FilterEffect(this.ctx, options)
     );
@@ -146,10 +157,9 @@ class DromeInstrument {
     nodes.forEach((node, i) => {
       const nextInput = nodes[i + 1]?.input ?? this.ctx.destination;
       node.connect(nextInput);
-      if (node instanceof FilterEffect) node.apply(startTime, duration);
     });
 
-    return nodes[0];
+    return nodes;
   }
 }
 

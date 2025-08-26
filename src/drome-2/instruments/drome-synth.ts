@@ -1,5 +1,6 @@
 import DromeInstrument from "./drome-instrument";
 import DromeOscillator from "./drome-oscillator";
+import FilterEffect from "../effects/filter";
 import type Drome from "../core/drome";
 import type { DromeAudioNode } from "../types";
 
@@ -22,22 +23,26 @@ class DromeSynth extends DromeInstrument {
   }
 
   start() {
+    const nodes = super.connectChain();
     const startTime = this.drome.barStartTime;
-    const duration = this.drome.barDuration;
-    const destination = super._play(startTime, duration);
-    const noteDuration = duration / this.notes.length;
-    const offset = this.drome.barDuration / this.notes.length;
+    const noteDuration = this.drome.barDuration / this.notes.length;
 
     this.notes.forEach((note, i) => {
+      if (note === 0) return;
       const frequency = parseFloat(note.toString()) ?? 1;
-      const osc = new DromeOscillator(this.ctx, destination.input, {
+      const osc = new DromeOscillator(this.ctx, nodes[0].input, {
         type: this.type,
         frequency,
         env: this._env,
         gain: this._gain,
       });
 
-      osc.play(startTime + offset * i, noteDuration);
+      nodes.forEach((node) => {
+        if (!(node instanceof FilterEffect)) return;
+        node.apply(startTime + noteDuration * i, noteDuration);
+      });
+      osc.play(startTime + noteDuration * i, noteDuration);
+
       this.oscillators.add(osc);
       osc.node.onended = () => this.oscillators.delete(osc);
     });

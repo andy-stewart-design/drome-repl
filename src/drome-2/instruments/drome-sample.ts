@@ -1,6 +1,7 @@
 import DromeInstrument from "./drome-instrument";
 import DromeBuffer from "./drome-buffer";
 import drumMachines from "../dictionaries/samples/drum-machines.json";
+import FilterEffect from "../effects/filter";
 import type Drome from "../core/drome";
 import type { DromeAudioNode, SampleBank, SampleNote } from "../types";
 
@@ -67,22 +68,25 @@ class DromeSample extends DromeInstrument {
   }
 
   async start() {
+    const nodes = super.connectChain();
     const startTime = this.drome.barStartTime;
-    const duration = this.drome.barDuration;
-    const offset = duration / this.notes.length;
-    const destination = super._play(startTime, duration);
+    const noteDuration = this.drome.barDuration / this.notes.length;
 
     this.notes.forEach(async (note, i) => {
       let [buffer] = await this.loadSample(note);
       if (!buffer) return;
 
-      const source = new DromeBuffer(this.ctx, destination.input, buffer, {
+      const source = new DromeBuffer(this.ctx, nodes[0].input, buffer, {
         rate: this._playbackRate,
         gain: this._gain,
         env: this._env,
       });
 
-      source.play(startTime + offset * i, duration);
+      nodes.forEach((node) => {
+        if (!(node instanceof FilterEffect)) return;
+        node.apply(startTime + noteDuration * i, noteDuration);
+      });
+      source.play(startTime + noteDuration * i, noteDuration);
       this.sources.add(source);
       source.node.onended = () => this.sources.delete(source);
     });
