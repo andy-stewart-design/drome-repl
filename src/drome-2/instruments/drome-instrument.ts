@@ -12,11 +12,11 @@ import type {
   SampleNote,
 } from "../types";
 
-class DromeInstrument {
+class DromeInstrument<T extends SampleNote | number> {
   readonly ctx: AudioContext;
   private _destination: DromeAudioNode;
 
-  readonly notes: (SampleNote | number)[] = [];
+  readonly notes: T[] = [];
 
   public _gain = 1;
   readonly _filters: Map<FilterType, FilterOptions> = new Map();
@@ -32,7 +32,7 @@ class DromeInstrument {
     this._postgain = new DromeGain(this.ctx, 1);
   }
 
-  note(...args: (SampleNote | number)[]) {
+  note(...args: T[]) {
     this.notes.length = 0;
     this.notes.push(...args);
     return this;
@@ -41,9 +41,12 @@ class DromeInstrument {
   euclid(pulses: number, steps: number, rotation = 0) {
     const pattern = euclid(pulses, steps, rotation);
     let noteIndex = 0;
+
     const nextNotes = pattern.map((p) => {
-      return p === 0 ? 0 : this.notes[noteIndex++ % this.notes.length];
+      if (p === 0) return (typeof this.notes[0] === "number" ? 0 : "") as T;
+      return this.notes[noteIndex++ % this.notes.length];
     });
+
     this.notes.length = 0;
     this.notes.push(...nextNotes);
     return this;

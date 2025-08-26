@@ -5,9 +5,8 @@ import FilterEffect from "../effects/filter";
 import type Drome from "../core/drome";
 import type { DromeAudioNode, SampleBank, SampleNote } from "../types";
 
-class DromeSample extends DromeInstrument {
+class DromeSample extends DromeInstrument<SampleNote> {
   private drome: Drome;
-  readonly notes: SampleNote[] = [];
   private sampleBank: SampleBank = "RolandTR909";
   private sources: Set<DromeBuffer> = new Set();
   private _playbackRate = 1;
@@ -73,6 +72,7 @@ class DromeSample extends DromeInstrument {
     const noteDuration = this.drome.barDuration / this.notes.length;
 
     this.notes.forEach(async (note, i) => {
+      if (note === "") return;
       let [buffer] = await this.loadSample(note);
       if (!buffer) return;
 

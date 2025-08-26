@@ -41,7 +41,8 @@ type SampleName =
   | "mt"
   | "sd"
   | "rim"
-  | "rd";
+  | "rd"
+  | (string & {});
 
 type SampleNote = SampleName | `${SampleName}:${number}`;
 

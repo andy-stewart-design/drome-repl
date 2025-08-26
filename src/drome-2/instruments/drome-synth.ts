@@ -4,7 +4,7 @@ import FilterEffect from "../effects/filter";
 import type Drome from "../core/drome";
 import type { DromeAudioNode } from "../types";
 
-class DromeSynth extends DromeInstrument {
+class DromeSynth extends DromeInstrument<number> {
   private drome: Drome;
   private type: OscillatorType;
   private oscillators: Set<DromeOscillator> = new Set();
