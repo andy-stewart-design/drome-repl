@@ -12,6 +12,7 @@ import type {
   FilterType,
   SampleNote,
 } from "../types";
+import { hex } from "../utils/hex";
 
 class DromeInstrument<T extends SampleNote | number> {
   readonly ctx: AudioContext;
@@ -34,41 +35,65 @@ class DromeInstrument<T extends SampleNote | number> {
     this._postgain = new DromeGain(this.ctx, 1);
   }
 
-  note(...args: T[]) {
-    this.notes.length = 0;
-    this.notes.push(...args);
-    return this;
+  /* ----------------------------------------------------------------
+  /* PATTERN METHODS
+  ---------------------------------------------------------------- */
+
+  private getPlaceholder(): T {
+    // We have to use a type assertion here because TS can't infer dynamically
+    return (typeof (null as any as T) === "number" ? 0 : "") as T;
   }
 
-  note2(...cycles: (T | T[] | T[][])[]) {
-    this.cycles = cycles.map((cycle) => {
-      const patternArray = Array.isArray(cycle) ? cycle : [cycle];
-      return patternArray.map((note) => {
-        if (Array.isArray(note)) {
-          return note.map((n) =>
-            typeof n === "number" ? midiToFreq(n) : n
-          ) as T[];
-        } else if (typeof note === "number") {
-          return midiToFreq(note) as T;
-        } else return note;
-      });
+  private applyPattern(pattern: number[]) {
+    const placeholder = this.getPlaceholder();
+
+    return this.cycles.map((cycle) => {
+      let noteIndex = 0;
+      return pattern.map((p) =>
+        p === 0 ? placeholder : cycle[noteIndex++ % cycle.length]
+      );
     });
+  }
+
+  note(...cycles: (T | T[] | T[][])[]) {
+    const convert = <T extends SampleNote | number>(x: T): T =>
+      typeof x === "number" ? (midiToFreq(x) as T) : x;
+
+    this.cycles = cycles.map((cycle) =>
+      (Array.isArray(cycle) ? cycle : [cycle]).map((element) =>
+        Array.isArray(element) ? element.map(convert) : convert(element)
+      )
+    );
+
     return this;
   }
 
   euclid(pulses: number, steps: number, rotation = 0) {
-    const pattern = euclid(pulses, steps, rotation);
-    let noteIndex = 0;
-
-    const nextNotes = pattern.map((p) => {
-      if (p === 0) return (typeof this.notes[0] === "number" ? 0 : "") as T;
-      return this.notes[noteIndex++ % this.notes.length];
-    });
-
-    this.notes.length = 0;
-    this.notes.push(...nextNotes);
+    this.cycles = this.applyPattern(euclid(pulses, steps, rotation));
     return this;
   }
+
+  hex(hexNotation: string | number) {
+    this.cycles = this.applyPattern(hex(hexNotation));
+    return this;
+  }
+
+  struct(pattern: number[]) {
+    this.cycles = this.applyPattern(pattern);
+    return this;
+  }
+
+  sequence(pulses: number[], steps: number) {
+    const pattern = Array.from({ length: steps }, (_, i) =>
+      pulses.includes(i) ? 1 : 0
+    );
+    this.cycles = this.applyPattern(pattern);
+    return this;
+  }
+
+  /* ----------------------------------------------------------------
+  /* EFFECTS METHODS
+  ---------------------------------------------------------------- */
 
   _addFilter(type: FilterType, frequency: number) {
     const env = { depth: 1, adsr: { ...this._env } };

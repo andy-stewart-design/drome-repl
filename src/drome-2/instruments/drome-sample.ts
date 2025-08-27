@@ -92,6 +92,7 @@ class DromeSample extends DromeInstrument<SampleNote> {
       source.node.onended = () => this.sources.delete(source);
     });
   }
+
   start2() {
     const nodes = super.connectChain();
     const cycleIndex = this.drome.metronome.bar % this.cycles.length;
@@ -99,30 +100,29 @@ class DromeSample extends DromeInstrument<SampleNote> {
     const startTime = this.drome.barStartTime;
     const noteDuration = this.drome.barDuration / cycle.length;
 
-    cycle.forEach(async (pattern, i) => {
-      if (pattern === "") return;
+    const play = async (note: SampleNote, i: number) => {
+      let [buffer] = await this.loadSample(note);
+      if (!buffer) return;
 
-      const play = async (note: SampleNote) => {
-        let [buffer] = await this.loadSample(note);
-        if (!buffer) return;
+      const source = new DromeBuffer(this.ctx, nodes[0].input, buffer, {
+        rate: this._playbackRate,
+        gain: this._gain,
+        env: this._env,
+      });
 
-        const source = new DromeBuffer(this.ctx, nodes[0].input, buffer, {
-          rate: this._playbackRate,
-          gain: this._gain,
-          env: this._env,
-        });
+      nodes.forEach((node) => {
+        if (!(node instanceof FilterEffect)) return;
+        node.apply(startTime + noteDuration * i, noteDuration);
+      });
+      source.play(startTime + noteDuration * i, noteDuration);
+      this.sources.add(source);
+      source.node.onended = () => this.sources.delete(source);
+    };
 
-        nodes.forEach((node) => {
-          if (!(node instanceof FilterEffect)) return;
-          node.apply(startTime + noteDuration * i, noteDuration);
-        });
-        source.play(startTime + noteDuration * i, noteDuration);
-        this.sources.add(source);
-        source.node.onended = () => this.sources.delete(source);
-      };
-
-      if (Array.isArray(pattern)) pattern.forEach(play);
-      else play(pattern);
+    cycle.forEach(async (pat, i) => {
+      if (!pat) return;
+      else if (Array.isArray(pat)) pat.forEach((el) => play(el, i));
+      else play(pat, i);
     });
   }
 

@@ -6,44 +6,23 @@ export default function TestDemo() {
 
   onMount(() => {
     const drome = new Drome(140);
-    const inst = drome
-      .synth("square")
-      .note(130.81)
-      .adsr(0.01, 0.333, 0, 0)
-      .euclid(5, 8, 2)
-      .lpf(800);
+    // const inst = drome
+    //   .synth("square")
+    //   .note(130.81)
+    //   .adsr(0.01, 0.333, 0, 0)
+    //   .euclid(5, 8, 2)
+    //   .lpf(800);
 
     const foo = drome
       .synth("sawtooth")
-      .note2(
-        [
-          [60, 64, 67, 71],
-          [60, 64, 67, 71],
-          [60, 64, 67, 71],
-          [60, 64, 67, 71],
-          [60, 64, 67, 71],
-          [60, 64, 67, 71],
-          [60, 64, 67, 71],
-          [60, 64, 67, 71],
-        ],
-        [
-          [57, 60, 64, 67],
-          [57, 60, 64, 67],
-          [57, 60, 64, 67],
-          [57, 60, 64, 67],
-          [57, 60, 64, 67],
-          [57, 60, 64, 67],
-          [57, 60, 64, 67],
-          [57, 60, 64, 67],
-        ]
-      )
+      .note([[60, 64, 67, 71]], [[57, 60, 64, 67]])
+      .euclid(8, 8)
       .lpf(300)
       .lpenv(2, 0.333, 0.333, 0.0, 0.5)
       .reverb(0.5)
-      .distort(1)
+      // .distort(1)
       .postgain(0.375);
-    const foo2 = drome.sample().note2(["bd:3", "bd:3", "bd:3", "bd:3"]);
-    console.log(foo);
+    const foo2 = drome.sample().note("bd:3").sequence([0, 3, 6], 8);
 
     // const inst = drome
     //   .synth("sawtooth")
@@ -66,6 +45,7 @@ export default function TestDemo() {
 
     drome.addInstrument(foo);
     drome.addInstrument(foo2);
+    // drome.addInstrument(inst);
     // drome.addInstrument(inst2);
     // drome.addInstrument(inst3);
     // drome.addInstrument(inst4);
