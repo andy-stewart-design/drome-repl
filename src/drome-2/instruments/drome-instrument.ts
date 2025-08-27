@@ -3,7 +3,7 @@ import FilterEffect from "../effects/filter";
 import ReverbEffect from "../effects/reverb";
 import DistortionEffect from "../effects/distortion";
 import DromeGain from "../core/drome-gain";
-import { euclid } from "../utils/euclid";
+import { euclid } from "../utils/euclid-2";
 import { midiToFreq } from "../utils/midi-to-frequency";
 import type {
   ADSRParams,
@@ -38,8 +38,25 @@ class DromeInstrument<T extends SampleNote | number> {
   ---------------------------------------------------------------- */
 
   private getPlaceholder(): T {
-    // We have to use a type assertion here because TS can't infer dynamically
+    // Must use a type assertion here because TS can't infer dynamically
     return (typeof (null as any as T) === "number" ? 0 : "") as T;
+  }
+
+  private applyPattern2(patterns: number[][]) {
+    const placeholder = this.getPlaceholder();
+    const loops = Math.max(this.cycles.length, patterns.length);
+    const nextCycles: (T | T[])[][] = [];
+
+    for (let i = 0; i < loops; i++) {
+      let noteIndex = 0;
+      const cycle = this.cycles[i % this.cycles.length];
+      const nextCycle = patterns[i % patterns.length].map((p) =>
+        p === 0 ? placeholder : cycle[noteIndex++ % cycle.length]
+      );
+      nextCycles.push(nextCycle);
+    }
+
+    return nextCycles;
   }
 
   private applyPattern(pattern: number[]) {
@@ -66,8 +83,10 @@ class DromeInstrument<T extends SampleNote | number> {
     return this;
   }
 
-  euclid(pulses: number, steps: number, rotation = 0) {
-    this.cycles = this.applyPattern(euclid(pulses, steps, rotation));
+  euclid(pulses: number | number[], steps: number, rotation = 0) {
+    console.log("euclid", euclid(pulses, steps, rotation));
+
+    this.cycles = this.applyPattern2(euclid(pulses, steps, rotation));
     return this;
   }
 
@@ -76,15 +95,15 @@ class DromeInstrument<T extends SampleNote | number> {
     return this;
   }
 
-  struct(pattern: number[]) {
-    this.cycles = this.applyPattern(pattern);
-    return this;
-  }
-
   sequence(pulses: number[], steps: number) {
     const pattern = Array.from({ length: steps }, (_, i) =>
       pulses.includes(i) ? 1 : 0
     );
+    this.cycles = this.applyPattern(pattern);
+    return this;
+  }
+
+  struct(pattern: number[]) {
     this.cycles = this.applyPattern(pattern);
     return this;
   }

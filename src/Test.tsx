@@ -6,6 +6,18 @@ export default function TestDemo() {
 
   onMount(() => {
     const drome = new Drome(140);
+
+    drome.stack(
+      drome
+        .sample("bd:2")
+        .euclid([3, 5], 8)
+        .reverb(0.2)
+        .distort(20)
+        .postgain(1.25),
+      drome.sample("hh:2").euclid(8, 8).gain(0.25),
+      drome.sample("oh:1").euclid(4, 8, 1).gain(0.5)
+    );
+
     // const inst = drome
     //   .synth("square")
     //   .note(130.81)
@@ -13,17 +25,19 @@ export default function TestDemo() {
     //   .euclid(5, 8, 2)
     //   .lpf(800);
 
-    const foo = drome
-      .synth("sawtooth")
-      .note([[60, 64, 67, 71]], [[57, 60, 64, 67]])
-      .euclid(8, 8)
-      .stretch(2)
-      .lpf(300)
-      .lpenv(2, 0.333, 0.333, 0.0, 0.5)
-      .reverb(0.5)
-      .distort(1)
-      .postgain(0.375);
-    const foo2 = drome.sample().note("bd:3").hex("f");
+    // const foo = drome
+    //   .synth("sawtooth")
+    //   .note([[60, 64, 67, 71]], [[57, 60, 64, 67]])
+    //   .euclid(8, 8)
+    //   .stretch(2)
+    //   .lpf(300)
+    //   .lpenv(2, 0.333, 0.333, 0.0, 0.5)
+    //   .reverb(0.5)
+    //   .distort(1)
+    //   .postgain(0.375);
+    // const foo2 = drome.sample().note("bd:3").hex("f");
+    // const foo3 = drome.sample().note("hh").hex("ff");
+    // const foo4 = drome.sample().note("oh:2").hex(55);
 
     // const inst = drome
     //   .synth("sawtooth")
@@ -44,8 +58,10 @@ export default function TestDemo() {
     // const inst3 = drome.sample("hh:2").euclid(8, 8).gain(0.25);
     // const inst4 = drome.sample("oh:1").euclid(4, 8, 1).gain(0.5);
 
-    drome.addInstrument(foo);
-    drome.addInstrument(foo2);
+    // drome.addInstrument(foo);
+    // drome.addInstrument(foo2);
+    // drome.addInstrument(foo3);
+    // drome.addInstrument(foo4);
     // drome.addInstrument(inst);
     // drome.addInstrument(inst2);
     // drome.addInstrument(inst3);

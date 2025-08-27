@@ -42,6 +42,10 @@ class Drome extends AudioClock {
     this.instruments.add(inst);
   }
 
+  public stack(...intruments: (DromeSynth | DromeSample)[]) {
+    intruments.forEach((inst) => this.instruments.add(inst));
+  }
+
   public clearInstruments() {
     this.instruments.clear();
   }
