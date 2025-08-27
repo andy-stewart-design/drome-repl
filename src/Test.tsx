@@ -14,8 +14,8 @@ export default function TestDemo() {
         .reverb(0.2)
         .distort(20)
         .postgain(1.25),
-      drome.sample("hh:2").euclid(8, 8).gain(0.25),
-      drome.sample("oh:1").euclid(4, 8, 1).gain(0.5)
+      drome.sample("hh:4").hex("ff").gain(0.375)
+      // drome.sample("oh:1").euclid(4, 8, 1).gain(0.5)
     );
 
     // const inst = drome

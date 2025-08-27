@@ -13,9 +13,10 @@ import type {
   SampleNote,
 } from "../types";
 import { hex } from "../utils/hex";
+import type Drome from "../core/drome";
 
 class DromeInstrument<T extends SampleNote | number> {
-  readonly ctx: AudioContext;
+  readonly drome: Drome;
   private _destination: DromeAudioNode;
   public cycles: (T | T[])[][] = [];
 
@@ -27,10 +28,10 @@ class DromeInstrument<T extends SampleNote | number> {
   private _postgain: DromeGain;
   readonly _env: ADSRParams = { a: 0.001, d: 0.125, s: 1.0, r: 0.1 };
 
-  constructor(ctx: AudioContext, destination: DromeAudioNode) {
-    this.ctx = ctx;
+  constructor(drome: Drome, destination: DromeAudioNode) {
+    this.drome = drome;
     this._destination = destination;
-    this._postgain = new DromeGain(this.ctx, 1);
+    this._postgain = new DromeGain(this.drome.ctx, 1);
   }
 
   /* ----------------------------------------------------------------
@@ -40,6 +41,17 @@ class DromeInstrument<T extends SampleNote | number> {
   private getPlaceholder(): T {
     // Must use a type assertion here because TS can't infer dynamically
     return (typeof (null as any as T) === "number" ? 0 : "") as T;
+  }
+
+  private applyPattern(pattern: number[]) {
+    const placeholder = this.getPlaceholder();
+
+    return this.cycles.map((cycle) => {
+      let noteIndex = 0;
+      return pattern.map((p) =>
+        p === 0 ? placeholder : cycle[noteIndex++ % cycle.length]
+      );
+    });
   }
 
   private applyPattern2(patterns: number[][]) {
@@ -57,17 +69,6 @@ class DromeInstrument<T extends SampleNote | number> {
     }
 
     return nextCycles;
-  }
-
-  private applyPattern(pattern: number[]) {
-    const placeholder = this.getPlaceholder();
-
-    return this.cycles.map((cycle) => {
-      let noteIndex = 0;
-      return pattern.map((p) =>
-        p === 0 ? placeholder : cycle[noteIndex++ % cycle.length]
-      );
-    });
   }
 
   note(...cycles: (T | T[] | T[][])[]) {
@@ -90,8 +91,8 @@ class DromeInstrument<T extends SampleNote | number> {
     return this;
   }
 
-  hex(hexNotation: string | number) {
-    this.cycles = this.applyPattern(hex(hexNotation));
+  hex(...hexes: (string | number)[]) {
+    this.cycles = this.applyPattern2(hexes.map(hex));
     return this;
   }
 
@@ -103,8 +104,8 @@ class DromeInstrument<T extends SampleNote | number> {
     return this;
   }
 
-  struct(pattern: number[]) {
-    this.cycles = this.applyPattern(pattern);
+  struct(...patterns: number[][]) {
+    this.cycles = this.applyPattern2(patterns);
     return this;
   }
 
@@ -232,12 +233,12 @@ class DromeInstrument<T extends SampleNote | number> {
   }
 
   delay(feedback: number, delayTime = 0.25, mix = 0.3) {
-    this._delay = new DelayEffect(this.ctx, { delayTime, feedback, mix });
+    this._delay = new DelayEffect(this.drome.ctx, { delayTime, feedback, mix });
     return this;
   }
 
   distort(amount: number, mix = 1, oversample: OverSampleType = "2x") {
-    this._distortion = new DistortionEffect(this.ctx, {
+    this._distortion = new DistortionEffect(this.drome.ctx, {
       amount,
       mix,
       oversample,
@@ -246,13 +247,13 @@ class DromeInstrument<T extends SampleNote | number> {
   }
 
   reverb(mix: number, duration = 2) {
-    this._reverb = new ReverbEffect(this.ctx, { duration, mix });
+    this._reverb = new ReverbEffect(this.drome.ctx, { duration, mix });
     return this;
   }
 
   connectChain() {
     const filters = [...(this._filters?.values() ?? [])].map(
-      (options) => new FilterEffect(this.ctx, options)
+      (options) => new FilterEffect(this.drome.ctx, options)
     );
 
     const nodes = [
@@ -265,7 +266,7 @@ class DromeInstrument<T extends SampleNote | number> {
     ].filter(isAudioNode);
 
     nodes.forEach((node, i) => {
-      const nextInput = nodes[i + 1]?.input ?? this.ctx.destination;
+      const nextInput = nodes[i + 1]?.input ?? this.drome.ctx.destination;
       node.connect(nextInput);
     });
 

@@ -6,14 +6,12 @@ import type Drome from "../core/drome";
 import type { DromeAudioNode, SampleBank, SampleNote } from "../types";
 
 class DromeSample extends DromeInstrument<SampleNote> {
-  private drome: Drome;
   private sampleBank: SampleBank = "RolandTR909";
   private sources: Set<DromeBuffer> = new Set();
   private _playbackRate = 1;
 
   constructor(drome: Drome, destination: DromeAudioNode, name?: SampleNote) {
-    super(drome.ctx, destination);
-    this.drome = drome;
+    super(drome, destination);
     if (name) this.note(name);
   }
 
@@ -36,7 +34,7 @@ class DromeSample extends DromeInstrument<SampleNote> {
     try {
       const response = await fetch(sampleUrl);
       const arrayBuffer = await response.arrayBuffer();
-      const audioBuffer = await this.ctx.decodeAudioData(arrayBuffer);
+      const audioBuffer = await this.drome.ctx.decodeAudioData(arrayBuffer);
       this.drome.sampleBuffers.set(sampleUrl, audioBuffer);
       return [audioBuffer, sampleUrl] as const;
     } catch (error) {
@@ -78,7 +76,7 @@ class DromeSample extends DromeInstrument<SampleNote> {
       let [buffer] = await this.loadSample(note);
       if (!buffer) return;
 
-      const source = new DromeBuffer(this.ctx, nodes[0].input, buffer, {
+      const source = new DromeBuffer(this.drome.ctx, nodes[0].input, buffer, {
         rate: this._playbackRate,
         gain: this._gain,
         env: this._env,

@@ -5,7 +5,6 @@ import type Drome from "../core/drome";
 import type { DromeAudioNode } from "../types";
 
 class DromeSynth extends DromeInstrument<number> {
-  private drome: Drome;
   private type: OscillatorType;
   private oscillators: Set<DromeOscillator> = new Set();
 
@@ -14,8 +13,7 @@ class DromeSynth extends DromeInstrument<number> {
     destination: DromeAudioNode,
     type: OscillatorType = "sine"
   ) {
-    super(drome.ctx, destination);
-    this.drome = drome;
+    super(drome, destination);
     this.type = type;
   }
 
@@ -28,7 +26,7 @@ class DromeSynth extends DromeInstrument<number> {
 
     const play = (note: number, i: number) => {
       const frequency = parseFloat(note.toString()) ?? 1;
-      const osc = new DromeOscillator(this.ctx, nodes[0].input, {
+      const osc = new DromeOscillator(this.drome.ctx, nodes[0].input, {
         type: this.type,
         frequency,
         env: this._env,
