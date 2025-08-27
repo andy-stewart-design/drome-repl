@@ -67,33 +67,7 @@ class DromeSample extends DromeInstrument<SampleNote> {
     return this;
   }
 
-  async start() {
-    const nodes = super.connectChain();
-    const startTime = this.drome.barStartTime;
-    const noteDuration = this.drome.barDuration / this.notes.length;
-
-    this.notes.forEach(async (note, i) => {
-      if (note === "") return;
-      let [buffer] = await this.loadSample(note);
-      if (!buffer) return;
-
-      const source = new DromeBuffer(this.ctx, nodes[0].input, buffer, {
-        rate: this._playbackRate,
-        gain: this._gain,
-        env: this._env,
-      });
-
-      nodes.forEach((node) => {
-        if (!(node instanceof FilterEffect)) return;
-        node.apply(startTime + noteDuration * i, noteDuration);
-      });
-      source.play(startTime + noteDuration * i, noteDuration);
-      this.sources.add(source);
-      source.node.onended = () => this.sources.delete(source);
-    });
-  }
-
-  start2() {
+  start() {
     const nodes = super.connectChain();
     const cycleIndex = this.drome.metronome.bar % this.cycles.length;
     const cycle = this.cycles[cycleIndex];

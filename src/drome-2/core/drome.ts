@@ -16,7 +16,7 @@ class Drome extends AudioClock {
   }
 
   private handleTick() {
-    this.instruments.forEach((inst) => inst.start2());
+    this.instruments.forEach((inst) => inst.start());
   }
 
   private async preloadSamples() {

@@ -17,8 +17,6 @@ import { hex } from "../utils/hex";
 class DromeInstrument<T extends SampleNote | number> {
   readonly ctx: AudioContext;
   private _destination: DromeAudioNode;
-
-  readonly notes: T[] = [];
   public cycles: (T | T[])[][] = [];
 
   public _gain = 1;
@@ -91,16 +89,63 @@ class DromeInstrument<T extends SampleNote | number> {
     return this;
   }
 
+  fast(multiplier: number) {
+    if (multiplier <= 1) return this;
+    const length = Math.ceil(this.cycles.length / multiplier);
+    const numLoops = multiplier * length;
+    const nextCyles: typeof this.cycles = Array.from({ length }, () => []);
+
+    for (let i = 0; i < numLoops; i++) {
+      const currentIndex = Math.floor(i / multiplier);
+      nextCyles[currentIndex].push(...this.cycles[i % this.cycles.length]);
+    }
+
+    this.cycles = nextCyles;
+    return this;
+  }
+
+  slow(n: number) {
+    if (n <= 1) return this;
+    const nextCycles: (T | T[])[][] = [];
+    const placeholder = this.getPlaceholder();
+
+    for (const cycle of this.cycles) {
+      const chunkSize = Math.ceil((cycle.length * n) / n); // equals cycle.length
+
+      // Create n chunks directly
+      for (let k = 0; k < n; k++) {
+        const chunk: (T | T[])[] = [];
+        const startPos = k * chunkSize;
+        const endPos = Math.min((k + 1) * chunkSize, cycle.length * n);
+
+        for (let pos = startPos; pos < endPos; pos++) {
+          if (pos % n === 0) chunk.push(cycle[pos / n]);
+          else chunk.push(placeholder);
+        }
+
+        nextCycles.push(chunk);
+      }
+    }
+
+    this.cycles = nextCycles;
+    return this;
+  }
+
+  stretch(factor: number) {
+    this.cycles = this.cycles.flatMap((cycle) => Array(factor).fill(cycle));
+    return this;
+  }
+
   /* ----------------------------------------------------------------
   /* EFFECTS METHODS
   ---------------------------------------------------------------- */
 
-  _addFilter(type: FilterType, frequency: number) {
+  private addFilter(type: FilterType, frequency: number) {
     const env = { depth: 1, adsr: { ...this._env } };
     this._filters.set(type, { type, frequency, env, q: 1 });
   }
 
-  _updateFilter(t: FilterType, de: number, env: Partial<ADSRParams>) {
+  private updateFilter(t: FilterType, de: number, env: Partial<ADSRParams>) {
     const filter = this._filters.get(t);
     if (!filter) return this;
     filter.env.depth = de;
@@ -138,42 +183,37 @@ class DromeInstrument<T extends SampleNote | number> {
   }
 
   bpf(frequency: number) {
-    this._addFilter("bandpass", frequency);
+    this.addFilter("bandpass", frequency);
     return this;
   }
 
   bpenv(depth: number, a?: number, d?: number, s?: number, r?: number) {
-    this._updateFilter("bandpass", depth, { a, d, s, r });
+    this.updateFilter("bandpass", depth, { a, d, s, r });
     return this;
   }
 
   hpf(frequency: number) {
-    this._addFilter("highpass", frequency);
+    this.addFilter("highpass", frequency);
     return this;
   }
 
   hpenv(depth: number, a?: number, d?: number, s?: number, r?: number) {
-    this._updateFilter("highpass", depth, { a, d, s, r });
+    this.updateFilter("highpass", depth, { a, d, s, r });
     return this;
   }
 
   lpf(frequency: number) {
-    this._addFilter("lowpass", frequency);
+    this.addFilter("lowpass", frequency);
     return this;
   }
 
   lpenv(depth: number, a?: number, d?: number, s?: number, r?: number) {
-    this._updateFilter("lowpass", depth, { a, d, s, r });
+    this.updateFilter("lowpass", depth, { a, d, s, r });
     return this;
   }
 
   delay(feedback: number, delayTime = 0.25, mix = 0.3) {
     this._delay = new DelayEffect(this.ctx, { delayTime, feedback, mix });
-    return this;
-  }
-
-  reverb(mix: number, duration = 2) {
-    this._reverb = new ReverbEffect(this.ctx, { duration, mix });
     return this;
   }
 
@@ -183,6 +223,11 @@ class DromeInstrument<T extends SampleNote | number> {
       mix,
       oversample,
     });
+    return this;
+  }
+
+  reverb(mix: number, duration = 2) {
+    this._reverb = new ReverbEffect(this.ctx, { duration, mix });
     return this;
   }
 

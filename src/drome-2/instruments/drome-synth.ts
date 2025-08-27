@@ -8,9 +8,6 @@ class DromeSynth extends DromeInstrument<number> {
   private drome: Drome;
   private type: OscillatorType;
   private oscillators: Set<DromeOscillator> = new Set();
-  //   private notes: number[] = [
-  //     130.81, 130.81, 130.81, 130.81, 130.81, 130.81, 130.81, 130.81,
-  //   ];
 
   constructor(
     drome: Drome,
@@ -23,32 +20,6 @@ class DromeSynth extends DromeInstrument<number> {
   }
 
   start() {
-    const nodes = super.connectChain();
-    const startTime = this.drome.barStartTime;
-    const noteDuration = this.drome.barDuration / this.notes.length;
-
-    this.notes.forEach((note, i) => {
-      if (note === 0) return;
-      const frequency = parseFloat(note.toString()) ?? 1;
-      const osc = new DromeOscillator(this.ctx, nodes[0].input, {
-        type: this.type,
-        frequency,
-        env: this._env,
-        gain: this._gain,
-      });
-
-      nodes.forEach((node) => {
-        if (!(node instanceof FilterEffect)) return;
-        node.apply(startTime + noteDuration * i, noteDuration);
-      });
-      osc.play(startTime + noteDuration * i, noteDuration);
-
-      this.oscillators.add(osc);
-      osc.node.onended = () => this.oscillators.delete(osc);
-    });
-  }
-
-  start2() {
     const nodes = super.connectChain();
     const cycleIndex = this.drome.metronome.bar % this.cycles.length;
     const cycle = this.cycles[cycleIndex];

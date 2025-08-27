@@ -17,12 +17,13 @@ export default function TestDemo() {
       .synth("sawtooth")
       .note([[60, 64, 67, 71]], [[57, 60, 64, 67]])
       .euclid(8, 8)
+      .stretch(2)
       .lpf(300)
       .lpenv(2, 0.333, 0.333, 0.0, 0.5)
       .reverb(0.5)
-      // .distort(1)
+      .distort(1)
       .postgain(0.375);
-    const foo2 = drome.sample().note("bd:3").sequence([0, 3, 6], 8);
+    const foo2 = drome.sample().note("bd:3").hex("f");
 
     // const inst = drome
     //   .synth("sawtooth")
