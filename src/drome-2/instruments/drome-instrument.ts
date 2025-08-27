@@ -272,6 +272,29 @@ class DromeInstrument<T extends SampleNote | number> {
 
     return nodes;
   }
+
+  cleanup() {
+    if (this._delay) {
+      this._delay.disconnect();
+      this._delay = undefined;
+    }
+    if (this._reverb) {
+      this._reverb.disconnect();
+      this._reverb = undefined;
+    }
+    if (this._distortion) {
+      this._distortion.disconnect();
+      this._distortion = undefined;
+    }
+    if (this._postgain) {
+      this._postgain.disconnect();
+      this._postgain.volume = 1;
+    }
+
+    this._filters.clear();
+    this.cycles = [];
+    this._gain = 1;
+  }
 }
 
 export default DromeInstrument;

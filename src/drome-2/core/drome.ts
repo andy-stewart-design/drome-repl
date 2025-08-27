@@ -42,26 +42,25 @@ class Drome extends AudioClock {
     this.instruments.add(inst);
   }
 
-  public stack(...intruments: (DromeSynth | DromeSample)[]) {
-    intruments.forEach((inst) => this.instruments.add(inst));
-  }
-
   public clearInstruments() {
     this.instruments.clear();
+  }
+
+  public stack(...intruments: (DromeSynth | DromeSample)[]) {
+    intruments.forEach((inst) => this.instruments.add(inst));
   }
 
   public synth(type: OscillatorType = "sine") {
     return new DromeSynth(this, this.master, type);
   }
 
-  //   public sample(name: SampleName = "bd", index = 0) {
   public sample(name?: SampleNote) {
     return new DromeSample(this, this.master, name);
   }
 
-  public destroy() {
-    super.destroy();
-    // this.instruments.forEach((inst) => inst.destroy());
+  public cleanup() {
+    super.cleanup();
+    this.instruments.forEach((inst) => inst.cleanup());
     this.instruments.clear();
   }
 }

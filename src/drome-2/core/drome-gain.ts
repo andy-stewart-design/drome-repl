@@ -7,6 +7,9 @@ class DromeGain {
   connect(dest: AudioNode) {
     this.node.connect(dest);
   }
+  disconnect() {
+    this.node.disconnect();
+  }
   get input() {
     return this.node;
   }

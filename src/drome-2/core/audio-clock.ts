@@ -114,7 +114,7 @@ class AudioClock {
     if (idx !== -1) arr.splice(idx, 1);
   }
 
-  public destroy() {
+  public cleanup() {
     // Stop everything immediately
     this.stop();
     // Clear all callbacks to break references

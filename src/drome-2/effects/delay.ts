@@ -32,6 +32,9 @@ class DelayEffect {
   connect(dest: AudioNode) {
     this.output.connect(dest);
   }
+  disconnect() {
+    this.output.disconnect();
+  }
   setWetLevel(v: number) {
     this.wet.gain.value = v;
   }

@@ -15,6 +15,11 @@ class DromeSample extends DromeInstrument<SampleNote> {
     if (name) this.note(name);
   }
 
+  push() {
+    this.drome.addInstrument(this);
+    return this;
+  }
+
   async loadSample(note: SampleNote) {
     const baseUrl = drumMachines._base;
     const [name, _index] = note.split(":");

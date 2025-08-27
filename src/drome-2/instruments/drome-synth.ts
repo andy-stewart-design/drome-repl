@@ -17,6 +17,11 @@ class DromeSynth extends DromeInstrument<number> {
     this.type = type;
   }
 
+  push() {
+    this.drome.addInstrument(this);
+    return this;
+  }
+
   start() {
     const nodes = super.connectChain();
     const cycleIndex = this.drome.metronome.bar % this.cycles.length;

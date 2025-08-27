@@ -33,6 +33,10 @@ class DistortionEffect {
     this.output.connect(dest);
   }
 
+  disconnect() {
+    this.output.disconnect();
+  }
+
   setWetLevel(value: number) {
     this.wet.gain.value = value;
   }

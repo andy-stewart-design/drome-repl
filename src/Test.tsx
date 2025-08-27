@@ -9,13 +9,23 @@ export default function TestDemo() {
 
     drome.stack(
       drome
+        .synth("sawtooth")
+        .note([[60, 64, 67, 71]], [[57, 60, 64, 67]])
+        .euclid(8, 8)
+        .stretch(2)
+        .lpf(300)
+        .lpenv(2, 0.333, 0.333, 0.0, 0.5)
+        .reverb(0.5)
+        .distort(1)
+        .postgain(0.375),
+      drome
         .sample("bd:2")
         .euclid([3, 5], 8)
         .reverb(0.2)
         .distort(20)
         .postgain(1.25),
-      drome.sample("hh:4").hex("ff").gain(0.375)
-      // drome.sample("oh:1").euclid(4, 8, 1).gain(0.5)
+      drome.sample("hh:4").hex("ff").gain(0.375),
+      drome.sample("oh:1").euclid(4, 8, 1).gain(0.5)
     );
 
     // const inst = drome
@@ -71,7 +81,7 @@ export default function TestDemo() {
 
   onCleanup(() => {
     drome()?.stop();
-    drome()?.destroy();
+    drome()?.cleanup();
   });
 
   function handlePlay() {
