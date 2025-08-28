@@ -2,23 +2,24 @@ import DromeInstrument from "./drome-instrument";
 import DromeOscillator from "./drome-oscillator";
 import FilterEffect from "../effects/filter";
 import type Drome from "../core/drome";
-import type { DromeAudioNode } from "../types";
+import type { DromeAudioNode, OscType, OscTypeAlias } from "../types";
+import { synthAliasMap } from "../dictionaries/synths/synth-aliases";
 
 class DromeSynth extends DromeInstrument<number> {
-  private type: OscillatorType;
+  private type: OscType;
   private oscillators: Set<DromeOscillator> = new Set();
 
   constructor(
     drome: Drome,
     destination: DromeAudioNode,
-    type: OscillatorType = "sine"
+    type: OscTypeAlias = "sine"
   ) {
     super(drome, destination);
-    this.type = type;
+    this.type = synthAliasMap[type];
   }
 
   push() {
-    this.drome.addInstrument(this);
+    this.drome.push(this);
     return this;
   }
 

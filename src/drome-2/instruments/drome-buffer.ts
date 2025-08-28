@@ -10,7 +10,8 @@ interface DromeBufferOptions {
 class DromeBuffer {
   private ctx: AudioContext;
   private gainNode: GainNode;
-  private maxGain: number;
+  private baseGain = 0.5;
+  private gain: number;
   private srcNodes: AudioBufferSourceNode[] = [];
   private sampleDuration: number;
   private env: ADSRParams;
@@ -28,7 +29,7 @@ class DromeBuffer {
   ) {
     this.ctx = ctx;
     this.gainNode = new GainNode(this.ctx, { gain: 0 });
-    this.maxGain = gain;
+    this.gain = gain;
     const src = new AudioBufferSourceNode(this.ctx, { playbackRate });
     src.buffer = buffer;
     this.sampleDuration = buffer.duration;
@@ -44,7 +45,7 @@ class DromeBuffer {
       target: this.gainNode.gain,
       startTime,
       duration: this.sampleDuration,
-      maxVal: this.maxGain,
+      maxVal: this.gain * this.baseGain,
       startVal: 0,
       env: this.env,
     });

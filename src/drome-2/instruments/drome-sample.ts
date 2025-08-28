@@ -16,7 +16,7 @@ class DromeSample extends DromeInstrument<SampleNote> {
   }
 
   push() {
-    this.drome.addInstrument(this);
+    this.drome.push(this);
     return this;
   }
 

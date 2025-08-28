@@ -2,7 +2,7 @@ import DelayEffect from "../effects/delay";
 import FilterEffect from "../effects/filter";
 import ReverbEffect from "../effects/reverb";
 import DistortionEffect from "../effects/distortion";
-import DromeGain from "../core/drome-gain";
+import GainEffect from "../effects/gain";
 import { euclid } from "../utils/euclid-2";
 import { midiToFreq } from "../utils/midi-to-frequency";
 import type {
@@ -25,13 +25,13 @@ class DromeInstrument<T extends SampleNote | number> {
   private _delay: DelayEffect | undefined;
   private _reverb: ReverbEffect | undefined;
   private _distortion: DistortionEffect | undefined;
-  private _postgain: DromeGain;
+  private _postgain: GainEffect;
   readonly _env: ADSRParams = { a: 0.001, d: 0.125, s: 1.0, r: 0.1 };
 
   constructor(drome: Drome, destination: DromeAudioNode) {
     this.drome = drome;
     this._destination = destination;
-    this._postgain = new DromeGain(this.drome.ctx, 1);
+    this._postgain = new GainEffect(this.drome.ctx, 1);
   }
 
   /* ----------------------------------------------------------------

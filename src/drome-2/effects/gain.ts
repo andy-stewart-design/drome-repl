@@ -1,4 +1,4 @@
-class DromeGain {
+class GainEffect {
   private node: GainNode;
 
   constructor(ctx: AudioContext, initial = 0.5) {
@@ -18,4 +18,4 @@ class DromeGain {
   }
 }
 
-export default DromeGain;
+export default GainEffect;

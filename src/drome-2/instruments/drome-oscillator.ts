@@ -1,8 +1,8 @@
-import { applyEnvelope } from "@/drome-2/utils/adsr";
-import type { ADSRParams } from "@/drome-2/types";
+import { applyEnvelope } from "../utils/adsr";
+import type { ADSRParams, OscType } from "../types";
 
 interface DromeOscillatorOptions {
-  type?: OscillatorType;
+  type?: OscType;
   frequency?: number;
   gain?: number;
   env?: ADSRParams;
@@ -11,7 +11,8 @@ interface DromeOscillatorOptions {
 class DromeOscillator {
   private ctx: AudioContext;
   private gainNode: GainNode;
-  private maxGain: number;
+  private baseGain = 0.15;
+  private gain: number;
   private oscNodes: OscillatorNode[];
   private env: ADSRParams;
   private startTime: number | undefined;
@@ -20,7 +21,7 @@ class DromeOscillator {
     ctx: AudioContext,
     destination: AudioNode,
     {
-      type = "sawtooth",
+      type = "sine",
       frequency = 220,
       gain = 1,
       env = { a: 0.01, d: 0.01, s: 1.0, r: 0.01 },
@@ -29,7 +30,7 @@ class DromeOscillator {
     this.ctx = ctx;
     this.oscNodes = [new OscillatorNode(this.ctx, { type, frequency })];
     this.gainNode = new GainNode(this.ctx, { gain: 0 });
-    this.maxGain = gain;
+    this.gain = gain;
     this.env = env;
     this.oscNodes.forEach((node) =>
       node.connect(this.gainNode).connect(destination)
@@ -41,7 +42,7 @@ class DromeOscillator {
       target: this.gainNode.gain,
       startTime,
       duration,
-      maxVal: this.maxGain,
+      maxVal: this.gain * this.baseGain,
       startVal: 0,
       env: this.env,
     });

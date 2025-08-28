@@ -1,8 +1,13 @@
 import type DelayEffect from "./effects/delay";
 import type FilterEffect from "./effects/filter";
-import type DromeGain from "./core/drome-gain";
+import type GainEffect from "./effects/gain";
 import type ReverbEffect from "./effects/reverb";
 import type DistortionEffect from "./effects/distortion";
+import { synthAliasMap } from "./dictionaries/synths/synth-aliases";
+
+// type OscType = Exclude<OscillatorType, "custom"> | "supersaw";
+type OscType = Exclude<OscillatorType, "custom">;
+type OscTypeAlias = keyof typeof synthAliasMap;
 
 interface ADSRParams {
   a: number;
@@ -16,7 +21,7 @@ type DromeAudioNode =
   | FilterEffect
   | ReverbEffect
   | DistortionEffect
-  | DromeGain;
+  | GainEffect;
 
 type FilterType = Exclude<
   BiquadFilterType,
@@ -56,4 +61,6 @@ export type {
   SampleName,
   SampleNote,
   SampleBank,
+  OscTypeAlias,
+  OscType,
 };
