@@ -4,14 +4,16 @@ import DromeSample from "../instruments/drome-sample";
 import GainEffect from "../effects/gain";
 import type { OscTypeAlias, SampleNote } from "../types";
 
+const achans = [0.5, 0.75];
+
 class Drome extends AudioClock {
   private instruments: Set<DromeSynth | DromeSample> = new Set();
-  private master: GainEffect;
+  private audioChannels: GainEffect[];
   readonly sampleBuffers: Map<string, AudioBuffer> = new Map();
 
   constructor(bpm?: number) {
     super(bpm);
-    this.master = new GainEffect(this.ctx, 0.5);
+    this.audioChannels = achans.map((gain) => new GainEffect(this.ctx, gain));
     this.on("bar", this.handleTick.bind(this));
   }
 
@@ -53,11 +55,11 @@ class Drome extends AudioClock {
   }
 
   public synth(type: OscTypeAlias = "sine") {
-    return new DromeSynth(this, this.master, type);
+    return new DromeSynth(this, this.audioChannels[0], type);
   }
 
   public sample(name?: SampleNote) {
-    return new DromeSample(this, this.master, name);
+    return new DromeSample(this, this.audioChannels[1], name);
   }
 
   public cleanup() {
