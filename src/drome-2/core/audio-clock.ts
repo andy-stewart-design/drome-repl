@@ -9,7 +9,7 @@ type DromeEventCallback = (m: Metronome) => void;
 class AudioClock {
   readonly ctx = new AudioContext();
   readonly metronome: Metronome = { beat: 0, bar: 0 };
-  private currentBarDuration = 2;
+  // private currentBarDuration = 2;
   private _duration = 2; // set by bpm method, applied to currentBarDuration at beginning of each cycle
   private nextBarStart = 0;
   private nextBeatStart = 0;
@@ -24,7 +24,7 @@ class AudioClock {
 
   constructor(bpm = 120) {
     this.bpm(bpm);
-    this.currentBarDuration = this._duration;
+    // this.currentBarDuration = this._duration;
   }
 
   private onTick() {
@@ -45,7 +45,7 @@ class AudioClock {
         });
       }
 
-      this.currentBarDuration = this._duration;
+      // this.currentBarDuration = this._duration;
       this.nextBarStart += this._duration;
       this.metronome.bar++;
     }
@@ -58,7 +58,8 @@ class AudioClock {
         cb({ ...this.metronome, beat: this.metronome.beat + 1 });
       });
 
-      this.nextBeatStart += this.currentBarDuration / this._beatsPerBar;
+      // this.currentBarDuration = this._duration;
+      this.nextBeatStart += this._duration / this._beatsPerBar;
       this.metronome.beat = (this.metronome.beat + 1) % this._beatsPerBar;
     }
   }
@@ -66,7 +67,7 @@ class AudioClock {
   public async start() {
     if (!this._paused) return;
     if (this.ctx.state === "suspended") this.ctx.resume();
-    this.currentBarDuration = this._duration;
+    // this.currentBarDuration = this._duration;
     this.onTick();
     this.intervalID = setInterval(this.onTick.bind(this), this.interval * 1000);
     this._paused = false;
@@ -144,7 +145,7 @@ class AudioClock {
   }
 
   get barDuration() {
-    return this.currentBarDuration;
+    return this._duration;
   }
 
   get beatDuration() {

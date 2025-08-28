@@ -8,18 +8,18 @@ const examples = [
     code: `d.bpm(135)
 
 d.stack(
-  d.synth("saw").note([48,60],[43,55]).adsr(0.1,0.25,0.5,1).lpf(800).lpenv(2).euclid(5,8,2),
-  d.synth("sine").note([48,60],[43,55]).adsr(0.1,0.25,0.5,1).euclid(5,8,2),
+  d.synth("saw").note([48,60],[43,55]).adsr(0.1,0.25,0.5,1).lpf(800).lpenv(2,0.1,0.25,0.5,1).euclid(5,8,2).gain(1.5),
+  d.synth("sine").note([48,60],[43,55]).adsr(0.1,0.25,0.5,0.1).euclid(5,8,2).gain(3),
   d.synth("saw").note([75,74,70],[70,69,67]).adsr(0.01,0.75,0.75,1.5).lpf(1600).lpenv(2).euclid(3,8,1).reverb(0.5),
 )
 
-d.sample("bd",1).hex("f").gain(0.75).push()`,
+d.sample("bd:1").hex("f").push()`,
   },
   {
     title: "Multiple speeds",
     code: `drome.stack(
-  drome.synth("sawtooth").note(57).euclid(3,8).adsr(0.001,0.666).lpf(1600), // can use either "saw" or "sawtooth"
-  drome.synth("saw").note([43,43,43,50,43,43,53,54]).lpf(400).lpenv(2).adsr(0.001,0.75).fast(2).gain(1.5),
+  drome.synth("sawtooth").note(57).euclid(3,8).adsr(0.01,0.666,0.1,0.01).lpf(1600).gain(2).delay(0.25).reverb(0.5), // can use either "saw" or "sawtooth"
+  drome.synth("saw").note([43,43,43,50,43,43,53,54]).lpf(300).lpenv(2,0.01,0.75,0.5,0.1).adsr(0.001,0.75,0.5,0.1).fast(2).gain(3).reverb(0.25),
 )`,
   },
   //   {
@@ -33,11 +33,11 @@ d.sample("bd",1).hex("f").gain(0.75).push()`,
   //   },
   {
     title: "Chords and melodies",
-    code: `drome.synth("saw").note([48,52,43],[50,53,45]).lpf(400).adsr(0.01,0.9).push() 
+    code: `drome.synth("saw").note([48,52,43],[50,53,45]).reverb(0.25).lpf(400).adsr(0.01,0.9).push() 
 
-drome.synth("sq").note([[60,64,67]],[[62,65,69]]).lpf(600).adsr(0.01,0.9).push() 
+drome.synth("sq").note([[60,64,67]],[[62,65,69]]).lpf(600).adsr(0.01,0.9).gain(0.875).push() 
 
-drome.synth("supersaw").note([72,76,79,81,79,76]).adsr(0.001,0.75).fast(2).lpf(1000).lpenv(2,{a:0.001,d:0.75}).gain(0.75).push()`,
+drome.synth("saw").note([72,76,79,81,79,76]).adsr(0.01,0.75,0.1,0.01).fast(2).lpf(1000).lpenv(3,0.333,0.666,0.1,0.01).gain(0.875).push()`,
   },
   {
     title: "Samples",
@@ -56,7 +56,7 @@ kick.push()`,
     title: "Custom struct",
     code: `const risset = Array.from({ length: 14 + 1 }, (_, i) => Array.from({ length: i }, (_, j) => j === i - 1 ? 1 : 0)).flat().reverse().slice(0, -1)
 
-drome.synth("saw").note(69).adsr(0.01, 0.99, 0.01, 0.01).struct(risset).bpf(800).bpenv(3).gain(0.625).push() 
+drome.synth("saw").note(69).adsr(0.01, 0.99, 0.75, 0.1).struct(risset).bpf(800).bpenv(3).gain(0.625).push() 
 
 drome.synth("saw").note(45).adsr(0.95, 0.05, 0.25, 0.1).lpf(200).lpenv(1.5).euclid(4,4).gain(1.25).push()
 
