@@ -85,8 +85,6 @@ class DromeInstrument<T extends SampleNote | number> {
   }
 
   euclid(pulses: number | number[], steps: number, rotation = 0) {
-    console.log("euclid", euclid(pulses, steps, rotation));
-
     this.cycles = this.applyPattern2(euclid(pulses, steps, rotation));
     return this;
   }

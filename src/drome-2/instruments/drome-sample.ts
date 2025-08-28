@@ -16,6 +16,7 @@ class DromeSample extends DromeInstrument<SampleNote> {
   }
 
   push() {
+    if (!this.drome.paused) this.preloadSamples();
     this.drome.push(this);
     return this;
   }
