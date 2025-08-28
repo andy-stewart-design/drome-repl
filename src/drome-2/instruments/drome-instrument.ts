@@ -26,7 +26,7 @@ class DromeInstrument<T extends SampleNote | number> {
   private _reverb: ReverbEffect | undefined;
   private _distortion: DistortionEffect | undefined;
   private _postgain: GainEffect;
-  readonly _env: ADSRParams = { a: 0.001, d: 0.125, s: 1.0, r: 0.1 };
+  readonly _env: ADSRParams = { a: 0.001, d: 0.125, s: 1.0, r: 0.01 };
 
   constructor(drome: Drome, destination: DromeAudioNode) {
     this.drome = drome;

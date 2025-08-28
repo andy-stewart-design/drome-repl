@@ -10,7 +10,7 @@ interface ApplyEnvArgs {
   env?: Partial<ADSRParams>;
 }
 
-const defaultEnv = { a: 0.01, d: 0.01, s: 1.0, r: 0.025 };
+const defaultEnv = { a: 0.01, d: 0.01, s: 1.0, r: 0.01 };
 
 function applyEnvelope({
   target,
