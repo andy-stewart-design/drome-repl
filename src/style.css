@@ -100,6 +100,26 @@ button {
 /* -------------------------------------------- */
 /* CODE EDITOR/TEXT AREA */
 
+.editor-container {
+  flex-grow: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.cm-editor {
+  /* padding: 1rem; */
+
+  .cm-gutters {
+    background-color: #0a0a0a;
+    color: #6c6c6c;
+    border: 0px solid transparent;
+  }
+
+  .cm-activeLineGutter {
+    background-color: #3f464a;
+  }
+}
+
 .code-editor {
   flex-grow: 1;
   background: rgba(10 10 10);
