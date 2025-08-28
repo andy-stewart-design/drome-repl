@@ -8,12 +8,12 @@ const examples = [
     code: `d.bpm(135)
 
 d.stack(
-  d.synth("saw").note([48,60],[43,55]).adsr(0.1,0.25,0.5,1).lpf(800).lpenv(2,0.1,0.25,0.5,1).euclid(5,8,2).gain(1.5),
-  d.synth("sine").note([48,60],[43,55]).adsr(0.1,0.25,0.5,0.1).euclid(5,8,2).gain(3),
+  d.synth("saw").note([48,60],[43,55]).adsr(0.1,0.25,0.5,1).lpf(800).lpenv(2,0.1,0.25,0.5,1).euclid(5,8,2).reverb(0.1),
+  d.synth("sine").note([48,60],[43,55]).adsr(0.1,0.25,0.5,0.1).euclid(5,8,2).gain(2),
   d.synth("saw").note([75,74,70],[70,69,67]).adsr(0.01,0.75,0.75,1.5).lpf(1600).lpenv(2).euclid(3,8,1).reverb(0.5),
 )
 
-d.sample("bd:1").hex("f").push()`,
+d.sample("bd:3").hex("f").push()`,
   },
   {
     title: "Multiple speeds",

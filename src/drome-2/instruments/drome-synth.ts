@@ -30,13 +30,13 @@ class DromeSynth extends DromeInstrument<number> {
     const startTime = this.drome.barStartTime;
     const noteDuration = this.drome.barDuration / cycle.length;
 
-    const play = (note: number, i: number) => {
+    const play = (note: number, i: number, voicings = 2) => {
       const frequency = parseFloat(note.toString()) ?? 1;
       const osc = new DromeOscillator(this.drome.ctx, nodes[0].input, {
         type: this.type,
         frequency,
         env: this._env,
-        gain: this._gain,
+        gain: this._gain / (voicings / 2),
       });
 
       nodes.forEach((node) => {
@@ -51,7 +51,7 @@ class DromeSynth extends DromeInstrument<number> {
 
     cycle.forEach((pat, i) => {
       if (!pat) return;
-      else if (Array.isArray(pat)) pat.forEach((el) => play(el, i));
+      else if (Array.isArray(pat)) pat.forEach((el) => play(el, i, pat.length));
       else play(pat, i);
     });
   }

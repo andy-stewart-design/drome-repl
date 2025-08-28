@@ -11,7 +11,7 @@ interface DromeOscillatorOptions {
 class DromeOscillator {
   private ctx: AudioContext;
   private gainNode: GainNode;
-  private baseGain = 0.15;
+  private baseGain = 0.5;
   private gain: number;
   private oscNodes: OscillatorNode[];
   private env: ADSRParams;
