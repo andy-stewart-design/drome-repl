@@ -10,7 +10,7 @@ interface DromeBufferOptions {
 class DromeBuffer {
   private ctx: AudioContext;
   private gainNode: GainNode;
-  private baseGain = 0.5;
+  private baseGain = 0.75;
   private gain: number;
   private srcNodes: AudioBufferSourceNode[] = [];
   private sampleDuration: number;

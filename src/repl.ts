@@ -1,4 +1,4 @@
-import Drome from "@/drome";
+import Drome from "@/drome-2/core/drome";
 import type { LogType } from "./App";
 
 type LogCallback = (message: string, type?: LogType) => void;
@@ -8,7 +8,7 @@ function runCode(drome: Drome, code: string, log: LogCallback) {
   log(msg, "input");
 
   try {
-    drome.clearInstruments();
+    drome.clear();
     const result = new Function("drome, d", `${code}`)(drome, drome);
 
     log(`✓ Code executed successfully`, "output");
@@ -29,7 +29,7 @@ function play(drome: Drome, code: string, log: LogCallback) {
 
 function stop(drome: Drome) {
   drome.stop();
-  drome.clearInstruments();
+  drome.clear();
 }
 
 export { play, stop };

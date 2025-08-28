@@ -1,5 +1,5 @@
 import { createSignal, onCleanup, onMount, Show } from "solid-js";
-import Drome from "@/drome";
+import Drome from "@/drome-2/core/drome";
 import { play, stop } from "./repl";
 import { examples, textAreaPlaceholder } from "@/assets/examples";
 import type { Metronome } from "./drome/audio-clock";
@@ -58,7 +58,7 @@ function App() {
   onCleanup(() => {
     if (!codeEditor) return;
     codeEditor.removeEventListener("keydown", handleKeydown);
-    drome.destroy();
+    drome.cleanup();
   });
 
   function handleInsertExample(code: string) {
