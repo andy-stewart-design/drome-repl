@@ -7,6 +7,7 @@ import { EditorView, keymap } from "@codemirror/view";
 import { indentWithTab } from "@codemirror/commands";
 import { javascript, theme } from "./codemirror";
 import type { Metronome } from "./drome/audio-clock";
+import { flash, flashField } from "./codemirror/flash";
 
 export type LogType = "input" | "output" | "error";
 
@@ -25,9 +26,12 @@ function App() {
   let logOutput: HTMLDivElement | undefined;
 
   function handlePlay() {
-    const code = editor()?.state.doc.toString();
+    const ed = editor();
+    if (!ed) return;
+    const code = ed.state.doc.toString();
     if (!code) return;
     play(drome, code, log);
+    flash(ed);
   }
 
   function handleStop() {
@@ -52,7 +56,13 @@ function App() {
     const view = new EditorView({
       doc,
       parent: editorContainer,
-      extensions: [basicSetup, keymap.of([indentWithTab]), javascript(), theme],
+      extensions: [
+        basicSetup,
+        keymap.of([indentWithTab]),
+        javascript(),
+        theme,
+        flashField,
+      ],
     });
     setEditor(view);
     editorContainer.addEventListener("keydown", handleKeydown);
@@ -81,6 +91,7 @@ function App() {
     });
     ed.focus();
     play(drome, code, log);
+    flash(ed);
   }
 
   function log(message: string, type: LogType = "output") {
