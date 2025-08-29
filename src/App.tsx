@@ -5,9 +5,8 @@ import { examples } from "@/assets/examples";
 import { basicSetup } from "codemirror";
 import { EditorView, keymap } from "@codemirror/view";
 import { indentWithTab } from "@codemirror/commands";
-import { javascript, theme } from "./codemirror";
+import { javascript, theme, flash, flashField } from "./codemirror";
 import type { Metronome } from "./drome/audio-clock";
-import { flash, flashField } from "./codemirror/flash";
 
 export type LogType = "input" | "output" | "error";
 
