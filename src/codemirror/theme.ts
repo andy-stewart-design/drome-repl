@@ -20,29 +20,29 @@ import {
 } from "./theme-utils";
 
 // Base colors - Ocean depths
-const base00 = "#0a0a0a", // - Background (deep ocean blue)
-  base01 = "#a3c9e9", // - Foreground (lighter blue for enhanced readability)
-  base02 = "#003180", // - Selection (more vibrant blue for better visibility)
+const bgPrimary = "#000408", // - Background (deep ocean blue)
+  base01 = "#f8f9fa", // - Foreground (lighter blue for enhanced readability)
+  base02 = "#243a51", // - Selection (more vibrant blue for better visibility)
   base03 = "#b4a2f7", // - Gutter background (darker for contrast)
   base04 = "#e6d4a3", // - Cursor (warmer gold for better visibility)
   base05 = "#0066ff20", // - Active line (subtle blue tint)
   base06 = "#ffffff", // - Pure white for maximum contrast
-  base07 = "#47c1ff", // - Keywords (brighter cyan blue)
+  base07 = "color(display-p3 0 0.75 1)", // - Keywords (brighter cyan blue)
   base08 = "#5caeff", // - Variables (softer azure blue)
   base09 = "#4b6480", // - Comments (brighter blue-gray)
-  base0B = "#c3a2f7", // - Functions (softer purple)
+  base0B = "color(display-p3 .5 0.5 1)", // - Functions (softer purple)
   // base0A = "#4ce660", // - Strings (kept vibrant green for contrast)
-  base0C = "#ff7ae2", // - Constants (softer pink)
-  base0A = "#ff7ae2", // - Strings (kept vibrant green for contrast)
+  base0C = "color(display-p3 1 0 1)", // - Constants (softer pink)
+  base0A = "color(display-p3 1 0 1)", // - Strings (kept vibrant green for contrast)
   base0D = "#ffd47b", // - Classes (warmer gold)
-  base0E = "#a3c9e9", // - Headings (brighter sky blue)
+  base0E = "#f8f9fa", // - Headings (brighter sky blue)
   base0F = "#59d6ff", // - Tags (brighter cyan)
   base10 = "#ff50c8", // - Links (brighter magenta)
   base11 = "#66ecd4", // - URLs (brighter teal)
   // UI elements
   invalid = "#ff5370",
-  darkBackground = "#0a1422", // Darker background for better contrast
-  highlightBackground = "#0033ff20",
+  darkBackground = "#16191c", // Darker background for better contrast
+  highlightBackground = "#ffffff15",
   tooltipBackground = "#05101d", // Darker tooltip for better contrast
   cursor = base04,
   selection = base02,
@@ -62,7 +62,7 @@ const abyssTheme = EditorView.theme(
     // Base editor styles
     "&": {
       color: base01,
-      backgroundColor: base00,
+      backgroundColor: bgPrimary,
       fontSize: generalContent.fontSize,
       fontFamily: generalContent.fontFamily,
     },
@@ -78,7 +78,7 @@ const abyssTheme = EditorView.theme(
     },
     ".cm-fat-cursor": {
       backgroundColor: `${cursor}99`,
-      color: base00,
+      color: bgPrimary,
     },
 
     // Selection
@@ -142,8 +142,8 @@ const abyssTheme = EditorView.theme(
 
     // Gutters
     ".cm-gutters": {
-      backgroundColor: base00,
-      color: "#5f7e97",
+      backgroundColor: bgPrimary,
+      color: "#4e545c",
       border: generalGutter.border,
       paddingRight: generalGutter.paddingRight,
     },
@@ -295,7 +295,7 @@ const abyssTheme = EditorView.theme(
     // Focus outline
     "&.cm-focused": {
       outline: "none",
-      boxShadow: `0 0 0 2px ${base05}, 0 0 0 4px ${base00}`,
+      boxShadow: `0 0 0 2px ${base05}, 0 0 0 4px ${bgPrimary}`,
     },
 
     // Scrollbars
@@ -307,12 +307,12 @@ const abyssTheme = EditorView.theme(
       background: darkBackground,
     },
     "& .cm-scroller::-webkit-scrollbar-thumb": {
-      backgroundColor: "#5f7e97",
+      backgroundColor: "#3d4147",
       borderRadius: generalScroller.borderRadius,
       border: `3px solid ${darkBackground}`,
     },
     "& .cm-scroller::-webkit-scrollbar-thumb:hover": {
-      backgroundColor: "#4cc9ff",
+      backgroundColor: "#4e545c",
     },
 
     // Ghost text
