@@ -34,6 +34,7 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 4rem;
 
   .title {
     font-size: 1.25rem;
@@ -76,7 +77,8 @@ button {
 }
 
 .container {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 350px);
   flex: 1;
   overflow: hidden;
 }
@@ -115,8 +117,20 @@ button {
     border: 0px solid transparent;
   }
 
-  .cm-activeLineGutter {
-    background-color: #3f464a;
+  :is(.cm-activeLineGutter, .cm-activeLine) {
+    background-color: rgb(255 255 255 / 0.1);
+  }
+
+  .cm-layer.cm-selectionLayer .cm-selectionBackground {
+    background: rgb(0, 0, 166) !important;
+  }
+
+  .cm-cursor {
+    border-left: 1.2px solid white; /* For dark mode */
+  }
+
+  .cm-selectionMatch {
+    background: rgb(104, 0, 118);
   }
 }
 

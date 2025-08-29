@@ -1,7 +1,8 @@
 import { createSignal, onCleanup, onMount, Show } from "solid-js";
 import Drome from "@/drome-2/core/drome";
 import { play, stop } from "./repl";
-import { examples, textAreaPlaceholder } from "@/assets/examples";
+// import { examples, textAreaPlaceholder } from "@/assets/examples";
+import { examples } from "@/assets/examples";
 import { basicSetup } from "codemirror";
 import { EditorView } from "@codemirror/view";
 import type { Metronome } from "./drome/audio-clock";
@@ -15,13 +16,11 @@ interface ReplLog {
 
 function App() {
   const [playing, setPlaying] = createSignal(false);
-  const [code, setCode] = createSignal("");
   const [editor, setEditor] = createSignal<EditorView | null>(null);
   const [logs, setLogs] = createSignal<ReplLog[]>([]);
   const [metronome, setMetronome] = createSignal<Metronome | null>(null);
   const drome = new Drome(120);
   let editorContainer: HTMLDivElement | undefined;
-  let codeEditor: HTMLTextAreaElement | undefined;
   let logOutput: HTMLDivElement | undefined;
 
   function handlePlay() {
@@ -48,7 +47,7 @@ function App() {
   onMount(() => {
     if (!editorContainer) return;
     const view = new EditorView({
-      doc: "Start document",
+      doc: "d.synth().note(60).push()",
       parent: editorContainer,
       extensions: [basicSetup],
     });
@@ -66,15 +65,18 @@ function App() {
   });
 
   onCleanup(() => {
-    if (!codeEditor) return;
-    codeEditor.removeEventListener("keydown", handleKeydown);
+    editorContainer?.removeEventListener("keydown", handleKeydown);
     drome.cleanup();
   });
 
   function handleInsertExample(code: string) {
+    const ed = editor();
+    if (!ed) return;
     drome.bpm(120);
-    setCode(code);
-    codeEditor?.focus();
+    ed.dispatch({
+      changes: { from: 0, to: ed.state.doc.length, insert: code },
+    });
+    ed.focus();
     play(drome, code, log);
   }
 
@@ -106,16 +108,7 @@ function App() {
 
       <div class="container">
         <div class="repl-section">
-          <div ref={editorContainer} class="editor-container">
-            {/* <textarea
-              ref={codeEditor}
-              class="code-editor"
-              value={code()}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder={textAreaPlaceholder}
-              spellcheck="false"
-            /> */}
-          </div>
+          <div ref={editorContainer} class="editor-container" />
           <div class="section-header">Output</div>
           <div ref={logOutput} class="output">
             {logs().map((log) => (
