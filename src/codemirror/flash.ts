@@ -1,6 +1,8 @@
 import { StateEffect, StateField } from "@codemirror/state";
 import { Decoration, EditorView } from "@codemirror/view";
 
+let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
 export const setFlash = StateEffect.define<boolean>();
 export const flashField = StateField.define({
   create() {
@@ -12,9 +14,7 @@ export const flashField = StateField.define({
         if (e.is(setFlash)) {
           if (e.value && tr.newDoc.length > 0) {
             const mark = Decoration.mark({
-              attributes: {
-                style: `background-color: rgba(255,255,255, .4); filter: invert(10%)`,
-              },
+              attributes: { style: `background-color: #243a51;` },
             });
             flash = Decoration.set([mark.range(0, tr.newDoc.length)]);
           } else {
@@ -24,7 +24,7 @@ export const flashField = StateField.define({
       }
       return flash;
     } catch (err) {
-      console.warn("flash error", err);
+      console.warn("[DROME] flash error", err);
       return flash;
     }
   },
@@ -32,11 +32,11 @@ export const flashField = StateField.define({
 });
 
 export const flash = (view: EditorView, ms = 200) => {
+  if (timeoutId) clearTimeout(timeoutId);
   view.dispatch({ effects: setFlash.of(true) });
-  console.log("flash", view);
-
-  setTimeout(() => {
+  timeoutId = setTimeout(() => {
     view.dispatch({ effects: setFlash.of(false) });
+    timeoutId = null;
   }, ms);
 };
 

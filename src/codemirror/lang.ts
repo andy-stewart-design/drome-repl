@@ -9,9 +9,6 @@ import {
   foldNodeProp,
   foldInside,
 } from "@codemirror/language";
-// import { completeFromList, ifNotIn } from "@codemirror/autocomplete";
-// import { snippets, typescriptSnippets } from "./snippets";
-// import { localCompletionSource, dontComplete } from "./complete";
 
 /// A language provider based on the [Lezer JavaScript
 /// parser](https://github.com/lezer-parser/javascript), extended with

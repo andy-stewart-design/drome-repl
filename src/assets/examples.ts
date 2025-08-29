@@ -20,8 +20,12 @@ d.sample("oh:2").euclid(4,8,1).gain(0.75).push()`,
   {
     title: "Multiple speeds",
     code: `drome.stack(
-  drome.synth("sawtooth").note(57).euclid(3,8).adsr(0.01,0.666,0.1,0.01).lpf(1600).gain(2).delay(0.25).reverb(0.5), // can use either "saw" or "sawtooth"
-  drome.synth("saw").note([43,43,43,50,43,43,53,54]).lpf(300).lpenv(2,0.01,0.75,0.5,0.1).fast(2).gain(3).reverb(0.25),
+  drome.synth("sawtooth") // can use either "saw" or "sawtooth"
+    .note(57).euclid(3,8).adsr(0.01,0.666,0.1,0.01)
+    .lpf(1600).gain(2).delay(0.25).reverb(0.5), 
+  drome.synth("saw").note([43,43,43,50,43,43,53,54])
+    .lpf(300).lpenv(2,0.01,0.75,0.5,0.1)
+    .fast(2).gain(3).reverb(0.25),
 )`,
   },
   //   {

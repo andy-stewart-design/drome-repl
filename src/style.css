@@ -46,7 +46,7 @@ button {
     font-variation-settings: "wdth" 112;
     text-transform: uppercase;
     letter-spacing: 0.375em;
-    font-weight: bold;
+    font-weight: 500;
   }
 
   .controls {
