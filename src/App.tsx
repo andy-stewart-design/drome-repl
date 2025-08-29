@@ -4,7 +4,8 @@ import { play, stop } from "./repl";
 // import { examples, textAreaPlaceholder } from "@/assets/examples";
 import { examples } from "@/assets/examples";
 import { basicSetup } from "codemirror";
-import { EditorView } from "@codemirror/view";
+import { EditorView, keymap } from "@codemirror/view";
+import { indentWithTab } from "@codemirror/commands";
 import { javascript, theme } from "./codemirror";
 import type { Metronome } from "./drome/audio-clock";
 
@@ -50,7 +51,7 @@ function App() {
     const view = new EditorView({
       doc: "d.synth().note(60).push()",
       parent: editorContainer,
-      extensions: [basicSetup, javascript(), theme],
+      extensions: [basicSetup, keymap.of([indentWithTab]), javascript(), theme],
     });
     setEditor(view);
     editorContainer.addEventListener("keydown", handleKeydown);
