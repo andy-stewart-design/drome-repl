@@ -10,6 +10,8 @@ html {
   --color-bg-primary: rgb(10 10 10);
   --color-bg-secondary: rgb(21 21 21);
   --color-border-subtle: rgb(255 255 255 / 0.125);
+  --header-height: 4rem;
+  --content-height: calc(100vh - var(--header-height));
 
   background: var(--color-bg-primary);
   color-scheme: dark;
@@ -34,7 +36,7 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 4rem;
+  height: var(--header-height);
 
   .title {
     font-size: 1.25rem;
@@ -81,6 +83,7 @@ button {
   grid-template-columns: minmax(0, 1fr) minmax(0, 350px);
   flex: 1;
   overflow: hidden;
+  height: var(--content-height);
 }
 
 .section-header {
@@ -97,6 +100,7 @@ button {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  height: var(--content-height);
 }
 
 /* -------------------------------------------- */
@@ -108,33 +112,7 @@ button {
   grid-template-columns: minmax(0, 1fr);
 }
 
-.cm-editor {
-  /* padding: 1rem; */
-
-  .cm-gutters {
-    background-color: #0a0a0a;
-    color: #6c6c6c;
-    border: 0px solid transparent;
-  }
-
-  :is(.cm-activeLineGutter, .cm-activeLine) {
-    background-color: rgb(255 255 255 / 0.1);
-  }
-
-  .cm-layer.cm-selectionLayer .cm-selectionBackground {
-    background: rgb(0, 0, 166) !important;
-  }
-
-  .cm-cursor {
-    border-left: 1.2px solid white; /* For dark mode */
-  }
-
-  .cm-selectionMatch {
-    background: rgb(104, 0, 118);
-  }
-}
-
-.code-editor {
+/* .code-editor {
   flex-grow: 1;
   background: rgba(10 10 10);
   border: none;
@@ -150,7 +128,7 @@ button {
   &::placeholder {
     color: rgba(224, 230, 237, 0.4);
   }
-}
+} */
 
 /* -------------------------------------------- */
 /* LOG OUTPUT */
@@ -191,6 +169,7 @@ button {
   border-left: 1px solid var(--color-border-subtle);
   display: flex;
   flex-direction: column;
+  height: var(--content-height);
 
   .examples {
     flex: 1;
