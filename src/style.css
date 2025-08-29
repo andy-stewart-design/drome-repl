@@ -108,8 +108,11 @@ button {
 
 .editor-container {
   flex-grow: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  overflow: hidden;
+
+  & > div.cm-editor {
+    height: 100% !important;
+  }
 }
 
 /* .code-editor {
