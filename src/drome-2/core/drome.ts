@@ -4,7 +4,7 @@ import DromeSample from "../instruments/drome-sample";
 import GainEffect from "../effects/gain";
 import type { OscTypeAlias, SampleNote } from "../types";
 
-const achans = [0.5, 0.75];
+const achans = [0.5, 0.875];
 
 class Drome extends AudioClock {
   private instruments: Set<DromeSynth | DromeSample> = new Set();

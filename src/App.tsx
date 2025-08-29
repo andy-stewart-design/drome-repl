@@ -1,7 +1,6 @@
 import { createSignal, onCleanup, onMount, Show } from "solid-js";
 import Drome from "@/drome-2/core/drome";
 import { play, stop } from "./repl";
-// import { examples, textAreaPlaceholder } from "@/assets/examples";
 import { examples } from "@/assets/examples";
 import { basicSetup } from "codemirror";
 import { EditorView, keymap } from "@codemirror/view";
@@ -48,8 +47,10 @@ function App() {
 
   onMount(() => {
     if (!editorContainer) return;
+    const docIndex = Math.floor(Math.random() * examples.length);
+    const doc = examples[docIndex].code;
     const view = new EditorView({
-      doc: "d.synth().note(60).push()",
+      doc,
       parent: editorContainer,
       extensions: [basicSetup, keymap.of([indentWithTab]), javascript(), theme],
     });
@@ -90,7 +91,7 @@ function App() {
   return (
     <>
       <div class="header">
-        <div class="title">Drome REPL</div>
+        <div class="title">Drome</div>
         <div class="controls">
           <Show when={metronome()}>
             <span>

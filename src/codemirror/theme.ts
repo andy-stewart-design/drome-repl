@@ -31,7 +31,6 @@ const bgPrimary = "#000408", // - Background (deep ocean blue)
   base08 = "#5caeff", // - Variables (softer azure blue)
   base09 = "#4b6480", // - Comments (brighter blue-gray)
   base0B = "color(display-p3 .5 0.5 1)", // - Functions (softer purple)
-  // base0A = "#4ce660", // - Strings (kept vibrant green for contrast)
   base0C = "color(display-p3 1 0 1)", // - Constants (softer pink)
   base0A = "color(display-p3 1 0 1)", // - Strings (kept vibrant green for contrast)
   base0D = "#ffd47b", // - Classes (warmer gold)
@@ -368,7 +367,7 @@ const abyssHighlightStyle = HighlightStyle.define([
 
   // Punctuation and structure
   { tag: t.definition(t.typeName), color: base0B, fontWeight: "bold" },
-  { tag: [t.operator, t.operatorKeyword], color: "#78b6ff" },
+  { tag: [t.operator, t.operatorKeyword], color: base08 },
   { tag: [t.bracket], color: "#8da0bf" },
   { tag: [t.brace], color: "#8da0bf" },
   { tag: [t.punctuation], color: "#8da0bf" },
