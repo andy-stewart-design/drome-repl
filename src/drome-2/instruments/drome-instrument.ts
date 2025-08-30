@@ -257,7 +257,6 @@ class DromeInstrument<T extends SampleNote | number> {
     const filters = [...(this._filters?.values() ?? [])].map(
       (options) => new FilterEffect(this.drome.ctx, options)
     );
-    console.log(filters);
 
     const nodes = [
       ...filters,

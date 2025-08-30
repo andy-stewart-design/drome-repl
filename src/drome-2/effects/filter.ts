@@ -6,6 +6,7 @@ type FEOptions = Partial<FilterOptions>;
 class FilterEffect {
   private filter: BiquadFilterNode;
   private env: { depth: number; adsr?: ADSRParams } | undefined;
+  private baseFrequency: number;
 
   constructor(
     ctx: AudioContext,
@@ -13,30 +14,41 @@ class FilterEffect {
   ) {
     this.filter = new BiquadFilterNode(ctx, { type, frequency, Q });
     this.env = env;
+    this.baseFrequency = frequency;
   }
+
   connect(dest: AudioNode) {
     this.filter.connect(dest);
   }
+
   apply(startTime: number, duration: number) {
     if (this.env?.adsr) {
-      console.log("applying envelope");
+      // Calculate target frequency more carefully
+      const targetFreq = this.baseFrequency * this.env.depth;
+      // Set minimum frequency to prevent going to 0 Hz
+      const minFreq = Math.min(this.baseFrequency, 20); // Never go below 20 Hz
 
       applyEnvelope({
         target: this.filter.frequency,
         startTime,
         duration,
         env: this.env.adsr,
-        startVal: this.filter.frequency.value,
-        maxVal: this.filter.frequency.value * this.env.depth,
+        startVal: this.baseFrequency,
+        maxVal: targetFreq,
+        minVal: minFreq, // Use minimum frequency instead of 0
       });
     }
   }
+
   frequency(v: number) {
     this.filter.frequency.value = v;
+    this.baseFrequency = v; // Keep track of base frequency
   }
+
   disconnect() {
     this.filter.disconnect();
   }
+
   get input() {
     return this.filter;
   }
