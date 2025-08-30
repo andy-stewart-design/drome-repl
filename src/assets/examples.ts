@@ -64,7 +64,7 @@ kick.push()`,
 
 drome.synth("saw").note(69).adsr(0.01, 0.99, 0.75, 0.1).struct(risset).bpf(800).bpenv(3).gain(0.625).push() 
 
-drome.synth("saw").note(45).adsr(0.95, 0.05, 0.25, 0.1).lpf(200).lpenv(1.5).euclid(4,4).gain(1.25).push()
+drome.synth("saw").note(45).adsr(0.95, 0.05, 0.25, 0.1).lpf(200).lpenv(3).euclid(4,4).gain(1.5).push()
 
 d.stack(
   drome.sample("bd").bank("RolandTR909").euclid(4,4),
@@ -90,3 +90,18 @@ export { examples, textAreaPlaceholder };
 // const notes = drome.range(44, 48);
 
 // drome.synth("sawtooth", 12).note(notes).adsr(0, 0.1);
+
+// drome.stack(
+//   drome
+//     .synth("saw")
+//     .note([[60, 64, 67, 71]], [[57, 60, 64, 67]])
+//     .hex("ff")
+//     .stretch(2)
+//     .lpf(300)
+//     .lpenv(2, 0.333, 0.333, 0.0, 0.5)
+//     .reverb(0.5)
+//     .distort(1),
+//   drome.sample("bd:2").euclid([3, 5], 8).reverb(0.2),
+//   drome.sample("hh:4").hex("ff").gain(0.375),
+//   drome.sample("oh:1").euclid(4, 8, 1).gain(0.5)
+// );

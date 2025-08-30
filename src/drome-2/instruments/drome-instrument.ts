@@ -163,10 +163,11 @@ class DromeInstrument<T extends SampleNote | number> {
     this._filters.set(type, { type, frequency, env, q: 1 });
   }
 
-  private updateFilter(t: FilterType, de: number, env: Partial<ADSRParams>) {
+  private updateFilter(t: FilterType, de: number, env?: Partial<ADSRParams>) {
     const filter = this._filters.get(t);
     if (!filter) return this;
     filter.env.depth = de;
+
     if (typeof env.a === "number") filter.env.adsr.a = env.a;
     if (typeof env.d === "number") filter.env.adsr.d = env.d;
     if (typeof env.s === "number") filter.env.adsr.s = env.s;

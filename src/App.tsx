@@ -15,6 +15,12 @@ interface ReplLog {
   message: string;
 }
 
+// drome.stack(
+//   drome.synth("saw").note(48).adsr(0.01, 1, 0.5, 0).lpf(500).euclid(4, 4)
+// );
+
+const LS_KEY = "drome_sketch";
+
 function App() {
   const [playing, setPlaying] = createSignal(false);
   const [editor, setEditor] = createSignal<EditorView | null>(null);
@@ -29,8 +35,10 @@ function App() {
     if (!ed) return;
     const code = ed.state.doc.toString();
     if (!code) return;
+    drome.bpm(120);
     play(drome, code, log);
     flash(ed);
+    localStorage.setItem(LS_KEY, code);
   }
 
   function handleStop() {
@@ -50,8 +58,9 @@ function App() {
 
   onMount(() => {
     if (!editorContainer) return;
-    const docIndex = Math.floor(Math.random() * examples.length);
-    const doc = examples[docIndex].code;
+    const doc =
+      localStorage.getItem(LS_KEY) ??
+      examples[Math.floor(Math.random() * examples.length)].code;
     const view = new EditorView({
       doc,
       parent: editorContainer,

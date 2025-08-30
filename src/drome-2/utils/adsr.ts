@@ -24,7 +24,7 @@ ApplyEnvArgs) {
   const adsr = { ...defaultEnv, ...env };
 
   // Cancel anything that was already scheduled
-  target.cancelScheduledValues(startTime);
+  // target.cancelScheduledValues(startTime);
 
   const attDur = clamp(adsr.a, 0.01, 0.98) * duration;
   const attEnd = startTime + attDur;

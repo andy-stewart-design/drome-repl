@@ -41,7 +41,7 @@ class DromeSynth extends DromeInstrument<number> {
 
       nodes.forEach((node) => {
         if (!(node instanceof FilterEffect)) return;
-        node.apply(startTime + noteDuration * i, noteDuration);
+        // node.apply(startTime + noteDuration * i, noteDuration);
       });
       osc.play(startTime + noteDuration * i, noteDuration);
 
