@@ -25,8 +25,8 @@ class FilterEffect {
     if (this.env?.adsr) {
       // Calculate target frequency more carefully
       const targetFreq = this.baseFrequency * this.env.depth;
-      // Set minimum frequency to prevent going to 0 Hz
-      const minFreq = Math.min(this.baseFrequency, 20); // Never go below 20 Hz
+      // Set minimum frequency of 20 to prevent going to 0 Hz
+      const minFreq = Math.min(this.baseFrequency, 20);
 
       applyEnvelope({
         target: this.filter.frequency,

@@ -254,9 +254,10 @@ class DromeInstrument<T extends SampleNote | number> {
   }
 
   connectChain() {
-    const filters = [...(this._filters?.values() ?? [])].map(
-      (options) => new FilterEffect(this.drome.ctx, options)
-    );
+    const filters = [...(this._filters?.values() ?? [])].map((opts) => {
+      if (opts.env && !opts.env.adsr) opts.env.adsr = { ...this._env };
+      return new FilterEffect(this.drome.ctx, opts);
+    });
 
     const nodes = [
       ...filters,
