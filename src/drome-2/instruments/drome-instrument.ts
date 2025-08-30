@@ -159,19 +159,13 @@ class DromeInstrument<T extends SampleNote | number> {
   ---------------------------------------------------------------- */
 
   private addFilter(type: FilterType, frequency: number) {
-    const env = { depth: 1, adsr: { ...this._env } };
-    this._filters.set(type, { type, frequency, env, q: 1 });
+    this._filters.set(type, { type, frequency, env: undefined, q: 1 });
   }
 
-  private updateFilter(t: FilterType, de: number, env?: Partial<ADSRParams>) {
+  private updateFilter(t: FilterType, d: number, adsr?: ADSRParams) {
     const filter = this._filters.get(t);
     if (!filter) return this;
-    filter.env.depth = de;
-
-    if (typeof env.a === "number") filter.env.adsr.a = env.a;
-    if (typeof env.d === "number") filter.env.adsr.d = env.d;
-    if (typeof env.s === "number") filter.env.adsr.s = env.s;
-    if (typeof env.r === "number") filter.env.adsr.r = env.r;
+    filter.env = { depth: d, adsr };
   }
 
   gain(n: number) {
@@ -207,7 +201,10 @@ class DromeInstrument<T extends SampleNote | number> {
   }
 
   bpenv(depth: number, a?: number, d?: number, s?: number, r?: number) {
-    this.updateFilter("bandpass", depth, { a, d, s, r });
+    const adsr = a
+      ? { a, d: d || this._env.d, s: s || this._env.s, r: r || this._env.r }
+      : undefined;
+    this.updateFilter("bandpass", depth, adsr);
     return this;
   }
 
@@ -217,7 +214,10 @@ class DromeInstrument<T extends SampleNote | number> {
   }
 
   hpenv(depth: number, a?: number, d?: number, s?: number, r?: number) {
-    this.updateFilter("highpass", depth, { a, d, s, r });
+    const adsr = a
+      ? { a, d: d || this._env.d, s: s || this._env.s, r: r || this._env.r }
+      : undefined;
+    this.updateFilter("highpass", depth, adsr);
     return this;
   }
 
@@ -227,7 +227,10 @@ class DromeInstrument<T extends SampleNote | number> {
   }
 
   lpenv(depth: number, a?: number, d?: number, s?: number, r?: number) {
-    this.updateFilter("lowpass", depth, { a, d, s, r });
+    const adsr = a
+      ? { a, d: d || this._env.d, s: s || this._env.s, r: r || this._env.r }
+      : undefined;
+    this.updateFilter("lowpass", depth, adsr);
     return this;
   }
 
@@ -254,6 +257,7 @@ class DromeInstrument<T extends SampleNote | number> {
     const filters = [...(this._filters?.values() ?? [])].map(
       (options) => new FilterEffect(this.drome.ctx, options)
     );
+    console.log(filters);
 
     const nodes = [
       ...filters,

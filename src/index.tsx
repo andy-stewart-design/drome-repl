@@ -6,9 +6,6 @@ import App from "./App.tsx";
 import Test from "./Test.tsx";
 import "./style.css";
 
-console.log(window.location);
-console.log(window.location.pathname === "/");
-
 const root = document.getElementById("root")!;
 
 if (window.location.pathname !== "/demo") {

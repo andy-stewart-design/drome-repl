@@ -32,7 +32,7 @@ interface FilterOptions {
   type: BiquadFilterType;
   frequency: number;
   q: number;
-  env: { depth: number; adsr: ADSRParams };
+  env: { depth: number; adsr?: ADSRParams } | undefined;
 }
 
 type SampleName =

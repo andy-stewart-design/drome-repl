@@ -5,7 +5,7 @@ type FEOptions = Partial<FilterOptions>;
 
 class FilterEffect {
   private filter: BiquadFilterNode;
-  private env: { depth: number; adsr: ADSRParams } | undefined;
+  private env: { depth: number; adsr?: ADSRParams } | undefined;
 
   constructor(
     ctx: AudioContext,
@@ -18,7 +18,9 @@ class FilterEffect {
     this.filter.connect(dest);
   }
   apply(startTime: number, duration: number) {
-    if (this.env) {
+    if (this.env?.adsr) {
+      console.log("applying envelope");
+
       applyEnvelope({
         target: this.filter.frequency,
         startTime,
