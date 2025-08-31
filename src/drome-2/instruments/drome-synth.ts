@@ -31,6 +31,7 @@ class DromeSynth extends DromeInstrument<number> {
     const noteDuration = this.drome.barDuration / cycle.length;
 
     const play = (note: number, i: number) => {
+      if (!note) return;
       const frequency = parseFloat(note.toString()) ?? 1;
       const osc = new DromeOscillator(this.drome.ctx, nodes[0].input, {
         type: this.type,

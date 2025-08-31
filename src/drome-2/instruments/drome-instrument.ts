@@ -43,18 +43,7 @@ class DromeInstrument<T extends SampleNote | number> {
     return (typeof (null as any as T) === "number" ? 0 : "") as T;
   }
 
-  private applyPattern(pattern: number[]) {
-    const placeholder = this.getPlaceholder();
-
-    return this.cycles.map((cycle) => {
-      let noteIndex = 0;
-      return pattern.map((p) =>
-        p === 0 ? placeholder : cycle[noteIndex++ % cycle.length]
-      );
-    });
-  }
-
-  private applyPattern2(patterns: number[][]) {
+  private applyPattern(patterns: number[][]) {
     const placeholder = this.getPlaceholder();
     const loops = Math.max(this.cycles.length, patterns.length);
     const nextCycles: (T | T[])[][] = [];
@@ -85,25 +74,35 @@ class DromeInstrument<T extends SampleNote | number> {
   }
 
   euclid(pulses: number | number[], steps: number, rotation = 0) {
-    this.cycles = this.applyPattern2(euclid(pulses, steps, rotation));
+    this.cycles = this.applyPattern(euclid(pulses, steps, rotation));
     return this;
   }
 
   hex(...hexes: (string | number)[]) {
-    this.cycles = this.applyPattern2(hexes.map(hex));
+    this.cycles = this.applyPattern(hexes.map(hex));
     return this;
   }
 
-  sequence(pulses: number[], steps: number) {
-    const pattern = Array.from({ length: steps }, (_, i) =>
-      pulses.includes(i) ? 1 : 0
-    );
-    this.cycles = this.applyPattern(pattern);
+  sequence(...args: [...number[][], number]) {
+    const steps = args[args.length - 1] as number;
+    const pulses = args.slice(0, -1) as number[][];
+    const patterns = pulses.map((p) => {
+      return Array.from({ length: steps }, (_, i) => (p.includes(i) ? 1 : 0));
+    });
+    this.cycles = this.applyPattern(patterns);
     return this;
   }
+
+  // sequence(pulses: number[], steps: number) {
+  //   const pattern = Array.from({ length: steps }, (_, i) =>
+  //     pulses.includes(i) ? 1 : 0
+  //   );
+  //   this.cycles = this.applyPattern(pattern);
+  //   return this;
+  // }
 
   struct(...patterns: number[][]) {
-    this.cycles = this.applyPattern2(patterns);
+    this.cycles = this.applyPattern(patterns);
     return this;
   }
 
@@ -254,6 +253,8 @@ class DromeInstrument<T extends SampleNote | number> {
   }
 
   connectChain() {
+    console.log(this.cycles);
+
     const filters = [...(this._filters?.values() ?? [])].map((opts) => {
       if (opts.env && !opts.env.adsr) opts.env.adsr = { ...this._env };
       return new FilterEffect(this.drome.ctx, opts);
@@ -307,3 +308,7 @@ const isAudioNode = (
 ): node is DromeAudioNode => {
   return node !== undefined;
 };
+
+function isNested(arr: number[] | number[][]): arr is number[][] {
+  return Array.isArray(arr[0]);
+}
