@@ -7,19 +7,19 @@ const examples = [
     title: "Bumpin' that",
     code: `d.bpm(120)
 
-const bass_notes = [[40,40,41,29],[40,40,41,29],[40,40,40,41,29],[43,43,43,45]]
+const bass_notes = [[4,4,5,-7],[4,4,5,-7],[4,4,4,5,-7],[7,7,7,9]]
 const kick_seq = [[0,6,7,10],[0,6,7,10],[2,4,6,7,10],[0,4,6,7]]
 const lead_arr = [
-  [3, [[52,59],,60,,52,,53,60,,60,69,,,,,,]],
-  [1, [,,[55,59],,55,57,,60,,60,72,,60,,67,,]],
+  [3, [[-8,-1],,0,,-8,,-7,0,,0,9,,,,,,]],
+  [1, [,,[-5,-1],,-5,-3,,0,,0,12,,0,,7,,]],
 ]
 
 d.stack(
-  d.synth("saw").arrange(...lead_arr)
+  d.synth("saw").arrange(...lead_arr).root(60)
     .adsr(0,1,0,0.1).lpf(400).lpenv(3,0,0.5,0.2,0).delay(0.2).reverb(0.2),
-  d.synth("saw").note(...bass_notes).sequence(...kick_seq,16)
+  d.synth("saw").note(...bass_notes).root(36).sequence(...kick_seq,16)
     .adsr(0,1,0.5,0.2).lpf(200).lpenv(2,0,0.5,0,0),
-  d.synth("sine").note(...bass_notes).sequence(...kick_seq,16)
+  d.synth("sine").note(...bass_notes).root(36).sequence(...kick_seq,16)
     .adsr(0,1,0.5,0.2).lpf(200).lpenv(2,0,0.5,0,0),
 )
 
