@@ -79,6 +79,7 @@ class DromeSample extends DromeInstrument<SampleNote> {
     const noteDuration = this.drome.barDuration / cycle.length;
 
     const play = async (note: SampleNote, i: number) => {
+      if (!note) return;
       let [buffer] = await this.loadSample(note);
       if (!buffer) return;
 

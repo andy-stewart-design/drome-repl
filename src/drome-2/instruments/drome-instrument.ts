@@ -4,18 +4,19 @@ import ReverbEffect from "../effects/reverb";
 import DistortionEffect from "../effects/distortion";
 import GainEffect from "../effects/gain";
 import { euclid } from "../utils/euclid-2";
-import { midiToFreq } from "../utils/midi-to-frequency";
 import type {
   ADSRParams,
   DromeAudioNode,
   FilterOptions,
   FilterType,
-  SampleNote,
+  // SampleNote,
 } from "../types";
 import { hex } from "../utils/hex";
 import type Drome from "../core/drome";
 
-class DromeInstrument<T extends SampleNote | number> {
+type falsy = null | undefined;
+
+class DromeInstrument<T extends string | number | falsy> {
   readonly drome: Drome;
   private _destination: DromeAudioNode;
   public cycles: (T | T[])[][] = [];
@@ -38,13 +39,7 @@ class DromeInstrument<T extends SampleNote | number> {
   /* PATTERN METHODS
   ---------------------------------------------------------------- */
 
-  private getPlaceholder(): T {
-    // Must use a type assertion here because TS can't infer dynamically
-    return (typeof (null as any as T) === "number" ? 0 : "") as T;
-  }
-
   private applyPattern(patterns: number[][]) {
-    const placeholder = this.getPlaceholder();
     const loops = Math.max(this.cycles.length, patterns.length);
     const nextCycles: (T | T[])[][] = [];
 
@@ -52,7 +47,7 @@ class DromeInstrument<T extends SampleNote | number> {
       let noteIndex = 0;
       const cycle = this.cycles[i % this.cycles.length];
       const nextCycle = patterns[i % patterns.length].map((p) =>
-        p === 0 ? placeholder : cycle[noteIndex++ % cycle.length]
+        p === 0 ? (null as T) : cycle[noteIndex++ % cycle.length]
       );
       nextCycles.push(nextCycle);
     }
@@ -61,15 +56,23 @@ class DromeInstrument<T extends SampleNote | number> {
   }
 
   note(...cycles: (T | T[] | T[][])[]) {
-    const convert = <T extends SampleNote | number>(x: T): T =>
-      typeof x === "number" ? (midiToFreq(x) as T) : x;
-
     this.cycles = cycles.map((cycle) =>
-      (Array.isArray(cycle) ? cycle : [cycle]).map((element) =>
-        Array.isArray(element) ? element.map(convert) : convert(element)
-      )
+      Array.isArray(cycle) ? cycle : [cycle]
     );
 
+    return this;
+  }
+
+  arrange(...arrangements: [number, T | T[] | T[][]][]) {
+    let nextCycles: typeof this.cycles = [];
+
+    for (const arr of arrangements) {
+      for (let i = 0; i < arr[0]; i++) {
+        nextCycles.push(Array.isArray(arr[1]) ? arr[1] : [arr[1]]);
+      }
+    }
+
+    this.cycles = nextCycles;
     return this;
   }
 
@@ -124,7 +127,6 @@ class DromeInstrument<T extends SampleNote | number> {
   slow(n: number) {
     if (n <= 1) return this;
     const nextCycles: (T | T[])[][] = [];
-    const placeholder = this.getPlaceholder();
 
     for (const cycle of this.cycles) {
       const chunkSize = Math.ceil((cycle.length * n) / n); // equals cycle.length
@@ -137,7 +139,7 @@ class DromeInstrument<T extends SampleNote | number> {
 
         for (let pos = startPos; pos < endPos; pos++) {
           if (pos % n === 0) chunk.push(cycle[pos / n]);
-          else chunk.push(placeholder);
+          else chunk.push(null as T);
         }
 
         nextCycles.push(chunk);
@@ -253,7 +255,7 @@ class DromeInstrument<T extends SampleNote | number> {
   }
 
   connectChain() {
-    console.log(this.cycles);
+    // console.log(this.cycles);
 
     const filters = [...(this._filters?.values() ?? [])].map((opts) => {
       if (opts.env && !opts.env.adsr) opts.env.adsr = { ...this._env };
@@ -309,6 +311,6 @@ const isAudioNode = (
   return node !== undefined;
 };
 
-function isNested(arr: number[] | number[][]): arr is number[][] {
-  return Array.isArray(arr[0]);
-}
+// function isNested(arr: number[] | number[][]): arr is number[][] {
+//   return Array.isArray(arr[0]);
+// }

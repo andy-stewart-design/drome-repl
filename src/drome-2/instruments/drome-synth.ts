@@ -4,10 +4,12 @@ import FilterEffect from "../effects/filter";
 import type Drome from "../core/drome";
 import type { DromeAudioNode, OscType, OscTypeAlias } from "../types";
 import { synthAliasMap } from "../dictionaries/synths/synth-aliases";
+import { midiToFreq } from "../utils/midi-to-frequency";
 
 class DromeSynth extends DromeInstrument<number> {
   private type: OscType;
   private oscillators: Set<DromeOscillator> = new Set();
+  private rootNote = 0;
 
   constructor(
     drome: Drome,
@@ -16,6 +18,11 @@ class DromeSynth extends DromeInstrument<number> {
   ) {
     super(drome, destination);
     this.type = synthAliasMap[type];
+  }
+
+  root(n: number) {
+    this.rootNote = n;
+    return this;
   }
 
   push() {
@@ -32,8 +39,8 @@ class DromeSynth extends DromeInstrument<number> {
     const noteDuration = noteOffset + this._env.r;
 
     const play = (note: number, i: number) => {
-      if (!note) return;
-      const frequency = parseFloat(note.toString()) ?? 1;
+      if (!note || typeof note !== "number") return;
+      const frequency = midiToFreq(this.rootNote + note);
       const osc = new DromeOscillator(this.drome.ctx, nodes[0].input, {
         type: this.type,
         frequency,
