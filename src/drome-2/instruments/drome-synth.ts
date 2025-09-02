@@ -28,7 +28,8 @@ class DromeSynth extends DromeInstrument<number> {
     const cycleIndex = this.drome.metronome.bar % this.cycles.length;
     const cycle = this.cycles[cycleIndex];
     const startTime = this.drome.barStartTime;
-    const noteDuration = this.drome.barDuration / cycle.length;
+    const noteOffset = this.drome.barDuration / cycle.length;
+    const noteDuration = noteOffset + this._env.r;
 
     const play = (note: number, i: number) => {
       if (!note) return;
@@ -42,9 +43,9 @@ class DromeSynth extends DromeInstrument<number> {
 
       nodes.forEach((node) => {
         if (!(node instanceof FilterEffect)) return;
-        node.apply(startTime + noteDuration * i, noteDuration);
+        node.apply(startTime + noteOffset * i, noteDuration);
       });
-      osc.play(startTime + noteDuration * i, noteDuration);
+      osc.play(startTime + noteOffset * i, noteDuration);
 
       this.oscillators.add(osc);
       osc.node.onended = () => this.oscillators.delete(osc);

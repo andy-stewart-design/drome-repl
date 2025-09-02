@@ -43,13 +43,15 @@ class DromeOscillator {
       startTime,
       duration,
       maxVal: this.gain * this.baseGain,
-      startVal: 0,
+      minVal: 0,
+      startVal: 0.01,
       env: this.env,
     });
 
     this.oscNodes.forEach((node) => {
       node.start(startTime);
-      node.stop(startTime + duration + 0.05);
+      const releaseTime = this.env.r * duration;
+      node.stop(startTime + duration + releaseTime + 0.05);
     });
 
     this.startTime = startTime;
