@@ -16,7 +16,9 @@ const lead_arr = [
 
 d.stack(
   d.synth("saw").arrange(...lead_arr).root(60)
-    .adsr(0,1,0,0.1).lpf(400).lpenv(3,0,0.5,0.2,0).delay(0.2).reverb(0.2),
+    .adsr(0,1,0,0.25)
+    .lpf(400).lpenv(7,0,0.2,0.2,0)
+    .delay(0.2).reverb(0.2),
   d.synth("saw").note(...bass_notes).root(36).sequence(...kick_seq,16)
     .adsr(0,1,0.5,0.2).lpf(200).lpenv(2,0,0.5,0,0),
   d.synth("sine").note(...bass_notes).root(36).sequence(...kick_seq,16)
