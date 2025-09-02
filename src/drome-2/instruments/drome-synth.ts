@@ -39,7 +39,7 @@ class DromeSynth extends DromeInstrument<number> {
     const noteDuration = noteOffset + this._env.r;
 
     const play = (note: number, i: number) => {
-      if (!note || typeof note !== "number") return;
+      if (typeof note !== "number") return;
       const frequency = midiToFreq(this.rootNote + note);
       const osc = new DromeOscillator(this.drome.ctx, nodes[0].input, {
         type: this.type,
@@ -59,7 +59,7 @@ class DromeSynth extends DromeInstrument<number> {
     };
 
     cycle.forEach((pat, i) => {
-      if (!pat) return;
+      if (!Array.isArray(pat) && typeof pat !== "number") return;
       else if (Array.isArray(pat)) pat.forEach((el) => play(el, i));
       else play(pat, i);
     });
