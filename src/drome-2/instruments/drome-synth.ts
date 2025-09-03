@@ -7,17 +7,23 @@ import { synthAliasMap } from "../dictionaries/synths/synth-aliases";
 import { midiToFreq } from "../utils/midi-to-frequency";
 
 class DromeSynth extends DromeInstrument<number> {
-  private type: OscType;
+  private type: OscType[] = [];
   private oscillators: Set<DromeOscillator> = new Set();
   private rootNote = 0;
 
   constructor(
     drome: Drome,
     destination: DromeAudioNode,
-    type: OscTypeAlias = "sine"
+    ...types: OscTypeAlias[]
   ) {
     super(drome, destination);
-    this.type = synthAliasMap[type];
+    if (types.length === 0) {
+      this.type.push("sine");
+    } else {
+      types.forEach((type) => {
+        this.type.push(synthAliasMap[type]);
+      });
+    }
   }
 
   root(n: number) {
@@ -40,22 +46,26 @@ class DromeSynth extends DromeInstrument<number> {
 
     const play = (note: number, i: number) => {
       if (typeof note !== "number") return;
-      const frequency = midiToFreq(this.rootNote + note);
-      const osc = new DromeOscillator(this.drome.ctx, nodes[0].input, {
-        type: this.type,
-        frequency,
-        env: this._env,
-        gain: this._gain,
-      });
 
       nodes.forEach((node) => {
         if (!(node instanceof FilterEffect)) return;
         node.apply(startTime + noteOffset * i, noteDuration);
       });
-      osc.play(startTime + noteOffset * i, noteDuration);
 
-      this.oscillators.add(osc);
-      osc.node.onended = () => this.oscillators.delete(osc);
+      const frequency = midiToFreq(this.rootNote + note);
+      this.type.forEach((type) => {
+        const osc = new DromeOscillator(this.drome.ctx, nodes[0].input, {
+          type,
+          frequency,
+          env: this._env,
+          gain: this._gain,
+        });
+
+        osc.play(startTime + noteOffset * i, noteDuration);
+
+        this.oscillators.add(osc);
+        osc.node.onended = () => this.oscillators.delete(osc);
+      });
     };
 
     cycle.forEach((pat, i) => {

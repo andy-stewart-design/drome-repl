@@ -52,8 +52,8 @@ class Drome extends AudioClock {
     this.instruments.clear();
   }
 
-  public synth(type: OscTypeAlias = "sine") {
-    return new DromeSynth(this, this.audioChannels[0], type);
+  public synth(...types: OscTypeAlias[]) {
+    return new DromeSynth(this, this.audioChannels[0], ...types);
   }
 
   public sample(name?: SampleNote) {
