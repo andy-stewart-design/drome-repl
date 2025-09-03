@@ -13,7 +13,6 @@ class DromeOscillator {
   private gainNode: GainNode;
   private baseGain = 0.35;
   private gain: number;
-  private detune: number = 0;
   private oscNodes: OscillatorNode[] = [];
   private env: ADSRParams;
   private startTime: number | undefined;
