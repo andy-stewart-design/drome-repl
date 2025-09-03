@@ -17,6 +17,7 @@ class DromeSynth extends DromeInstrument<number> {
     ...types: OscTypeAlias[]
   ) {
     super(drome, destination);
+    this.cycles = [[60]];
     if (types.length === 0) {
       this.type.push("sine");
     } else {

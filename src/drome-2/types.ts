@@ -5,8 +5,7 @@ import type ReverbEffect from "./effects/reverb";
 import type DistortionEffect from "./effects/distortion";
 import { synthAliasMap } from "./dictionaries/synths/synth-aliases";
 
-// type OscType = Exclude<OscillatorType, "custom"> | "supersaw";
-type OscType = Exclude<OscillatorType, "custom">;
+type OscType = Exclude<OscillatorType, "custom"> | "supersaw";
 type OscTypeAlias = keyof typeof synthAliasMap;
 
 interface ADSRParams {

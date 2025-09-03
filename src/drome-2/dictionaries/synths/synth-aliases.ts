@@ -9,6 +9,6 @@ export const synthAliasMap = {
   square: "square",
   sin: "sine",
   sine: "sine",
-  //   supersaw: "supersaw",
-  //   ssaw: "supersaw",
+  supersaw: "supersaw",
+  ssaw: "supersaw",
 } satisfies Record<string, OscType>;

@@ -13,7 +13,8 @@ class DromeOscillator {
   private gainNode: GainNode;
   private baseGain = 0.35;
   private gain: number;
-  private oscNodes: OscillatorNode[];
+  private detune: number = 0;
+  private oscNodes: OscillatorNode[] = [];
   private env: ADSRParams;
   private startTime: number | undefined;
 
@@ -28,7 +29,21 @@ class DromeOscillator {
     }: DromeOscillatorOptions = {}
   ) {
     this.ctx = ctx;
-    this.oscNodes = [new OscillatorNode(this.ctx, { type, frequency })];
+    if (type !== "supersaw") {
+      this.oscNodes.push(new OscillatorNode(this.ctx, { type, frequency }));
+    } else {
+      const voices = 7;
+      const detune = 12;
+      const type = "sawtooth";
+      for (let i = 0; i < voices; i++) {
+        const osc = new OscillatorNode(this.ctx, {
+          type,
+          frequency,
+          detune: (i / (voices - 1) - 0.5) * 2 * detune,
+        });
+        this.oscNodes.push(osc);
+      }
+    }
     this.gainNode = new GainNode(this.ctx, { gain: 0 });
     this.gain = gain;
     this.env = env;
@@ -49,7 +64,8 @@ class DromeOscillator {
     });
 
     this.oscNodes.forEach((node) => {
-      node.start(startTime);
+      const jitter = this.oscNodes.length > 1 ? Math.random() * 0.002 : 0;
+      node.start(startTime + jitter);
       const releaseTime = this.env.r * duration;
       node.stop(startTime + duration + releaseTime + 0.05);
     });
