@@ -52,7 +52,7 @@ const bass_notes = [[-7,5],[-12,0],[-16,-4],[-16,-4,-16,-4,-14],[-7,5],[-12,0,-1
 const sub_notes = [5,0,-4,[-4,-4,-2,-2],5,[0,0,3,3],-4,-2] // Root: G1 / 31
 
 d.stack(
-  d.synth("saw").note(...lead_notes).root(55)
+  d.synth("ssaw").note(...lead_notes).root(55)
     .adsr(0.01,0.95,0.5,0.225)
     .lpf(1600).lpenv(2).euclid(3,8,1).reverb(0.5).delay(0.3,0.225),
   d.synth("saw").note(...arp_notes).root(55)
