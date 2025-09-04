@@ -12,6 +12,8 @@ import type {
 } from "../types";
 import type Drome from "../core/drome";
 
+const DEFAULT_CYCLES = [[60]];
+
 class DromeSynth extends DromeInstrument<number> {
   private type: OscType[] = [];
   private oscillators: Set<DromeOscillator> = new Set();
@@ -24,7 +26,6 @@ class DromeSynth extends DromeInstrument<number> {
     ...types: OscTypeAlias[]
   ) {
     super(drome, destination);
-    this.cycles = [[60]];
     if (types.length === 0) {
       this.type.push("sine");
     } else {
@@ -46,6 +47,7 @@ class DromeSynth extends DromeInstrument<number> {
 
   root(n: number) {
     this.rootNote = n;
+    if (!this.cycles.length) this.cycles = [[0]];
     return this;
   }
 
@@ -61,8 +63,9 @@ class DromeSynth extends DromeInstrument<number> {
 
   start() {
     const nodes = super.connectChain();
-    const cycleIndex = this.drome.metronome.bar % this.cycles.length;
-    const cycle = this.cycles[cycleIndex];
+    const cycleIndex = this.drome.metronome.bar % (this.cycles.length || 1);
+    const cycle = this.cycles[cycleIndex] || DEFAULT_CYCLES[cycleIndex];
+
     const startTime = this.drome.barStartTime;
     const noteOffset = this.drome.barDuration / cycle.length;
     const noteDuration = noteOffset + this._env.r;
