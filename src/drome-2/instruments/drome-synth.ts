@@ -10,6 +10,7 @@ class DromeSynth extends DromeInstrument<number> {
   private type: OscType[] = [];
   private oscillators: Set<DromeOscillator> = new Set();
   private rootNote = 0;
+  private _scale: number[] | null = null;
 
   constructor(
     drome: Drome,
@@ -27,8 +28,26 @@ class DromeSynth extends DromeInstrument<number> {
     }
   }
 
+  private getFrequency(note: number) {
+    if (!this._scale) return midiToFreq(this.rootNote + note);
+
+    const degree = ((note % 7) + 7) % 7;
+    const octave = Math.floor(note / 7) * 12;
+    const step = this._scale.slice(0, degree + 1).reduce((a, c) => a + c, 0);
+
+    return midiToFreq(this.rootNote + octave + step);
+  }
+
   root(n: number) {
     this.rootNote = n;
+    return this;
+  }
+
+  scale(sc: "maj" | "min") {
+    if (sc === "maj") this._scale = [0, 2, 2, 1, 2, 2, 2];
+    else this._scale = [0, 2, 1, 2, 2, 1, 2];
+    // if (sc === "maj") this._scale = [0, 2, 4, 5, 7, 9, 11];
+    // else this._scale = [0, 2, 3, 5, 7, 8, 10];
     return this;
   }
 
@@ -53,7 +72,7 @@ class DromeSynth extends DromeInstrument<number> {
         node.apply(startTime + noteOffset * i, noteDuration);
       });
 
-      const frequency = midiToFreq(this.rootNote + note);
+      const frequency = this.getFrequency(note);
       this.type.forEach((type) => {
         const osc = new DromeOscillator(this.drome.ctx, nodes[0].input, {
           type,
@@ -82,3 +101,6 @@ class DromeSynth extends DromeInstrument<number> {
 }
 
 export default DromeSynth;
+
+const getNum = (arr: number[], i: number): number =>
+  arr[((i % arr.length) + arr.length) % arr.length];

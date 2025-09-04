@@ -4,7 +4,7 @@ const examples = [
     code: `drome.synth().push() // default waveform is "sine"`,
   },
   {
-    title: "Bumpin’ That",
+    title: "360",
     code: `d.bpm(120)
 
 const bass_notes = [[4,4,5,-7],[4,4,5,-7],[4,4,4,5,-7],[7,7,7,9]]
