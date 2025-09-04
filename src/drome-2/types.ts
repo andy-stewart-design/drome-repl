@@ -4,9 +4,12 @@ import type GainEffect from "./effects/gain";
 import type ReverbEffect from "./effects/reverb";
 import type DistortionEffect from "./effects/distortion";
 import { synthAliasMap } from "./dictionaries/synths/synth-aliases";
+import { scaleAliasMap } from "./dictionaries/scales";
 
 type OscType = Exclude<OscillatorType, "custom"> | "supersaw";
 type OscTypeAlias = keyof typeof synthAliasMap;
+
+type ScaleAlias = keyof typeof scaleAliasMap;
 
 interface ADSRParams {
   a: number;
@@ -62,4 +65,5 @@ export type {
   SampleBank,
   OscTypeAlias,
   OscType,
+  ScaleAlias,
 };

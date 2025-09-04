@@ -1,10 +1,16 @@
 import DromeInstrument from "./drome-instrument";
 import DromeOscillator from "./drome-oscillator";
 import FilterEffect from "../effects/filter";
-import type Drome from "../core/drome";
-import type { DromeAudioNode, OscType, OscTypeAlias } from "../types";
-import { synthAliasMap } from "../dictionaries/synths/synth-aliases";
 import { midiToFreq } from "../utils/midi-to-frequency";
+import { scaleAliasMap } from "../dictionaries/scales";
+import { synthAliasMap } from "../dictionaries/synths/synth-aliases";
+import type {
+  DromeAudioNode,
+  OscType,
+  OscTypeAlias,
+  ScaleAlias,
+} from "../types";
+import type Drome from "../core/drome";
 
 class DromeSynth extends DromeInstrument<number> {
   private type: OscType[] = [];
@@ -43,11 +49,8 @@ class DromeSynth extends DromeInstrument<number> {
     return this;
   }
 
-  scale(sc: "maj" | "min") {
-    if (sc === "maj") this._scale = [0, 2, 2, 1, 2, 2, 2];
-    else this._scale = [0, 2, 1, 2, 2, 1, 2];
-    // if (sc === "maj") this._scale = [0, 2, 4, 5, 7, 9, 11];
-    // else this._scale = [0, 2, 3, 5, 7, 8, 10];
+  scale(scaleAlias: ScaleAlias) {
+    this._scale = scaleAliasMap[scaleAlias];
     return this;
   }
 
@@ -101,6 +104,3 @@ class DromeSynth extends DromeInstrument<number> {
 }
 
 export default DromeSynth;
-
-const getNum = (arr: number[], i: number): number =>
-  arr[((i % arr.length) + arr.length) % arr.length];
