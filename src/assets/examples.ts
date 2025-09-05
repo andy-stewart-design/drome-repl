@@ -23,19 +23,16 @@ const examples = [
     title: "360",
     code: `d.bpm(120)
 
-const bass_notes = [[4,4,5,-7],[4,4,5,-7],[4,4,4,5,-7],[7,7,7,9]]
-const kick_seq = [[0,6,7,10],[0,6,7,10],[2,4,6,7,10],[0,4,6,7]]
-const lead_arr = [
-  [3, [[-8,-1],,0,,-8,,-7,0,,0,9,,,,,,]],
-  [1, [,,[-5,-1],,-5,-3,,0,,0,12,,0,,7,,]],
-]
+const bass_notes = [[2,2,3,-4], [2,2,3,-4], [2,2,2,3,-4], [4,4,4,5]]
+const kick_seq = [[0,6,7,10], [0,6,7,10], [2,4,6,7,10], [0,4,6,7]]
+const lead_arr = [[3, [[-5,-1],,0,,-5,,-4,0,,0,5,,,,,,]], [1, [,,[-3,-1],,-3,-2,,0,,0,7,,0,,4,,]]]
 
 d.stack(
-  d.synth("saw").arrange(...lead_arr).root(60)
+  d.synth("saw").arrange(...lead_arr).root("c4").scale("maj")
     .adsr(0,1,0.5,0.125)
     .lpf(400).lpenv(7,0,0.5,0.2,0.1)
     .delay(0.2).reverb(0.2).postgain(1.5),
-  d.synth("sq","sine").note(...bass_notes).root(36).sequence(...kick_seq,16)
+  d.synth("sq","sine").note(...bass_notes).root("c2").scale("maj").sequence(...kick_seq,16)
     .adsr(0,1,0.5,0.2).lpf(200).lpenv(2,0,0.5,0,0),
 )
 
