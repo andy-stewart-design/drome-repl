@@ -4,6 +4,22 @@ const examples = [
     code: `drome.synth().push() // default waveform is "sine"`,
   },
   {
+    title: "Roots & Scales",
+    code: `drome.stack(
+  d.synth("saw").root("c4").scale("maj").note([[0,2,4,6]],[[-2,0,2,4]])
+    .hex("ff").stretch(2)
+    .adsr(0.25, 0.25, 0.5, 0.1)
+    .lpf(300).lpenv(2, 0.25, 0.25, 0, 0)
+    .reverb(0.5).distort(1).postgain(1),
+  d.synth("saw","sine").root("c3").scale("maj").note([[-7,0]],[[-9,-2]])
+    .euclid(8,8).stretch(2)
+    .lpf(300).lpenv(2,0.25,0.25,0.5,0).postgain(0.75),
+  d.sample("bd:3").euclid([3, 5], 8).reverb(0.1),
+  d.sample("hh:4").hex("ff").gain(0.375),
+  d.sample("oh:1").euclid(4, 8, 1).gain(0.5)
+);`,
+  },
+  {
     title: "360",
     code: `d.bpm(120)
 
@@ -158,4 +174,23 @@ drome.stack(
   d.sample("hh:4").hex("ff").gain(0.375),
   d.sample("oh:1").euclid(4, 8, 1).gain(0.5)
 );
+*/
+
+/* 
+drome.stack(
+  d.synth("saw").root("c4").scale("maj").note([[0,2,4,6]], [[-3,0,4,7]])
+    .hex("ff").stretch(2)
+    .adsr(0.25, 0.25, 0.5, 0.1)
+    .lpf(300).lpenv(2, 0.25, 0.25, 0, 0)
+    .reverb(0.5).distort(1).postgain(1),
+  d.synth("saw", "sine").note([[36,48]], [[33,45]]).euclid(8,8).stretch(2).lpf(300).lpenv(2,0.25,0.25,0.5,0).postgain(0.75),
+  d.sample("bd:3").euclid([3, 5], 8).reverb(0.1),
+  d.sample("hh:4").hex("ff").gain(0.375),
+  d.sample("oh:1").euclid(4, 8, 1).gain(0.5)
+);
+*/
+
+/* 
+d.synth("saw").root("c4").scale("maj").note([[0,2,4,6]])
+  .euclid(3,8).adsr(0,1,0.25,0.333).lpf(1200).push()
 */

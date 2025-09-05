@@ -1,11 +1,11 @@
 const baseScaleMap = {
-  major: [2, 2, 1, 2, 2, 2, 1],
-  minor: [2, 1, 2, 2, 1, 2, 2],
-  dorian: [2, 1, 2, 2, 2, 1, 2],
-  phrygian: [1, 2, 2, 2, 1, 2, 2],
-  lydian: [2, 2, 2, 1, 2, 2, 1],
-  mixolydian: [2, 2, 1, 2, 2, 1, 2],
-  locrian: [1, 2, 2, 1, 2, 2, 2],
+  major: [0, 2, 2, 1, 2, 2, 2],
+  minor: [0, 2, 1, 2, 2, 1, 2],
+  dorian: [0, 2, 1, 2, 2, 2, 1],
+  phrygian: [0, 1, 2, 2, 2, 1, 2],
+  lydian: [0, 2, 2, 2, 1, 2, 2],
+  mixolydian: [0, 2, 2, 1, 2, 2, 1],
+  locrian: [0, 1, 2, 2, 1, 2, 2],
 };
 
 export const scaleAliasMap = {

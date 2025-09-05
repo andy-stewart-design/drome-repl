@@ -2,15 +2,18 @@ import DromeInstrument from "./drome-instrument";
 import DromeOscillator from "./drome-oscillator";
 import FilterEffect from "../effects/filter";
 import { midiToFreq } from "../utils/midi-to-frequency";
-import { scaleAliasMap } from "../dictionaries/scales";
+import { scaleAliasMap } from "../dictionaries/notes/scale-alias";
 import { synthAliasMap } from "../dictionaries/synths/synth-aliases";
 import type {
   DromeAudioNode,
+  NoteName,
+  NoteValue,
   OscType,
   OscTypeAlias,
   ScaleAlias,
 } from "../types";
 import type Drome from "../core/drome";
+import { noteToMidi } from "../utils/note-name-to-midi";
 
 const DEFAULT_CYCLES = [[60]];
 
@@ -45,8 +48,13 @@ class DromeSynth extends DromeInstrument<number> {
     return midiToFreq(this.rootNote + octave + step);
   }
 
-  root(n: number) {
-    this.rootNote = n;
+  root(n: NoteName | NoteValue | number) {
+    if (typeof n === "number") {
+      this.rootNote = n;
+    } else {
+      const note = noteToMidi(n);
+      if (note) this.rootNote = note;
+    }
     if (!this.cycles.length) this.cycles = [[0]];
     return this;
   }

@@ -4,12 +4,19 @@ import type GainEffect from "./effects/gain";
 import type ReverbEffect from "./effects/reverb";
 import type DistortionEffect from "./effects/distortion";
 import { synthAliasMap } from "./dictionaries/synths/synth-aliases";
-import { scaleAliasMap } from "./dictionaries/scales";
+import { scaleAliasMap } from "./dictionaries/notes/scale-alias";
 
 type OscType = Exclude<OscillatorType, "custom"> | "supersaw";
 type OscTypeAlias = keyof typeof synthAliasMap;
 
 type ScaleAlias = keyof typeof scaleAliasMap;
+type NoteLetter = "A" | "B" | "C" | "D" | "E" | "F" | "G";
+type Accidental = "#" | "b";
+type NaturalNote = NoteLetter;
+type AccidentalNote = `${NoteLetter}${Accidental}`;
+type NoteNameUpper = NaturalNote | AccidentalNote;
+type NoteName = NoteNameUpper | Lowercase<NoteNameUpper>;
+type NoteValue = `${NoteName}${number}`;
 
 interface ADSRParams {
   a: number;
@@ -66,4 +73,6 @@ export type {
   OscTypeAlias,
   OscType,
   ScaleAlias,
+  NoteName,
+  NoteValue,
 };
