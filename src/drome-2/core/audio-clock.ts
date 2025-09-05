@@ -1,3 +1,5 @@
+// inspired by: https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Advanced_techniques
+
 interface Metronome {
   beat: number;
   bar: number;
@@ -9,67 +11,50 @@ type DromeEventCallback = (m: Metronome) => void;
 class AudioClock {
   readonly ctx = new AudioContext();
   readonly metronome: Metronome = { beat: 0, bar: 0 };
-  // private currentBarDuration = 2;
-  private _duration = 2; // set by bpm method, applied to currentBarDuration at beginning of each cycle
-  private nextBarStart = 0;
-  private nextBeatStart = 0;
-  private _beatsPerBar = 4;
   private _paused = true;
-  private precision = 10 ** 4;
-  private minLatency = 0.01;
-  private interval = 0.1;
-  private overlap = 0.05;
-  private intervalID: ReturnType<typeof setInterval> | undefined;
+  private _bpm = 120;
+  private lookahead = 25.0; // How frequently to call scheduling function (in milliseconds)
+  private scheduleAheadTime = 0.1; // How far ahead to schedule audio (sec)
+  private nextBeatTime = 0.0;
+  private timerID: ReturnType<typeof setTimeout> | null = null;
   private listeners: Map<DromeEventType, DromeEventCallback[]> = new Map();
 
   constructor(bpm = 120) {
     this.bpm(bpm);
-    // this.currentBarDuration = this._duration;
   }
 
-  private onTick() {
-    const t = this.ctx.currentTime;
-    const lookahead = t + this.interval + this.overlap; // the time window for this tick
+  private nextNote() {
+    const secondsPerBeat = 60.0 / this._bpm;
+    this.nextBeatTime += secondsPerBeat; // Add beat length to last beat time
+  }
 
-    if (this.nextBarStart === 0) this.nextBarStart = t + this.minLatency;
-    if (this.nextBeatStart === 0) this.nextBeatStart = t + this.minLatency;
+  private schedule() {
+    while (this.nextBeatTime < this.ctx.currentTime + this.scheduleAheadTime) {
+      this.metronome.beat = (this.metronome.beat + 1) % 4;
 
-    // callback as long as we're inside the lookahead
-    while (this.nextBarStart < lookahead) {
-      this.nextBarStart =
-        Math.round(this.nextBarStart * this.precision) / this.precision;
-
-      if (this.nextBarStart >= t) {
+      if (this.metronome.beat === 0) {
+        this.metronome.bar++;
         this.listeners.get("bar")?.forEach((cb) => {
-          cb(this.metronome);
+          cb({ ...this.metronome });
         });
       }
 
-      // this.currentBarDuration = this._duration;
-      this.nextBarStart += this._duration;
-      this.metronome.bar++;
-    }
-
-    while (this.nextBeatStart < lookahead) {
-      this.nextBeatStart =
-        Math.round(this.nextBeatStart * this.precision) / this.precision;
-
       this.listeners.get("beat")?.forEach((cb) => {
-        cb({ ...this.metronome, beat: this.metronome.beat + 1 });
+        cb({ ...this.metronome });
       });
 
-      // this.currentBarDuration = this._duration;
-      this.nextBeatStart += this._duration / this._beatsPerBar;
-      this.metronome.beat = (this.metronome.beat + 1) % this._beatsPerBar;
+      this.nextNote();
     }
+    this.timerID = setTimeout(this.schedule.bind(this), this.lookahead);
   }
 
   public async start() {
     if (!this._paused) return;
     if (this.ctx.state === "suspended") this.ctx.resume();
-    // this.currentBarDuration = this._duration;
-    this.onTick();
-    this.intervalID = setInterval(this.onTick.bind(this), this.interval * 1000);
+    this.metronome.bar = -1;
+    this.metronome.beat = -1;
+    this.nextBeatTime = this.ctx.currentTime;
+    this.schedule();
     this._paused = false;
 
     this.listeners.get("start")?.forEach((cb) => {
@@ -78,7 +63,8 @@ class AudioClock {
   }
 
   public pause() {
-    clearInterval(this.intervalID);
+    if (!this.timerID) return;
+    clearTimeout(this.timerID);
     this._paused = true;
     this.listeners.get("pause")?.forEach((cb) => {
       cb(this.metronome);
@@ -86,20 +72,18 @@ class AudioClock {
   }
 
   public stop() {
-    this.metronome.bar = 0;
-    this.metronome.beat = 0;
-    this.nextBarStart = 0;
-    this.nextBeatStart = 0;
-    this.pause();
-
     this.listeners.get("stop")?.forEach((cb) => {
       cb(this.metronome);
     });
+
+    this.metronome.bar = 0;
+    this.metronome.beat = 0;
+    this.nextBeatTime = 0;
+    this.pause();
   }
 
   public bpm(bpm: number) {
-    if (bpm <= 0) return;
-    this._duration = (60 / bpm) * 4;
+    if (bpm > 0) this._bpm = bpm;
   }
 
   public on(eventType: DromeEventType, listener: DromeEventCallback) {
@@ -117,19 +101,12 @@ class AudioClock {
   }
 
   public cleanup() {
-    // Stop everything immediately
     this.stop();
-    // Clear all callbacks to break references
     this.listeners.clear();
-    // Make sure no timers are still running
-    if (this.intervalID) {
-      clearInterval(this.intervalID);
-      this.intervalID = undefined;
+    if (this.timerID) {
+      clearTimeout(this.timerID);
+      this.timerID = null;
     }
-  }
-
-  get duration() {
-    return this._duration;
   }
 
   get paused() {
@@ -137,19 +114,19 @@ class AudioClock {
   }
 
   get barStartTime() {
-    return this.nextBarStart;
+    return this.nextBeatTime;
   }
 
   get beatStartTime() {
-    return this.nextBeatStart;
+    return this.nextBeatTime;
   }
 
   get barDuration() {
-    return this._duration;
+    return this.beatDuration * 4;
   }
 
   get beatDuration() {
-    return this.barDuration / this._beatsPerBar;
+    return 60.0 / this._bpm;
   }
 }
 
