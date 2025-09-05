@@ -1,0 +1,243 @@
+{
+  "_base": "https://raw.githubusercontent.com/ritchse/tidal-drum-machines/main/machines/",
+  "RolandTR808_bd": [
+    "RolandTR808/rolandtr808-bd/BD0000.WAV",
+    "RolandTR808/rolandtr808-bd/BD0010.WAV",
+    "RolandTR808/rolandtr808-bd/BD0025.WAV",
+    "RolandTR808/rolandtr808-bd/BD0050.WAV",
+    "RolandTR808/rolandtr808-bd/BD0075.WAV",
+    "RolandTR808/rolandtr808-bd/BD1000.WAV",
+    "RolandTR808/rolandtr808-bd/BD1010.WAV",
+    "RolandTR808/rolandtr808-bd/BD1025.WAV",
+    "RolandTR808/rolandtr808-bd/BD1050.WAV",
+    "RolandTR808/rolandtr808-bd/BD1075.WAV",
+    "RolandTR808/rolandtr808-bd/BD2500.WAV",
+    "RolandTR808/rolandtr808-bd/BD2510.WAV",
+    "RolandTR808/rolandtr808-bd/BD2525.WAV",
+    "RolandTR808/rolandtr808-bd/BD2550.WAV",
+    "RolandTR808/rolandtr808-bd/BD2575.WAV",
+    "RolandTR808/rolandtr808-bd/BD5000.WAV",
+    "RolandTR808/rolandtr808-bd/BD5010.WAV",
+    "RolandTR808/rolandtr808-bd/BD5025.WAV",
+    "RolandTR808/rolandtr808-bd/BD5050.WAV",
+    "RolandTR808/rolandtr808-bd/BD5075.WAV",
+    "RolandTR808/rolandtr808-bd/BD7500.WAV",
+    "RolandTR808/rolandtr808-bd/BD7510.WAV",
+    "RolandTR808/rolandtr808-bd/BD7525.WAV",
+    "RolandTR808/rolandtr808-bd/BD7550.WAV",
+    "RolandTR808/rolandtr808-bd/BD7575.WAV"
+  ],
+  "RolandTR808_cb": [
+    "RolandTR808/rolandtr808-cb/CB.WAV",
+    "RolandTR808/rolandtr808-cb/Cowbell.wav"
+  ],
+  "RolandTR808_cp": [
+    "RolandTR808/rolandtr808-cp/cp0.wav",
+    "RolandTR808/rolandtr808-cp/cp1.wav",
+    "RolandTR808/rolandtr808-cp/cp2.wav",
+    "RolandTR808/rolandtr808-cp/cp3.wav",
+    "RolandTR808/rolandtr808-cp/cp4.WAV"
+  ],
+  "RolandTR808_cr": [
+    "RolandTR808/rolandtr808-cr/CY0000.WAV",
+    "RolandTR808/rolandtr808-cr/CY0010.WAV",
+    "RolandTR808/rolandtr808-cr/CY0025.WAV",
+    "RolandTR808/rolandtr808-cr/CY0050.WAV",
+    "RolandTR808/rolandtr808-cr/CY0075.WAV",
+    "RolandTR808/rolandtr808-cr/CY1000.WAV",
+    "RolandTR808/rolandtr808-cr/CY1010.WAV",
+    "RolandTR808/rolandtr808-cr/CY1025.WAV",
+    "RolandTR808/rolandtr808-cr/CY1050.WAV",
+    "RolandTR808/rolandtr808-cr/CY1075.WAV",
+    "RolandTR808/rolandtr808-cr/CY2500.WAV",
+    "RolandTR808/rolandtr808-cr/CY2510.WAV",
+    "RolandTR808/rolandtr808-cr/CY2525.WAV",
+    "RolandTR808/rolandtr808-cr/CY2550.WAV",
+    "RolandTR808/rolandtr808-cr/CY2575.WAV",
+    "RolandTR808/rolandtr808-cr/CY5000.WAV",
+    "RolandTR808/rolandtr808-cr/CY5010.WAV",
+    "RolandTR808/rolandtr808-cr/CY5025.WAV",
+    "RolandTR808/rolandtr808-cr/CY5050.WAV",
+    "RolandTR808/rolandtr808-cr/CY5075.WAV",
+    "RolandTR808/rolandtr808-cr/CY7500.WAV",
+    "RolandTR808/rolandtr808-cr/CY7510.WAV",
+    "RolandTR808/rolandtr808-cr/CY7525.WAV",
+    "RolandTR808/rolandtr808-cr/CY7550.WAV",
+    "RolandTR808/rolandtr808-cr/CY7575.WAV"
+  ],
+  "RolandTR808_hh": ["RolandTR808/rolandtr808-hh/CH.WAV"],
+  "RolandTR808_ht": [
+    "RolandTR808/rolandtr808-ht/HT00.WAV",
+    "RolandTR808/rolandtr808-ht/HT10.WAV",
+    "RolandTR808/rolandtr808-ht/HT25.WAV",
+    "RolandTR808/rolandtr808-ht/HT50.WAV",
+    "RolandTR808/rolandtr808-ht/HT75.WAV"
+  ],
+  "RolandTR808_lt": [
+    "RolandTR808/rolandtr808-lt/LT00.WAV",
+    "RolandTR808/rolandtr808-lt/LT10.WAV",
+    "RolandTR808/rolandtr808-lt/LT25.WAV",
+    "RolandTR808/rolandtr808-lt/LT50.WAV",
+    "RolandTR808/rolandtr808-lt/LT75.WAV"
+  ],
+  "RolandTR808_mt": [
+    "RolandTR808/rolandtr808-mt/MT00.WAV",
+    "RolandTR808/rolandtr808-mt/MT10.WAV",
+    "RolandTR808/rolandtr808-mt/MT25.WAV",
+    "RolandTR808/rolandtr808-mt/MT50.WAV",
+    "RolandTR808/rolandtr808-mt/MT75.WAV"
+  ],
+  "RolandTR808_oh": [
+    "RolandTR808/rolandtr808-oh/OH00.WAV",
+    "RolandTR808/rolandtr808-oh/OH10.WAV",
+    "RolandTR808/rolandtr808-oh/OH25.WAV",
+    "RolandTR808/rolandtr808-oh/OH50.WAV",
+    "RolandTR808/rolandtr808-oh/OH75.WAV"
+  ],
+  "RolandTR808_perc": [
+    "RolandTR808/rolandtr808-perc/CL.WAV",
+    "RolandTR808/rolandtr808-perc/HC00.WAV",
+    "RolandTR808/rolandtr808-perc/HC10.WAV",
+    "RolandTR808/rolandtr808-perc/HC25.WAV",
+    "RolandTR808/rolandtr808-perc/HC50.WAV",
+    "RolandTR808/rolandtr808-perc/HC75.WAV",
+    "RolandTR808/rolandtr808-perc/LC00.WAV",
+    "RolandTR808/rolandtr808-perc/LC10.WAV",
+    "RolandTR808/rolandtr808-perc/LC25.WAV",
+    "RolandTR808/rolandtr808-perc/LC50.WAV",
+    "RolandTR808/rolandtr808-perc/LC75.WAV",
+    "RolandTR808/rolandtr808-perc/MC00.WAV",
+    "RolandTR808/rolandtr808-perc/MC10.WAV",
+    "RolandTR808/rolandtr808-perc/MC25.WAV",
+    "RolandTR808/rolandtr808-perc/MC50.WAV",
+    "RolandTR808/rolandtr808-perc/MC75.WAV"
+  ],
+  "RolandTR808_rim": ["RolandTR808/rolandtr808-rim/RS.WAV"],
+  "RolandTR808_sd": [
+    "RolandTR808/rolandtr808-sd/SD0000.WAV",
+    "RolandTR808/rolandtr808-sd/SD0010.WAV",
+    "RolandTR808/rolandtr808-sd/SD0025.WAV",
+    "RolandTR808/rolandtr808-sd/SD0050.WAV",
+    "RolandTR808/rolandtr808-sd/SD0075.WAV",
+    "RolandTR808/rolandtr808-sd/SD1000.WAV",
+    "RolandTR808/rolandtr808-sd/SD1010.WAV",
+    "RolandTR808/rolandtr808-sd/SD1025.WAV",
+    "RolandTR808/rolandtr808-sd/SD1050.WAV",
+    "RolandTR808/rolandtr808-sd/SD1075.WAV",
+    "RolandTR808/rolandtr808-sd/SD2500.WAV",
+    "RolandTR808/rolandtr808-sd/SD2510.WAV",
+    "RolandTR808/rolandtr808-sd/SD2525.WAV",
+    "RolandTR808/rolandtr808-sd/SD2550.WAV",
+    "RolandTR808/rolandtr808-sd/SD2575.WAV",
+    "RolandTR808/rolandtr808-sd/SD5000.WAV",
+    "RolandTR808/rolandtr808-sd/SD5010.WAV",
+    "RolandTR808/rolandtr808-sd/SD5025.WAV",
+    "RolandTR808/rolandtr808-sd/SD5050.WAV",
+    "RolandTR808/rolandtr808-sd/SD5075.WAV",
+    "RolandTR808/rolandtr808-sd/SD7500.WAV",
+    "RolandTR808/rolandtr808-sd/SD7510.WAV",
+    "RolandTR808/rolandtr808-sd/SD7525.WAV",
+    "RolandTR808/rolandtr808-sd/SD7550.WAV",
+    "RolandTR808/rolandtr808-sd/SD7575.WAV"
+  ],
+  "RolandTR808_sh": [
+    "RolandTR808/rolandtr808-sh/Cabasa.wav",
+    "RolandTR808/rolandtr808-sh/MA.WAV"
+  ],
+  "RolandTR909_bd": [
+    "RolandTR909/rolandtr909-bd/Bassdrum-01.wav",
+    "RolandTR909/rolandtr909-bd/Bassdrum-02.wav",
+    "RolandTR909/rolandtr909-bd/Bassdrum-03.wav",
+    "RolandTR909/rolandtr909-bd/Bassdrum-04.wav"
+  ],
+  "RolandTR909_cp": [
+    "RolandTR909/rolandtr909-cp/Clap.wav",
+    "RolandTR909/rolandtr909-cp/cp01.wav",
+    "RolandTR909/rolandtr909-cp/cp02.wav",
+    "RolandTR909/rolandtr909-cp/cp03.wav",
+    "RolandTR909/rolandtr909-cp/cp04.wav"
+  ],
+  "RolandTR909_cr": [
+    "RolandTR909/rolandtr909-cr/Crash.wav",
+    "RolandTR909/rolandtr909-cr/cr01.wav",
+    "RolandTR909/rolandtr909-cr/cr02.wav",
+    "RolandTR909/rolandtr909-cr/cr03.wav",
+    "RolandTR909/rolandtr909-cr/cr04.wav"
+  ],
+  "RolandTR909_hh": [
+    "RolandTR909/rolandtr909-hh/hh01.wav",
+    "RolandTR909/rolandtr909-hh/hh02.wav",
+    "RolandTR909/rolandtr909-hh/hh03.wav",
+    "RolandTR909/rolandtr909-hh/hh04.wav"
+  ],
+  "RolandTR909_ht": [
+    "RolandTR909/rolandtr909-ht/Tom H.wav",
+    "RolandTR909/rolandtr909-ht/ht01.wav",
+    "RolandTR909/rolandtr909-ht/ht02.wav",
+    "RolandTR909/rolandtr909-ht/ht03.wav",
+    "RolandTR909/rolandtr909-ht/ht04.wav",
+    "RolandTR909/rolandtr909-ht/ht05.wav",
+    "RolandTR909/rolandtr909-ht/ht06.wav",
+    "RolandTR909/rolandtr909-ht/ht07.wav",
+    "RolandTR909/rolandtr909-ht/ht08.wav"
+  ],
+  "RolandTR909_lt": [
+    "RolandTR909/rolandtr909-lt/Tom L.wav",
+    "RolandTR909/rolandtr909-lt/lt01.wav",
+    "RolandTR909/rolandtr909-lt/lt02.wav",
+    "RolandTR909/rolandtr909-lt/lt03.wav",
+    "RolandTR909/rolandtr909-lt/lt04.wav",
+    "RolandTR909/rolandtr909-lt/lt05.wav",
+    "RolandTR909/rolandtr909-lt/lt06.wav",
+    "RolandTR909/rolandtr909-lt/lt07.wav",
+    "RolandTR909/rolandtr909-lt/lt08.wav"
+  ],
+  "RolandTR909_mt": [
+    "RolandTR909/rolandtr909-mt/Tom M.wav",
+    "RolandTR909/rolandtr909-mt/mt01.wav",
+    "RolandTR909/rolandtr909-mt/mt02.wav",
+    "RolandTR909/rolandtr909-mt/mt03.wav",
+    "RolandTR909/rolandtr909-mt/mt04.wav",
+    "RolandTR909/rolandtr909-mt/mt05.wav",
+    "RolandTR909/rolandtr909-mt/mt06.wav",
+    "RolandTR909/rolandtr909-mt/mt07.wav",
+    "RolandTR909/rolandtr909-mt/mt08.wav"
+  ],
+  "RolandTR909_oh": [
+    "RolandTR909/rolandtr909-oh/Hat Open.wav",
+    "RolandTR909/rolandtr909-oh/oh01.wav",
+    "RolandTR909/rolandtr909-oh/oh02.wav",
+    "RolandTR909/rolandtr909-oh/oh03.wav",
+    "RolandTR909/rolandtr909-oh/oh04.wav"
+  ],
+  "RolandTR909_rd": [
+    "RolandTR909/rolandtr909-rd/Ride.wav",
+    "RolandTR909/rolandtr909-rd/rd01.wav",
+    "RolandTR909/rolandtr909-rd/rd02.wav",
+    "RolandTR909/rolandtr909-rd/rd03.wav",
+    "RolandTR909/rolandtr909-rd/rd04.wav"
+  ],
+  "RolandTR909_rim": [
+    "RolandTR909/rolandtr909-rim/Rimhot.wav",
+    "RolandTR909/rolandtr909-rim/rs01.wav",
+    "RolandTR909/rolandtr909-rim/rs02.wav"
+  ],
+  "RolandTR909_sd": [
+    "RolandTR909/rolandtr909-sd/naredrum.wav",
+    "RolandTR909/rolandtr909-sd/sd01.wav",
+    "RolandTR909/rolandtr909-sd/sd02.wav",
+    "RolandTR909/rolandtr909-sd/sd03.wav",
+    "RolandTR909/rolandtr909-sd/sd04.wav",
+    "RolandTR909/rolandtr909-sd/sd05.wav",
+    "RolandTR909/rolandtr909-sd/sd06.wav",
+    "RolandTR909/rolandtr909-sd/sd07.wav",
+    "RolandTR909/rolandtr909-sd/sd08.wav",
+    "RolandTR909/rolandtr909-sd/sd09.wav",
+    "RolandTR909/rolandtr909-sd/sd10.wav",
+    "RolandTR909/rolandtr909-sd/sd11.wav",
+    "RolandTR909/rolandtr909-sd/sd12.wav",
+    "RolandTR909/rolandtr909-sd/sd13.wav",
+    "RolandTR909/rolandtr909-sd/sd14.wav",
+    "RolandTR909/rolandtr909-sd/sd15.wav"
+  ]
+}

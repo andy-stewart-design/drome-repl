@@ -1,0 +1,30 @@
+const baseScaleMap = {
+  major: [0, 2, 2, 1, 2, 2, 2],
+  minor: [0, 2, 1, 2, 2, 1, 2],
+  dorian: [0, 2, 1, 2, 2, 2, 1],
+  phrygian: [0, 1, 2, 2, 2, 1, 2],
+  lydian: [0, 2, 2, 2, 1, 2, 2],
+  mixolydian: [0, 2, 2, 1, 2, 2, 1],
+  locrian: [0, 1, 2, 2, 1, 2, 2],
+};
+
+export const scaleAliasMap = {
+  major: baseScaleMap.major,
+  maj: baseScaleMap.major,
+  ionian: baseScaleMap.major,
+  ion: baseScaleMap.major,
+  minor: baseScaleMap.minor,
+  min: baseScaleMap.minor,
+  aeolian: baseScaleMap.minor,
+  aeo: baseScaleMap.minor,
+  dorian: baseScaleMap.dorian,
+  dor: baseScaleMap.dorian,
+  phrygian: baseScaleMap.phrygian,
+  phr: baseScaleMap.phrygian,
+  lydian: baseScaleMap.lydian,
+  lyd: baseScaleMap.lydian,
+  mixolydian: baseScaleMap.mixolydian,
+  mix: baseScaleMap.mixolydian,
+  locrian: baseScaleMap.locrian,
+  loc: baseScaleMap.locrian,
+};
