@@ -6,8 +6,9 @@ const examples = [
   {
     title: "Roots & Scales",
     code: `d.stack(
-  d.synth("sq").root("c5").scale("maj").note([0,2,4,6],[-2,0,2,4])
-    .euclid(4,8).fast(4).adsr(0,1,0.75,0).lpf(1000),
+  d.synth("saw").root("c5").scale("maj").note([0,2,4,6],[-2,0,2,4])
+    .euclid(4,8).fast(4).adsr(0,1,0.75,0).lpf(1000).lpenv(2,0,0.5,0.25,0)
+    .postgain(1.25),
   d.synth("saw").root("c4").scale("maj").note([[0,2,4,6]],[[-2,0,2,4]])
     .hex("ff").stretch(2)
     .adsr(0.25, 0.25, 0.5, 0.1)
@@ -16,9 +17,9 @@ const examples = [
   d.synth("saw","sine").root("c3").scale("maj").note([[-7,0]],[[-9,-2]])
     .euclid(8,8).stretch(2)
     .lpf(300).lpenv(2,0.25,0.25,0.5,0).postgain(0.75),
-  d.sample("bd:3").euclid([3, 5], 8).reverb(0.1),
+  d.sample("bd:3").euclid([3,5], 8).reverb(0.1),
   d.sample("hh:4").hex("ff").gain(0.375),
-  d.sample("oh:1").euclid(4, 8, 1).gain(0.5)
+  d.sample("oh:1").euclid(4,8,1).gain(0.5)
 )`,
   },
   {

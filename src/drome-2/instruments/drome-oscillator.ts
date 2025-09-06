@@ -1,11 +1,13 @@
+import FilterEffect from "../effects/filter";
 import { applyEnvelope } from "../utils/adsr";
-import type { ADSRParams, OscType } from "../types";
+import type { ADSRParams, FilterOptions, FilterType, OscType } from "../types";
 
 interface DromeOscillatorOptions {
-  type?: OscType;
-  frequency?: number;
-  gain?: number;
-  env?: ADSRParams;
+  type: OscType;
+  frequency: number;
+  gain: number;
+  env: ADSRParams;
+  filters: Map<FilterType, FilterOptions>;
 }
 
 class DromeOscillator {
@@ -16,16 +18,12 @@ class DromeOscillator {
   private oscNodes: OscillatorNode[] = [];
   private env: ADSRParams;
   private startTime: number | undefined;
+  private filters: Map<FilterType, FilterEffect> = new Map();
 
   constructor(
     ctx: AudioContext,
     destination: AudioNode,
-    {
-      type = "sine",
-      frequency = 220,
-      gain = 1,
-      env = { a: 0.01, d: 0.01, s: 1.0, r: 0.01 },
-    }: DromeOscillatorOptions = {}
+    { type, frequency, gain, env, filters }: DromeOscillatorOptions
   ) {
     this.ctx = ctx;
     if (type !== "supersaw") {
@@ -46,12 +44,29 @@ class DromeOscillator {
     this.gainNode = new GainNode(this.ctx, { gain: 0 });
     this.gain = gain;
     this.env = env;
-    this.oscNodes.forEach((node) =>
-      node.connect(this.gainNode).connect(destination)
-    );
+
+    const filterNodes: BiquadFilterNode[] = [];
+
+    filters?.forEach((opts) => {
+      if (opts.env?.depth && !opts.env.adsr) opts.env.adsr = { ...env };
+      const effect = new FilterEffect(this.ctx, opts);
+      this.filters.set(opts.type, effect);
+      filterNodes.push(effect.input);
+    });
+
+    for (const osc of this.oscNodes) {
+      const nodes = [osc, this.gainNode, ...filterNodes, destination];
+      for (let i = 0; i < nodes.length - 1; i++) {
+        nodes[i].connect(nodes[i + 1]);
+      }
+    }
   }
 
   play(startTime: number, duration: number) {
+    this.filters.forEach((filter) => {
+      filter.apply(startTime, duration);
+    });
+
     applyEnvelope({
       target: this.gainNode.gain,
       startTime,
@@ -73,7 +88,6 @@ class DromeOscillator {
   }
 
   stop(when?: number) {
-    // if (!this.isPlaying || this.isStopped) return; // Todo: do I need this???
     if (!this.startTime) return;
     const stopTime = when ?? this.ctx.currentTime;
     const releaseTime = 0.125;

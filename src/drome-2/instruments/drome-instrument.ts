@@ -1,5 +1,4 @@
 import DelayEffect from "../effects/delay";
-import FilterEffect from "../effects/filter";
 import ReverbEffect from "../effects/reverb";
 import DistortionEffect from "../effects/distortion";
 import GainEffect from "../effects/gain";
@@ -250,13 +249,7 @@ class DromeInstrument<T extends string | number | falsy> {
   }
 
   connectChain() {
-    const filters = [...(this._filters?.values() ?? [])].map((opts) => {
-      if (opts.env && !opts.env.adsr) opts.env.adsr = { ...this._env };
-      return new FilterEffect(this.drome.ctx, opts);
-    });
-
     const nodes = [
-      ...filters,
       this._distortion,
       this._reverb,
       this._delay,
@@ -303,7 +296,3 @@ const isAudioNode = (
 ): node is DromeAudioNode => {
   return node !== undefined;
 };
-
-// function isNested(arr: number[] | number[][]): arr is number[][] {
-//   return Array.isArray(arr[0]);
-// }

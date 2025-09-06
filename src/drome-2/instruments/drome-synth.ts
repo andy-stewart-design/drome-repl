@@ -1,6 +1,5 @@
 import DromeInstrument from "./drome-instrument";
 import DromeOscillator from "./drome-oscillator";
-import FilterEffect from "../effects/filter";
 import { midiToFreq } from "../utils/midi-to-frequency";
 import { scaleAliasMap } from "../dictionaries/notes/scale-alias";
 import { synthAliasMap } from "../dictionaries/synths/synth-aliases";
@@ -73,7 +72,6 @@ class DromeSynth extends DromeInstrument<number> {
     const nodes = super.connectChain();
     const cycleIndex = this.drome.metronome.bar % (this.cycles.length || 1);
     const cycle = this.cycles[cycleIndex] || DEFAULT_CYCLES[cycleIndex];
-
     const startTime = this.drome.barStartTime;
     const noteOffset = this.drome.barDuration / cycle.length;
     const noteDuration = noteOffset + this._env.r;
@@ -81,18 +79,15 @@ class DromeSynth extends DromeInstrument<number> {
     const play = (note: number, i: number) => {
       if (typeof note !== "number") return;
 
-      nodes.forEach((node) => {
-        if (!(node instanceof FilterEffect)) return;
-        node.apply(startTime + noteOffset * i, noteDuration);
-      });
-
       const frequency = this.getFrequency(note);
+
       this.type.forEach((type) => {
         const osc = new DromeOscillator(this.drome.ctx, nodes[0].input, {
           type,
           frequency,
           env: this._env,
           gain: this._gain,
+          filters: this._filters,
         });
 
         osc.play(startTime + noteOffset * i, noteDuration);
