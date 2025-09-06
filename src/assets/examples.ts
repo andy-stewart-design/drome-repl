@@ -7,7 +7,7 @@ const examples = [
     title: "Roots & Scales",
     code: `d.stack(
   d.synth("saw").root("c5").scale("maj").note([0,2,4,6],[-2,0,2,4])
-    .euclid(4,8).fast(4).adsr(0,1,0.75,0).lpf(1000).lpenv(2,0,0.5,0.25,0)
+    .euclid(4,8).fast(4).adsr(0,1,0.75,0).lpf(1000).lpenv(2,0,0.333,0.125,0.1)
     .postgain(1.25),
   d.synth("saw").root("c4").scale("maj").note([[0,2,4,6]],[[-2,0,2,4]])
     .hex("ff").stretch(2)
@@ -107,14 +107,6 @@ d.stack(
   //   drome.synth("sq").note(60).struct(struct.rotate(4).stretch(3)).adsr(0, 0.5).lpf(1600).gain(0.75)
   // )`,
   //   },
-  {
-    title: "Chords and melodies",
-    code: `drome.synth("saw").note([48,52,43],[50,53,45]).reverb(0.25).lpf(400).adsr(0.01,0.9).push() 
-
-drome.synth("sq").note([[60,64,67]],[[62,65,69]]).lpf(600).adsr(0.01,0.9).gain(0.875).push() 
-
-drome.synth("saw").note([72,76,79,81,79,76]).adsr(0.01,0.75,0.1,0.01).fast(2).lpf(1000).lpenv(3,0.333,0.666,0.1,0.01).gain(0.875).push()`,
-  },
   {
     title: "Samples",
     code: `drome.bpm(140)

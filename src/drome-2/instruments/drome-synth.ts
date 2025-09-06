@@ -74,7 +74,7 @@ class DromeSynth extends DromeInstrument<number> {
     const cycle = this.cycles[cycleIndex] || DEFAULT_CYCLES[cycleIndex];
     const startTime = this.drome.barStartTime;
     const noteOffset = this.drome.barDuration / cycle.length;
-    const noteDuration = noteOffset + this._env.r;
+    const noteDuration = Math.max(noteOffset + this._env.r, 0.125);
 
     const play = (note: number, i: number) => {
       if (typeof note !== "number") return;
