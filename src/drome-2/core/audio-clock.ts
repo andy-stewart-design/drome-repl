@@ -9,12 +9,13 @@ type DromeEventType = "start" | "pause" | "stop" | "beat" | "bar";
 type DromeEventCallback = (m: Metronome) => void;
 
 class AudioClock {
+  static lookahead = 25.0; // How frequently to call scheduling function (in milliseconds)
+  static scheduleAheadTime = 0.1; // How far ahead to schedule audio (sec)
+
   readonly ctx = new AudioContext();
   readonly metronome: Metronome = { beat: 0, bar: 0 };
   private _paused = true;
   private _bpm = 120;
-  private lookahead = 25.0; // How frequently to call scheduling function (in milliseconds)
-  private scheduleAheadTime = 0.1; // How far ahead to schedule audio (sec)
   private nextBeatTime = 0.0;
   private timerID: ReturnType<typeof setTimeout> | null = null;
   private listeners: Map<DromeEventType, DromeEventCallback[]> = new Map();
@@ -23,13 +24,9 @@ class AudioClock {
     this.bpm(bpm);
   }
 
-  private nextNote() {
-    const secondsPerBeat = 60.0 / this._bpm;
-    this.nextBeatTime += secondsPerBeat; // Add beat length to last beat time
-  }
-
   private schedule() {
-    while (this.nextBeatTime < this.ctx.currentTime + this.scheduleAheadTime) {
+    const { scheduleAheadTime } = AudioClock;
+    while (this.nextBeatTime < this.ctx.currentTime + scheduleAheadTime) {
       this.metronome.beat = (this.metronome.beat + 1) % 4;
 
       if (this.metronome.beat === 0) {
@@ -43,9 +40,9 @@ class AudioClock {
         cb({ ...this.metronome });
       });
 
-      this.nextNote();
+      this.nextBeatTime += 60.0 / this._bpm;
     }
-    this.timerID = setTimeout(this.schedule.bind(this), this.lookahead);
+    this.timerID = setTimeout(this.schedule.bind(this), AudioClock.lookahead);
   }
 
   public async start() {
@@ -76,10 +73,10 @@ class AudioClock {
       cb(this.metronome);
     });
 
+    this.pause();
     this.metronome.bar = 0;
     this.metronome.beat = 0;
     this.nextBeatTime = 0;
-    this.pause();
   }
 
   public bpm(bpm: number) {
