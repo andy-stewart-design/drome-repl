@@ -38,7 +38,7 @@ type FilterType = Exclude<
 >;
 
 interface FilterOptions {
-  type: BiquadFilterType;
+  type: FilterType;
   frequency: number;
   q: number;
   env: { depth: number; adsr?: ADSRParams } | undefined;

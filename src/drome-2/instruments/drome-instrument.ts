@@ -96,14 +96,6 @@ class DromeInstrument<T extends string | number | falsy> {
     return this;
   }
 
-  // sequence(pulses: number[], steps: number) {
-  //   const pattern = Array.from({ length: steps }, (_, i) =>
-  //     pulses.includes(i) ? 1 : 0
-  //   );
-  //   this.cycles = this.applyPattern(pattern);
-  //   return this;
-  // }
-
   struct(...patterns: number[][]) {
     this.cycles = this.applyPattern(patterns);
     return this;
@@ -258,8 +250,6 @@ class DromeInstrument<T extends string | number | falsy> {
   }
 
   connectChain() {
-    // console.log(this.cycles);
-
     const filters = [...(this._filters?.values() ?? [])].map((opts) => {
       if (opts.env && !opts.env.adsr) opts.env.adsr = { ...this._env };
       return new FilterEffect(this.drome.ctx, opts);
