@@ -39,10 +39,10 @@ function applyEnvelope({
   // Use minVal if provided, otherwise use startVal for release
   const releaseTarget = minVal !== undefined ? minVal : startVal;
 
-  target.linearRampToValueAtTime(startVal, startTime);
+  target.setValueAtTime(startVal, startTime);
   target.linearRampToValueAtTime(maxVal, attEnd); // Attack
   target.linearRampToValueAtTime(susVal, decEnd); // Decay
-  target.linearRampToValueAtTime(susVal, susEnd); // Sustain
+  target.setValueAtTime(susVal, susEnd); // Sustain
   target.linearRampToValueAtTime(releaseTarget, relEnd); // Release to minVal or startVal
 }
 

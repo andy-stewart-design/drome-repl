@@ -71,15 +71,14 @@ class DromeOscillator {
       target: this.gainNode.gain,
       startTime,
       duration,
-      maxVal:
-        this.gain * this.baseGain * (this.oscNodes.length > 2 ? 0.625 : 1),
+      maxVal: this.gain * this.baseGain * (this.oscNodes.length > 2 ? 0.75 : 1),
       minVal: 0,
       startVal: 0.01,
       env: this.env,
     });
 
     this.oscNodes.forEach((node) => {
-      const jitter = this.oscNodes.length > 1 ? Math.random() * 0.002 : 0;
+      const jitter = this.oscNodes.length > 1 ? Math.random() * 0.005 : 0;
       node.start(startTime + jitter);
       const releaseTime = this.env.r * duration;
       node.stop(startTime + duration + releaseTime + 0.2);

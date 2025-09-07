@@ -92,7 +92,7 @@ d.stack(
     code: `drome.stack(
   drome.synth("saw") // can use either "saw" or "sawtooth"
     .note(57).euclid(3,8).adsr(0,1,0.5,0.1)
-    .lpf(800).lpenv(2).reverb(0.5).postgain(1.25), 
+    .lpf(800).lpenv(2).delay(0.2).reverb(0.5).postgain(1.25), 
   drome.synth("sq").note([43,43,43,50,43,43,53,54])
     .lpf(300).lpenv(2,0,0.5,0.5,0.1)
     .fast(2).gain(2).reverb(0.25),
