@@ -251,8 +251,8 @@ class DromeInstrument<T extends string | number | falsy> {
   connectChain() {
     const nodes = [
       this._distortion,
-      this._reverb,
       this._delay,
+      this._reverb,
       this._postgain,
       this._destination,
     ].filter(isAudioNode);
