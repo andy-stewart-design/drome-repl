@@ -129,9 +129,9 @@ drome.synth("saw").note(69).adsr(0.01, 0.99, 0.75, 0.1).struct(risset).bpf(800).
 drome.synth("saw").note(45).adsr(0.95, 0.05, 0.25, 0.1).lpf(200).lpenv(3).euclid(4,4).gain(1.5).push()
 
 d.stack(
-  drome.sample("bd").bank("RolandTR909").euclid(4,4),
-  drome.sample("hh").bank("RolandTR808").euclid(4,8,1).gain(0.75),
-  drome.sample("cp").bank("RolandTR808").euclid(2,4,1).gain(0.75),
+  drome.sample("bd").bank("tr909").euclid(4,4),
+  drome.sample("hh").bank("tr808").euclid(4,8,1).gain(0.75),
+  drome.sample("cp").bank("tr808").euclid(2,4,1).gain(0.75),
 )`,
   },
 ];

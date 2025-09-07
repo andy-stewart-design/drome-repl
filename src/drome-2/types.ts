@@ -5,6 +5,7 @@ import type ReverbEffect from "./effects/reverb";
 import type DistortionEffect from "./effects/distortion";
 import { synthAliasMap } from "./dictionaries/synths/synth-aliases";
 import { scaleAliasMap } from "./dictionaries/notes/scale-alias";
+import { drumAliases } from "./dictionaries/samples/drum-alias";
 
 type OscType = Exclude<OscillatorType, "custom"> | "supersaw";
 type OscTypeAlias = keyof typeof synthAliasMap;
@@ -60,7 +61,7 @@ type SampleName =
 
 type SampleNote = SampleName | `${SampleName}:${number}`;
 
-type SampleBank = "RolandTR909" | "RolandTR808";
+type SampleBank = keyof typeof drumAliases;
 
 export type {
   ADSRParams,

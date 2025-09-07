@@ -1,9 +1,12 @@
 import DromeInstrument from "./drome-instrument";
 import DromeBuffer from "./drome-buffer";
-import drumMachines from "../dictionaries/samples/drum-machines.json";
+import _drumMachines from "../dictionaries/samples/drum-machines.json";
 import FilterEffect from "../effects/filter";
+import { drumAliases } from "../dictionaries/samples/drum-alias";
 import type Drome from "../core/drome";
 import type { DromeAudioNode, SampleBank, SampleNote } from "../types";
+
+const drumMachines: Record<string, string | string[]> = _drumMachines;
 
 class DromeSample extends DromeInstrument<SampleNote> {
   private sampleBank: SampleBank = "RolandTR909";
@@ -23,12 +26,11 @@ class DromeSample extends DromeInstrument<SampleNote> {
 
   async loadSample(note: SampleNote) {
     const baseUrl = drumMachines._base;
-    const [name, _index] = note.split(":");
+    const [sampleName, _index] = note.split(":");
     const index = parseInt(_index) || 0;
-    // TODO: FIX THIS
-    const sampleSlugs = (drumMachines as unknown as Record<string, string[]>)[
-      `${this.sampleBank}_${name}`
-    ] as string[];
+    const bankName = drumAliases[this.sampleBank];
+
+    const sampleSlugs = drumMachines[`${bankName}_${sampleName}`];
     const sampleSlug = sampleSlugs[index % sampleSlugs.length];
     const sampleUrl = `${baseUrl}${sampleSlug}`;
 
@@ -93,6 +95,7 @@ class DromeSample extends DromeInstrument<SampleNote> {
         if (!(node instanceof FilterEffect)) return;
         node.apply(startTime + noteDuration * i, noteDuration);
       });
+
       source.play(startTime + noteDuration * i, noteDuration);
       this.sources.add(source);
       source.node.onended = () => this.sources.delete(source);
