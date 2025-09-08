@@ -97,6 +97,7 @@ class DromeSample extends DromeInstrument<number> {
           rate: this._playbackRate,
           gain: this._gain,
           env: this._env,
+          filters: this._filters,
         });
 
         nodes.forEach((node) => {

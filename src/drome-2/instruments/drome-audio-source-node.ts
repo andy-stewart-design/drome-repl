@@ -1,21 +1,19 @@
+import FilterEffect from "../effects/filter";
 import { applyEnvelope } from "../utils/adsr";
 import type { ADSRParams, FilterOptions, FilterType } from "../types";
-import FilterEffect from "../effects/filter";
 
-interface DromeBufferOptions {
+interface DromeOscillatorOptions {
   gain: number;
   env: ADSRParams;
-  rate: number;
   filters: Map<FilterType, FilterOptions>;
 }
 
-class DromeBuffer {
+class DromeOscillator {
   private ctx: AudioContext;
   private gainNode: GainNode;
-  private baseGain = 1;
+  private baseGain = 0.35;
   private gain: number;
-  private srcNodes: AudioBufferSourceNode[] = [];
-  private sampleDuration: number;
+  private srcNodes: (OscillatorNode | AudioBufferSourceNode)[] = [];
   private env: ADSRParams;
   private startTime: number | undefined;
   private filters: Map<FilterType, FilterEffect> = new Map();
@@ -23,16 +21,11 @@ class DromeBuffer {
   constructor(
     ctx: AudioContext,
     destination: AudioNode,
-    buffer: AudioBuffer,
-    { gain, env, rate: playbackRate, filters }: DromeBufferOptions
+    { gain, env, filters }: DromeOscillatorOptions
   ) {
     this.ctx = ctx;
     this.gainNode = new GainNode(this.ctx, { gain: 0 });
     this.gain = gain;
-    const src = new AudioBufferSourceNode(this.ctx, { playbackRate });
-    src.buffer = buffer;
-    this.sampleDuration = buffer.duration;
-    this.srcNodes.push(src);
     this.env = env;
 
     const filterNodes: BiquadFilterNode[] = [];
@@ -44,8 +37,8 @@ class DromeBuffer {
       filterNodes.push(effect.input);
     });
 
-    for (const node of this.srcNodes) {
-      const nodes = [node, this.gainNode, ...filterNodes, destination];
+    for (const osc of this.srcNodes) {
+      const nodes = [osc, this.gainNode, ...filterNodes, destination];
       for (let i = 0; i < nodes.length - 1; i++) {
         nodes[i].connect(nodes[i + 1]);
       }
@@ -60,22 +53,24 @@ class DromeBuffer {
     applyEnvelope({
       target: this.gainNode.gain,
       startTime,
-      duration: this.sampleDuration,
-      maxVal: this.gain * this.baseGain,
-      startVal: 0,
+      duration,
+      maxVal: this.gain * this.baseGain * (this.srcNodes.length > 2 ? 0.75 : 1),
+      minVal: 0,
+      startVal: 0.01,
       env: this.env,
     });
 
     this.srcNodes.forEach((node) => {
-      node.start(startTime);
-      node.stop(startTime + Math.max(this.sampleDuration, duration) + 0.05);
+      const jitter = this.srcNodes.length > 1 ? Math.random() * 0.005 : 0;
+      node.start(startTime + jitter);
+      const releaseTime = this.env.r * duration;
+      node.stop(startTime + duration + releaseTime + 0.2);
     });
 
     this.startTime = startTime;
   }
 
   stop(when?: number) {
-    // if (!this.isPlaying || this.isStopped) return; // Todo: do I need this???
     if (!this.startTime) return;
     const stopTime = when ?? this.ctx.currentTime;
     const releaseTime = 0.125;
@@ -99,5 +94,4 @@ class DromeBuffer {
     return this.srcNodes[0];
   }
 }
-
-export default DromeBuffer;
+export default DromeOscillator;
