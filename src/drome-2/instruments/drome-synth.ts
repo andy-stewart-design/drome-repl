@@ -13,26 +13,21 @@ import type {
 } from "../types";
 import type Drome from "../core/drome";
 import { noteToMidi } from "../utils/note-name-to-midi";
-
-const DEFAULT_CYCLES = [[60]];
+import { transpose } from "../utils/transpose";
 
 class DromeSynth extends DromeInstrument<number> {
-  private type: OscType[] = [];
+  private waveforms: OscType[] = [];
   private oscillators: Set<DromeOscillator> = new Set();
   private rootNote = 0;
   private _scale: number[] | null = null;
 
-  constructor(
-    drome: Drome,
-    destination: DromeAudioNode,
-    ...types: OscTypeAlias[]
-  ) {
-    super(drome, destination);
+  constructor(drome: Drome, dest: DromeAudioNode, ...types: OscTypeAlias[]) {
+    super(drome, dest, [[60]]);
     if (types.length === 0) {
-      this.type.push("sine");
+      this.waveforms.push("sine");
     } else {
       types.forEach((type) => {
-        this.type.push(synthAliasMap[type]);
+        this.waveforms.push(synthAliasMap[type]);
       });
     }
   }
@@ -50,11 +45,14 @@ class DromeSynth extends DromeInstrument<number> {
   root(n: NoteName | NoteValue | number) {
     if (typeof n === "number") {
       this.rootNote = n;
+      this.cycles = transpose(this.cycles, n);
     } else {
       const note = noteToMidi(n);
-      if (note) this.rootNote = note;
+      if (note) {
+        this.rootNote = note ?? 60;
+        this.cycles = transpose(this.cycles, note ?? 60);
+      }
     }
-    if (!this.cycles.length) this.cycles = [[0]];
     return this;
   }
 
@@ -71,7 +69,7 @@ class DromeSynth extends DromeInstrument<number> {
   start() {
     const nodes = super.connectChain();
     const cycleIndex = this.drome.metronome.bar % (this.cycles.length || 1);
-    const cycle = this.cycles[cycleIndex] || DEFAULT_CYCLES[cycleIndex];
+    const cycle = this.cycles[cycleIndex];
     const startTime = this.drome.barStartTime;
     const noteOffset = this.drome.barDuration / cycle.length;
     const noteDuration = Math.max(noteOffset + this._env.r, 0.125);
@@ -81,7 +79,7 @@ class DromeSynth extends DromeInstrument<number> {
 
       const frequency = this.getFrequency(note);
 
-      this.type.forEach((type) => {
+      this.waveforms.forEach((type) => {
         const osc = new DromeOscillator(this.drome.ctx, nodes[0].input, {
           type,
           frequency,

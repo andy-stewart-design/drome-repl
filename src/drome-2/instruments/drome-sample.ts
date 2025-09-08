@@ -2,20 +2,28 @@ import DromeInstrument from "./drome-instrument";
 import DromeBuffer from "./drome-buffer";
 import _drumMachines from "../dictionaries/samples/drum-machines.json";
 import FilterEffect from "../effects/filter";
-import { drumAliases } from "../dictionaries/samples/drum-alias";
+import { drumAliases as _drumAliases } from "../dictionaries/samples/drum-alias";
 import type Drome from "../core/drome";
-import type { DromeAudioNode, SampleBank, SampleNote } from "../types";
+import type {
+  DromeAudioNode,
+  SampleBank,
+  SampleName,
+  SampleNote,
+} from "../types";
 
 const drumMachines: Record<string, string | string[]> = _drumMachines;
+const drumAliases: Record<string, string> = _drumAliases;
 
-class DromeSample extends DromeInstrument<SampleNote> {
-  private sampleBank: SampleBank = "RolandTR909";
+class DromeSample extends DromeInstrument<number> {
+  private sampleNames: SampleName[];
+  private sampleBank: SampleBank = "rolandtr909";
   private sources: Set<DromeBuffer> = new Set();
   private _playbackRate = 1;
 
-  constructor(drome: Drome, destination: DromeAudioNode, name?: SampleNote) {
-    super(drome, destination);
-    if (name) this.note(name);
+  constructor(drome: Drome, dest: DromeAudioNode, ...names: SampleNote[]) {
+    super(drome, dest, [[1]]);
+    if (names.length) this.sampleNames = names;
+    else this.sampleNames = ["bd"];
   }
 
   push() {
@@ -28,7 +36,7 @@ class DromeSample extends DromeInstrument<SampleNote> {
     const baseUrl = drumMachines._base;
     const [sampleName, _index] = note.split(":");
     const index = parseInt(_index) || 0;
-    const bankName = drumAliases[this.sampleBank];
+    const bankName = drumAliases[this.sampleBank.toLocaleLowerCase()];
 
     const sampleSlugs = drumMachines[`${bankName}_${sampleName}`];
     const sampleSlug = sampleSlugs[index % sampleSlugs.length];
@@ -53,9 +61,8 @@ class DromeSample extends DromeInstrument<SampleNote> {
   }
 
   preloadSamples() {
-    const notes = [...new Set(flatten(this.cycles))].filter(Boolean);
-    return notes.map(async (note) => {
-      let [buffer, sampleUrl] = await this.loadSample(note);
+    return this.sampleNames.map(async (name) => {
+      let [buffer, sampleUrl] = await this.loadSample(name);
       if (!buffer) return;
 
       this.drome.sampleBuffers.set(sampleUrl, buffer);
@@ -80,25 +87,27 @@ class DromeSample extends DromeInstrument<SampleNote> {
     const startTime = this.drome.barStartTime;
     const noteDuration = this.drome.barDuration / cycle.length;
 
-    const play = async (note: SampleNote, i: number) => {
+    const play = async (note: number, i: number) => {
       if (!note) return;
-      let [buffer] = await this.loadSample(note);
-      if (!buffer) return;
+      this.sampleNames.forEach(async (name) => {
+        let [buffer] = await this.loadSample(name);
+        if (!buffer) return;
 
-      const source = new DromeBuffer(this.drome.ctx, nodes[0].input, buffer, {
-        rate: this._playbackRate,
-        gain: this._gain,
-        env: this._env,
+        const source = new DromeBuffer(this.drome.ctx, nodes[0].input, buffer, {
+          rate: this._playbackRate,
+          gain: this._gain,
+          env: this._env,
+        });
+
+        nodes.forEach((node) => {
+          if (!(node instanceof FilterEffect)) return;
+          node.apply(startTime + noteDuration * i, noteDuration);
+        });
+
+        source.play(startTime + noteDuration * i, noteDuration);
+        this.sources.add(source);
+        source.node.onended = () => this.sources.delete(source);
       });
-
-      nodes.forEach((node) => {
-        if (!(node instanceof FilterEffect)) return;
-        node.apply(startTime + noteDuration * i, noteDuration);
-      });
-
-      source.play(startTime + noteDuration * i, noteDuration);
-      this.sources.add(source);
-      source.node.onended = () => this.sources.delete(source);
     };
 
     cycle.forEach(async (pat, i) => {
@@ -114,5 +123,3 @@ class DromeSample extends DromeInstrument<SampleNote> {
 }
 
 export default DromeSample;
-
-const flatten = <T>(arr: (T | T[])[][]): T[] => arr.flat(Infinity) as T[];

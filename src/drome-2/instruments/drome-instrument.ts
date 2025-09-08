@@ -8,14 +8,14 @@ import type {
   DromeAudioNode,
   FilterOptions,
   FilterType,
-  // SampleNote,
 } from "../types";
 import { hex } from "../utils/hex";
 import type Drome from "../core/drome";
 
 type falsy = null | undefined;
+// type cycleValue = number | falsy;
 
-class DromeInstrument<T extends string | number | falsy> {
+class DromeInstrument<T extends number | falsy> {
   readonly drome: Drome;
   private _destination: DromeAudioNode;
   public cycles: (T | T[])[][] = [];
@@ -28,10 +28,15 @@ class DromeInstrument<T extends string | number | falsy> {
   private _postgain: GainEffect;
   readonly _env: ADSRParams = { a: 0.001, d: 0.125, s: 1.0, r: 0.01 };
 
-  constructor(drome: Drome, destination: DromeAudioNode) {
+  constructor(
+    drome: Drome,
+    destination: DromeAudioNode,
+    defaultCycles: (T | T[])[][]
+  ) {
     this.drome = drome;
     this._destination = destination;
     this._postgain = new GainEffect(this.drome.ctx, 1);
+    this.cycles = defaultCycles;
   }
 
   /* ----------------------------------------------------------------
@@ -77,6 +82,8 @@ class DromeInstrument<T extends string | number | falsy> {
 
   euclid(pulses: number | number[], steps: number, rotation = 0) {
     this.cycles = this.applyPattern(euclid(pulses, steps, rotation));
+    console.log(this.cycles);
+
     return this;
   }
 

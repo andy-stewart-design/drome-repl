@@ -98,8 +98,11 @@ function App() {
       changes: { from: 0, to: ed.state.doc.length, insert: code },
     });
     ed.focus();
-    play(drome, code, log);
-    flash(ed);
+    drome.stop();
+    requestAnimationFrame(() => {
+      play(drome, code, log);
+      flash(ed);
+    });
   }
 
   function log(message: string, type: LogType = "output") {
