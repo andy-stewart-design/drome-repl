@@ -1,9 +1,11 @@
 import DromeInstrument from "./drome-instrument";
 import DromeOscillator from "./drome-oscillator";
 import { midiToFreq } from "../utils/midi-to-frequency";
+import { noteToMidi } from "../utils/note-name-to-midi";
 import { scaleAliasMap } from "../dictionaries/notes/scale-alias";
 import { synthAliasMap } from "../dictionaries/synths/synth-aliases";
 import type {
+  CycleValue,
   DromeAudioNode,
   NoteName,
   NoteValue,
@@ -12,17 +14,16 @@ import type {
   ScaleAlias,
 } from "../types";
 import type Drome from "../core/drome";
-import { noteToMidi } from "../utils/note-name-to-midi";
-import { transpose } from "../utils/transpose";
+// import { transpose } from "../utils/transpose";
 
-class DromeSynth extends DromeInstrument<number> {
+class DromeSynth extends DromeInstrument {
   private waveforms: OscType[] = [];
   private oscillators: Set<DromeOscillator> = new Set();
   private rootNote = 0;
   private _scale: number[] | null = null;
 
   constructor(drome: Drome, dest: DromeAudioNode, ...types: OscTypeAlias[]) {
-    super(drome, dest, [[60]]);
+    super(drome, dest, "synth");
     if (types.length === 0) {
       this.waveforms.push("sine");
     } else {
@@ -45,14 +46,15 @@ class DromeSynth extends DromeInstrument<number> {
   root(n: NoteName | NoteValue | number) {
     if (typeof n === "number") {
       this.rootNote = n;
-      this.cycles = transpose(this.cycles, n);
+      // this.cycles = transpose(this.cycles, n);
     } else {
       const note = noteToMidi(n);
       if (note) {
-        this.rootNote = note ?? 60;
-        this.cycles = transpose(this.cycles, note ?? 60);
+        this.rootNote = note;
+        // this.cycles = transpose(this.cycles, note);
       }
     }
+    if (!this.cycles.length) this.cycles = [[0]];
     return this;
   }
 
@@ -69,12 +71,12 @@ class DromeSynth extends DromeInstrument<number> {
   start() {
     const nodes = super.connectChain();
     const cycleIndex = this.drome.metronome.bar % (this.cycles.length || 1);
-    const cycle = this.cycles[cycleIndex];
+    const cycle = this.cycles[cycleIndex] || [[60]];
     const startTime = this.drome.barStartTime;
     const noteOffset = this.drome.barDuration / cycle.length;
     const noteDuration = Math.max(noteOffset + this._env.r, 0.125);
 
-    const play = (note: number, i: number) => {
+    const play = (note: CycleValue, i: number) => {
       if (typeof note !== "number") return;
 
       const frequency = this.getFrequency(note);

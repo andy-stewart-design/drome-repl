@@ -1,14 +1,28 @@
 import FilterEffect from "../effects/filter";
 import { applyEnvelope } from "../utils/adsr";
-import type { ADSRParams, FilterOptions, FilterType } from "../types";
+import type { ADSRParams, FilterOptions, FilterType, OscType } from "../types";
 
-interface DromeOscillatorOptions {
+interface BaseAudioSourceOptions {
   gain: number;
   env: ADSRParams;
   filters: Map<FilterType, FilterOptions>;
 }
 
-class DromeOscillator {
+interface DromeOscillatorOptions extends BaseAudioSourceOptions {
+  type: "oscillator";
+  waveform: OscType;
+  frequency: number;
+}
+
+interface DromeBufferOptions extends BaseAudioSourceOptions {
+  type: "buffer";
+  buffer: AudioBuffer;
+  rate: number;
+}
+
+type DromeAudioSourceOptions = DromeOscillatorOptions | DromeBufferOptions;
+
+class DromeAudioSource {
   private ctx: AudioContext;
   private gainNode: GainNode;
   private baseGain = 0.35;
@@ -21,19 +35,25 @@ class DromeOscillator {
   constructor(
     ctx: AudioContext,
     destination: AudioNode,
-    { gain, env, filters }: DromeOscillatorOptions
+    opts: DromeAudioSourceOptions
   ) {
     this.ctx = ctx;
     this.gainNode = new GainNode(this.ctx, { gain: 0 });
-    this.gain = gain;
-    this.env = env;
+    this.gain = opts.gain;
+    this.env = opts.env;
+
+    if (opts.type === "oscillator") {
+      this.createOscillator(opts.waveform, opts.frequency);
+    } else {
+      this.createBuffer(opts.buffer, opts.rate);
+    }
 
     const filterNodes: BiquadFilterNode[] = [];
 
-    filters?.forEach((opts) => {
-      if (opts.env?.depth && !opts.env.adsr) opts.env.adsr = { ...env };
-      const effect = new FilterEffect(this.ctx, opts);
-      this.filters.set(opts.type, effect);
+    opts.filters?.forEach((fOpts) => {
+      if (fOpts.env?.depth && !fOpts.env.adsr) fOpts.env.adsr = { ...opts.env };
+      const effect = new FilterEffect(this.ctx, fOpts);
+      this.filters.set(fOpts.type, effect);
       filterNodes.push(effect.input);
     });
 
@@ -45,6 +65,36 @@ class DromeOscillator {
     }
   }
 
+  private createBuffer(buffer: AudioBuffer, playbackRate: number) {
+    const src = new AudioBufferSourceNode(this.ctx, { playbackRate });
+    src.buffer = buffer;
+    this.srcNodes.push(src);
+  }
+
+  private createOscillator(type: OscType, frequency: number) {
+    if (type !== "supersaw") {
+      this.srcNodes.push(new OscillatorNode(this.ctx, { type, frequency }));
+    } else {
+      const voices = 7;
+      const detune = 12;
+      const type = "sawtooth";
+      for (let i = 0; i < voices; i++) {
+        const osc = new OscillatorNode(this.ctx, {
+          type,
+          frequency,
+          detune: (i / (voices - 1) - 0.5) * 2 * detune,
+        });
+        this.srcNodes.push(osc);
+      }
+    }
+  }
+
+  private getDuration(duration: number) {
+    const src = this.srcNodes[0];
+    if (src instanceof OscillatorNode) return duration;
+    else return Math.max(duration, src.buffer?.duration ?? 0);
+  }
+
   play(startTime: number, duration: number) {
     this.filters.forEach((filter) => {
       filter.apply(startTime, duration);
@@ -53,7 +103,7 @@ class DromeOscillator {
     applyEnvelope({
       target: this.gainNode.gain,
       startTime,
-      duration,
+      duration: this.getDuration(duration),
       maxVal: this.gain * this.baseGain * (this.srcNodes.length > 2 ? 0.75 : 1),
       minVal: 0,
       startVal: 0.01,
@@ -64,7 +114,7 @@ class DromeOscillator {
       const jitter = this.srcNodes.length > 1 ? Math.random() * 0.005 : 0;
       node.start(startTime + jitter);
       const releaseTime = this.env.r * duration;
-      node.stop(startTime + duration + releaseTime + 0.2);
+      node.stop(startTime + this.getDuration(duration) + releaseTime + 0.2);
     });
 
     this.startTime = startTime;
@@ -94,4 +144,5 @@ class DromeOscillator {
     return this.srcNodes[0];
   }
 }
-export default DromeOscillator;
+
+export default DromeAudioSource;

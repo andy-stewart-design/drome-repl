@@ -15,7 +15,6 @@ class DromeBuffer {
   private baseGain = 1;
   private gain: number;
   private srcNodes: AudioBufferSourceNode[] = [];
-  private sampleDuration: number;
   private env: ADSRParams;
   private startTime: number | undefined;
   private filters: Map<FilterType, FilterEffect> = new Map();
@@ -29,11 +28,11 @@ class DromeBuffer {
     this.ctx = ctx;
     this.gainNode = new GainNode(this.ctx, { gain: 0 });
     this.gain = gain;
+    this.env = env;
+
     const src = new AudioBufferSourceNode(this.ctx, { playbackRate });
     src.buffer = buffer;
-    this.sampleDuration = buffer.duration;
     this.srcNodes.push(src);
-    this.env = env;
 
     const filterNodes: BiquadFilterNode[] = [];
 
@@ -60,7 +59,7 @@ class DromeBuffer {
     applyEnvelope({
       target: this.gainNode.gain,
       startTime,
-      duration: this.sampleDuration,
+      duration: Math.max(duration, this.srcNodes[0].buffer?.duration ?? 0),
       maxVal: this.gain * this.baseGain,
       startVal: 0,
       env: this.env,
@@ -68,7 +67,8 @@ class DromeBuffer {
 
     this.srcNodes.forEach((node) => {
       node.start(startTime);
-      node.stop(startTime + Math.max(this.sampleDuration, duration) + 0.05);
+      const dur = Math.max(node.buffer?.duration ?? 0, duration);
+      node.stop(startTime + dur + 0.05);
     });
 
     this.startTime = startTime;

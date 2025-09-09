@@ -112,12 +112,12 @@ d.stack(
     code: `drome.bpm(140)
 
 drome.stack(
-  drome.sample("hh", 1).euclid(8,8).gain(0.625),
+  drome.sample("hh").euclid(8,8).gain(0.625),
   drome.sample("oh").euclid(4,8,1).gain(0.575),
   drome.sample("cp").euclid(2,4,1).gain(1.5),
 )
   
-const kick = drome.sample("bd", 2).hex("f")
+const kick = drome.sample("bd").hex("f")
 kick.push()`,
   },
   {

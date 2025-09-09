@@ -1,11 +1,14 @@
+import { drumAliases } from "./dictionaries/samples/drum-alias";
+import { scaleAliasMap } from "./dictionaries/notes/scale-alias";
+import { synthAliasMap } from "./dictionaries/synths/synth-aliases";
 import type DelayEffect from "./effects/delay";
+import type DistortionEffect from "./effects/distortion";
 import type FilterEffect from "./effects/filter";
 import type GainEffect from "./effects/gain";
 import type ReverbEffect from "./effects/reverb";
-import type DistortionEffect from "./effects/distortion";
-import { synthAliasMap } from "./dictionaries/synths/synth-aliases";
-import { scaleAliasMap } from "./dictionaries/notes/scale-alias";
-import { drumAliases } from "./dictionaries/samples/drum-alias";
+
+type Falsy = null | undefined;
+type CycleValue = number | Falsy;
 
 type OscType = Exclude<OscillatorType, "custom"> | "supersaw";
 type OscTypeAlias = keyof typeof synthAliasMap;
@@ -65,15 +68,16 @@ type SampleBank = keyof typeof drumAliases;
 
 export type {
   ADSRParams,
+  CycleValue,
   DromeAudioNode,
   FilterType,
   FilterOptions,
+  NoteName,
+  NoteValue,
+  OscTypeAlias,
+  OscType,
   SampleName,
   SampleNote,
   SampleBank,
-  OscTypeAlias,
-  OscType,
   ScaleAlias,
-  NoteName,
-  NoteValue,
 };

@@ -26,6 +26,10 @@ class DromeOscillator {
     { type, frequency, gain, env, filters }: DromeOscillatorOptions
   ) {
     this.ctx = ctx;
+    this.gainNode = new GainNode(this.ctx, { gain: 0 });
+    this.gain = gain;
+    this.env = env;
+
     if (type !== "supersaw") {
       this.oscNodes.push(new OscillatorNode(this.ctx, { type, frequency }));
     } else {
@@ -41,9 +45,6 @@ class DromeOscillator {
         this.oscNodes.push(osc);
       }
     }
-    this.gainNode = new GainNode(this.ctx, { gain: 0 });
-    this.gain = gain;
-    this.env = env;
 
     const filterNodes: BiquadFilterNode[] = [];
 
@@ -111,4 +112,5 @@ class DromeOscillator {
     return this.oscNodes[0];
   }
 }
+
 export default DromeOscillator;

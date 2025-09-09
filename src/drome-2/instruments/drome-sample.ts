@@ -5,6 +5,7 @@ import FilterEffect from "../effects/filter";
 import { drumAliases as _drumAliases } from "../dictionaries/samples/drum-alias";
 import type Drome from "../core/drome";
 import type {
+  CycleValue,
   DromeAudioNode,
   SampleBank,
   SampleName,
@@ -14,14 +15,14 @@ import type {
 const drumMachines: Record<string, string | string[]> = _drumMachines;
 const drumAliases: Record<string, string> = _drumAliases;
 
-class DromeSample extends DromeInstrument<number> {
+class DromeSample extends DromeInstrument {
   private sampleNames: SampleName[];
   private sampleBank: SampleBank = "rolandtr909";
   private sources: Set<DromeBuffer> = new Set();
   private _playbackRate = 1;
 
   constructor(drome: Drome, dest: DromeAudioNode, ...names: SampleNote[]) {
-    super(drome, dest, [[1]]);
+    super(drome, dest, "sample");
     if (names.length) this.sampleNames = names;
     else this.sampleNames = ["bd"];
   }
@@ -87,7 +88,7 @@ class DromeSample extends DromeInstrument<number> {
     const startTime = this.drome.barStartTime;
     const noteDuration = this.drome.barDuration / cycle.length;
 
-    const play = async (note: number, i: number) => {
+    const play = async (note: CycleValue, i: number) => {
       if (!note) return;
       this.sampleNames.forEach(async (name) => {
         let [buffer] = await this.loadSample(name);

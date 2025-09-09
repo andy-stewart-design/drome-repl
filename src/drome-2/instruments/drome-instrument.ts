@@ -1,24 +1,22 @@
 import DelayEffect from "../effects/delay";
-import ReverbEffect from "../effects/reverb";
 import DistortionEffect from "../effects/distortion";
 import GainEffect from "../effects/gain";
+import ReverbEffect from "../effects/reverb";
 import { euclid } from "../utils/euclid-2";
+import { hex } from "../utils/hex";
+import type Drome from "../core/drome";
 import type {
   ADSRParams,
+  CycleValue,
   DromeAudioNode,
   FilterOptions,
   FilterType,
 } from "../types";
-import { hex } from "../utils/hex";
-import type Drome from "../core/drome";
 
-type falsy = null | undefined;
-// type cycleValue = number | falsy;
-
-class DromeInstrument<T extends number | falsy> {
+class DromeInstrument {
   readonly drome: Drome;
   private _destination: DromeAudioNode;
-  public cycles: (T | T[])[][] = [];
+  public cycles: (CycleValue | CycleValue[])[][];
 
   public _gain = 1;
   readonly _filters: Map<FilterType, FilterOptions> = new Map();
@@ -31,12 +29,13 @@ class DromeInstrument<T extends number | falsy> {
   constructor(
     drome: Drome,
     destination: DromeAudioNode,
-    defaultCycles: (T | T[])[][]
+    type: "synth" | "sample"
   ) {
     this.drome = drome;
     this._destination = destination;
     this._postgain = new GainEffect(this.drome.ctx, 1);
-    this.cycles = defaultCycles;
+    if (type === "synth") this.cycles = [];
+    else this.cycles = [[1]];
   }
 
   /* ----------------------------------------------------------------
@@ -44,14 +43,15 @@ class DromeInstrument<T extends number | falsy> {
   ---------------------------------------------------------------- */
 
   private applyPattern(patterns: number[][]) {
-    const loops = Math.max(this.cycles.length, patterns.length);
-    const nextCycles: (T | T[])[][] = [];
+    const cycles = this.cycles.length ? this.cycles : [[60]];
+    const loops = Math.max(cycles.length, patterns.length);
+    const nextCycles: (CycleValue | CycleValue[])[][] = [];
 
     for (let i = 0; i < loops; i++) {
       let noteIndex = 0;
-      const cycle = this.cycles[i % this.cycles.length];
+      const cycle = cycles[i % cycles.length];
       const nextCycle = patterns[i % patterns.length].map((p) =>
-        p === 0 ? (null as T) : cycle[noteIndex++ % cycle.length]
+        p === 0 ? (null as CycleValue) : cycle[noteIndex++ % cycle.length]
       );
       nextCycles.push(nextCycle);
     }
@@ -59,7 +59,7 @@ class DromeInstrument<T extends number | falsy> {
     return nextCycles;
   }
 
-  note(...cycles: (T | T[] | T[][])[]) {
+  note(...cycles: (CycleValue | CycleValue[] | CycleValue[][])[]) {
     this.cycles = cycles.map((cycle) =>
       Array.isArray(cycle) ? cycle : [cycle]
     );
@@ -67,7 +67,9 @@ class DromeInstrument<T extends number | falsy> {
     return this;
   }
 
-  arrange(...arrangements: [number, T | T[] | T[][]][]) {
+  arrange(
+    ...arrangements: [number, CycleValue | CycleValue[] | CycleValue[][]][]
+  ) {
     let nextCycles: typeof this.cycles = [];
 
     for (const arr of arrangements) {
@@ -82,7 +84,6 @@ class DromeInstrument<T extends number | falsy> {
 
   euclid(pulses: number | number[], steps: number, rotation = 0) {
     this.cycles = this.applyPattern(euclid(pulses, steps, rotation));
-    console.log(this.cycles);
 
     return this;
   }
@@ -124,20 +125,20 @@ class DromeInstrument<T extends number | falsy> {
 
   slow(n: number) {
     if (n <= 1) return this;
-    const nextCycles: (T | T[])[][] = [];
+    const nextCycles: (CycleValue | CycleValue[])[][] = [];
 
     for (const cycle of this.cycles) {
       const chunkSize = Math.ceil((cycle.length * n) / n); // equals cycle.length
 
       // Create n chunks directly
       for (let k = 0; k < n; k++) {
-        const chunk: (T | T[])[] = [];
+        const chunk: (CycleValue | CycleValue[])[] = [];
         const startPos = k * chunkSize;
         const endPos = Math.min((k + 1) * chunkSize, cycle.length * n);
 
         for (let pos = startPos; pos < endPos; pos++) {
           if (pos % n === 0) chunk.push(cycle[pos / n]);
-          else chunk.push(null as T);
+          else chunk.push(null as CycleValue);
         }
 
         nextCycles.push(chunk);
