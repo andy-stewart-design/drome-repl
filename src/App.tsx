@@ -5,7 +5,13 @@ import { examples } from "@/assets/examples";
 import { basicSetup } from "codemirror";
 import { EditorView, keymap } from "@codemirror/view";
 import { indentWithTab } from "@codemirror/commands";
-import { javascript, theme, flash, flashField } from "./codemirror";
+import {
+  javascript,
+  theme,
+  flash,
+  flashField,
+  autocomplete,
+} from "./codemirror";
 import type { Metronome } from "./drome/audio-clock";
 
 export type LogType = "input" | "output" | "error";
@@ -14,10 +20,6 @@ interface ReplLog {
   type: LogType;
   message: string;
 }
-
-// drome.stack(
-//   drome.synth("saw").note(48).adsr(0.01, 1, 0.5, 0).lpf(500).euclid(4, 4)
-// );
 
 const LS_KEY = "drome_sketch";
 
@@ -70,6 +72,7 @@ function App() {
         javascript(),
         theme,
         flashField,
+        autocomplete,
       ],
     });
     setEditor(view);
