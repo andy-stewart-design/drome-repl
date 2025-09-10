@@ -56,8 +56,8 @@ class Drome extends AudioClock {
     return new DromeSynth(this, this.audioChannels[0], ...types);
   }
 
-  public sample(name?: SampleNote) {
-    return new DromeSample(this, this.audioChannels[1], name);
+  public sample(...name: SampleNote[]) {
+    return new DromeSample(this, this.audioChannels[1], ...name);
   }
 
   public cleanup() {

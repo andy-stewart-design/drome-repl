@@ -6,8 +6,9 @@ const examples = [
   {
     title: "Roots & Scales",
     code: `d.stack(
-  d.synth("sq").root("c5").scale("maj").note([0,2,4,6],[-2,0,2,4])
-    .euclid(4,8).fast(4).adsr(0,1,0.75,0).lpf(1000),
+  d.synth("saw").root("c5").scale("maj").note([0,2,4,6],[-2,0,2,4])
+    .euclid(4,8).fast(4).adsr(0,1,0.75,0).lpf(1000).lpenv(2,0,0.333,0.125,0.1)
+    .postgain(1.25),
   d.synth("saw").root("c4").scale("maj").note([[0,2,4,6]],[[-2,0,2,4]])
     .hex("ff").stretch(2)
     .adsr(0.25, 0.25, 0.5, 0.1)
@@ -16,9 +17,9 @@ const examples = [
   d.synth("saw","sine").root("c3").scale("maj").note([[-7,0]],[[-9,-2]])
     .euclid(8,8).stretch(2)
     .lpf(300).lpenv(2,0.25,0.25,0.5,0).postgain(0.75),
-  d.sample("bd:3").euclid([3, 5], 8).reverb(0.1),
+  d.sample("bd:3").euclid([3,5], 8).reverb(0.1),
   d.sample("hh:4").hex("ff").gain(0.375),
-  d.sample("oh:1").euclid(4, 8, 1).gain(0.5)
+  d.sample("oh:1").euclid(4,8,1).gain(0.5)
 )`,
   },
   {
@@ -89,12 +90,12 @@ d.stack(
   {
     title: "Multiple speeds",
     code: `drome.stack(
-  drome.synth("sawtooth") // can use either "saw" or "sawtooth"
-    .note(57).euclid(3,8).adsr(0.01,0.666,0.1,0.01)
-    .lpf(1600).gain(2).delay(0.25).reverb(0.5), 
-  drome.synth("saw").note([43,43,43,50,43,43,53,54])
-    .lpf(300).lpenv(2,0.01,0.75,0.5,0.1)
-    .fast(2).gain(3).reverb(0.25),
+  drome.synth("saw") // can use either "saw" or "sawtooth"
+    .note(57).euclid(3,8).adsr(0,1,0.5,0.1)
+    .lpf(800).lpenv(2).delay(0.2).reverb(0.5).postgain(1.25), 
+  drome.synth("sq").note([43,43,43,50,43,43,53,54])
+    .lpf(300).lpenv(2,0,0.5,0.5,0.1)
+    .fast(2).gain(2).reverb(0.25),
 )`,
   },
   //   {
@@ -107,24 +108,16 @@ d.stack(
   // )`,
   //   },
   {
-    title: "Chords and melodies",
-    code: `drome.synth("saw").note([48,52,43],[50,53,45]).reverb(0.25).lpf(400).adsr(0.01,0.9).push() 
-
-drome.synth("sq").note([[60,64,67]],[[62,65,69]]).lpf(600).adsr(0.01,0.9).gain(0.875).push() 
-
-drome.synth("saw").note([72,76,79,81,79,76]).adsr(0.01,0.75,0.1,0.01).fast(2).lpf(1000).lpenv(3,0.333,0.666,0.1,0.01).gain(0.875).push()`,
-  },
-  {
     title: "Samples",
     code: `drome.bpm(140)
 
 drome.stack(
-  drome.sample("hh", 1).euclid(8,8).gain(0.625),
+  drome.sample("hh").euclid(8,8).gain(0.625),
   drome.sample("oh").euclid(4,8,1).gain(0.575),
   drome.sample("cp").euclid(2,4,1).gain(1.5),
 )
   
-const kick = drome.sample("bd", 2).hex("f")
+const kick = drome.sample("bd").hex("f")
 kick.push()`,
   },
   {
@@ -136,9 +129,9 @@ drome.synth("saw").note(69).adsr(0.01, 0.99, 0.75, 0.1).struct(risset).bpf(800).
 drome.synth("saw").note(45).adsr(0.95, 0.05, 0.25, 0.1).lpf(200).lpenv(3).euclid(4,4).gain(1.5).push()
 
 d.stack(
-  drome.sample("bd").bank("RolandTR909").euclid(4,4),
-  drome.sample("hh").bank("RolandTR808").euclid(4,8,1).gain(0.75),
-  drome.sample("cp").bank("RolandTR808").euclid(2,4,1).gain(0.75),
+  drome.sample("bd").bank("tr909").euclid(4,4),
+  drome.sample("hh").bank("tr808").euclid(4,8,1).gain(0.75),
+  drome.sample("cp").bank("tr808").euclid(2,4,1).gain(0.75),
 )`,
   },
 ];

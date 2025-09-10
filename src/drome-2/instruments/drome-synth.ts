@@ -1,10 +1,11 @@
 import DromeInstrument from "./drome-instrument";
-import DromeOscillator from "./drome-oscillator";
-import FilterEffect from "../effects/filter";
+import DromeAudioSource from "./drome-audio-source-node";
 import { midiToFreq } from "../utils/midi-to-frequency";
+import { noteToMidi } from "../utils/note-name-to-midi";
 import { scaleAliasMap } from "../dictionaries/notes/scale-alias";
 import { synthAliasMap } from "../dictionaries/synths/synth-aliases";
 import type {
+  CycleValue,
   DromeAudioNode,
   NoteName,
   NoteValue,
@@ -13,27 +14,20 @@ import type {
   ScaleAlias,
 } from "../types";
 import type Drome from "../core/drome";
-import { noteToMidi } from "../utils/note-name-to-midi";
 
-const DEFAULT_CYCLES = [[60]];
-
-class DromeSynth extends DromeInstrument<number> {
-  private type: OscType[] = [];
-  private oscillators: Set<DromeOscillator> = new Set();
+class DromeSynth extends DromeInstrument {
+  private waveforms: OscType[] = [];
+  private oscillators: Set<DromeAudioSource> = new Set();
   private rootNote = 0;
   private _scale: number[] | null = null;
 
-  constructor(
-    drome: Drome,
-    destination: DromeAudioNode,
-    ...types: OscTypeAlias[]
-  ) {
-    super(drome, destination);
+  constructor(drome: Drome, dest: DromeAudioNode, ...types: OscTypeAlias[]) {
+    super(drome, dest, "synth");
     if (types.length === 0) {
-      this.type.push("sine");
+      this.waveforms.push("sine");
     } else {
       types.forEach((type) => {
-        this.type.push(synthAliasMap[type]);
+        this.waveforms.push(synthAliasMap[type]);
       });
     }
   }
@@ -49,12 +43,9 @@ class DromeSynth extends DromeInstrument<number> {
   }
 
   root(n: NoteName | NoteValue | number) {
-    if (typeof n === "number") {
-      this.rootNote = n;
-    } else {
-      const note = noteToMidi(n);
-      if (note) this.rootNote = note;
-    }
+    if (typeof n === "number") this.rootNote = n;
+    else this.rootNote = noteToMidi(n) || 0;
+
     if (!this.cycles.length) this.cycles = [[0]];
     return this;
   }
@@ -72,27 +63,32 @@ class DromeSynth extends DromeInstrument<number> {
   start() {
     const nodes = super.connectChain();
     const cycleIndex = this.drome.metronome.bar % (this.cycles.length || 1);
-    const cycle = this.cycles[cycleIndex] || DEFAULT_CYCLES[cycleIndex];
-
+    const cycle = this.cycles[cycleIndex] || [[60]];
     const startTime = this.drome.barStartTime;
     const noteOffset = this.drome.barDuration / cycle.length;
-    const noteDuration = noteOffset + this._env.r;
+    const noteDuration = Math.max(noteOffset + this._env.r, 0.125);
 
-    const play = (note: number, i: number) => {
+    const play = (note: CycleValue, i: number) => {
       if (typeof note !== "number") return;
 
-      nodes.forEach((node) => {
-        if (!(node instanceof FilterEffect)) return;
-        node.apply(startTime + noteOffset * i, noteDuration);
-      });
-
       const frequency = this.getFrequency(note);
-      this.type.forEach((type) => {
-        const osc = new DromeOscillator(this.drome.ctx, nodes[0].input, {
-          type,
+
+      this.waveforms.forEach((type) => {
+        // const osc = new DromeOscillator(this.drome.ctx, nodes[0].input, {
+        //   type,
+        //   frequency,
+        //   env: this._env,
+        //   gain: this._gain,
+        //   filters: this._filters,
+        // });
+
+        const osc = new DromeAudioSource(this.drome.ctx, nodes[0].input, {
+          type: "oscillator",
+          waveform: type,
           frequency,
           env: this._env,
           gain: this._gain,
+          filters: this._filters,
         });
 
         osc.play(startTime + noteOffset * i, noteDuration);

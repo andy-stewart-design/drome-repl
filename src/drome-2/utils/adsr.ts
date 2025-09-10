@@ -27,12 +27,12 @@ function applyEnvelope({
   // Cancel anything that was already scheduled
   target.cancelAndHoldAtTime(startTime);
 
-  const attDur = clamp(adsr.a, 0.01, 0.98) * duration;
+  const attDur = Math.max(clamp(adsr.a, 0.01, 0.98) * duration, 0.01);
   const attEnd = startTime + attDur;
-  const decDur = clamp(adsr.d, 0.01, 0.98) * duration;
+  const decDur = Math.max(clamp(adsr.d, 0.01, 0.98) * duration, 0.01);
   const decEnd = attEnd + decDur;
   const susVal = maxVal * Math.max(adsr.s, 0.01);
-  const susEnd = startTime + duration;
+  const susEnd = startTime + duration + 0.01;
   const relDur = adsr.r * duration;
   const relEnd = susEnd + relDur;
 

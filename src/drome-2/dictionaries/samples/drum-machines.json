@@ -1,5 +1,95 @@
 {
   "_base": "https://raw.githubusercontent.com/ritchse/tidal-drum-machines/main/machines/",
+  "RolandTR505_bd": ["RolandTR505/rolandtr505-bd/Bassdrum.wav"],
+  "RolandTR505_cb": [
+    "RolandTR505/rolandtr505-cb/Cowbell H.wav",
+    "RolandTR505/rolandtr505-cb/Cowbell L.wav"
+  ],
+  "RolandTR505_cp": ["RolandTR505/rolandtr505-cp/Clap.wav"],
+  "RolandTR505_cr": ["RolandTR505/rolandtr505-cr/Crash.wav"],
+  "RolandTR505_hh": ["RolandTR505/rolandtr505-hh/Hat Closed.wav"],
+  "RolandTR505_ht": ["RolandTR505/rolandtr505-ht/Tom H.wav"],
+  "RolandTR505_lt": ["RolandTR505/rolandtr505-lt/Tom L.wav"],
+  "RolandTR505_mt": ["RolandTR505/rolandtr505-mt/Tom M.wav"],
+  "RolandTR505_oh": ["RolandTR505/rolandtr505-oh/Hat Open.wav"],
+  "RolandTR505_perc": [
+    "RolandTR505/rolandtr505-perc/Conga H.wav",
+    "RolandTR505/rolandtr505-perc/Conga L.wav",
+    "RolandTR505/rolandtr505-perc/Timbale.wav"
+  ],
+  "RolandTR505_rd": ["RolandTR505/rolandtr505-rd/Ride.wav"],
+  "RolandTR505_rim": ["RolandTR505/rolandtr505-rim/Rimshot.wav"],
+  "RolandTR505_sd": ["RolandTR505/rolandtr505-sd/Snaredrum.wav"],
+  "RolandTR606_bd": ["RolandTR606/rolandtr606-bd/Bassdrum.wav"],
+  "RolandTR606_cr": ["RolandTR606/rolandtr606-cr/Cymbal.wav"],
+  "RolandTR606_hh": ["RolandTR606/rolandtr606-hh/Hat Closed.wav"],
+  "RolandTR606_ht": ["RolandTR606/rolandtr606-ht/Tom H.wav"],
+  "RolandTR606_lt": ["RolandTR606/rolandtr606-lt/Tom L.wav"],
+  "RolandTR606_oh": ["RolandTR606/rolandtr606-oh/Hat Open.wav"],
+  "RolandTR606_sd": ["RolandTR606/rolandtr606-sd/Snaredrum.wav"],
+  "RolandTR626_bd": [
+    "RolandTR626/rolandtr626-bd/Bassdrum-01.wav",
+    "RolandTR626/rolandtr626-bd/Bassdrum-02.wav"
+  ],
+  "RolandTR626_cb": ["RolandTR626/rolandtr626-cb/Cowbell.wav"],
+  "RolandTR626_cp": ["RolandTR626/rolandtr626-cp/Clap.wav"],
+  "RolandTR626_cr": [
+    "RolandTR626/rolandtr626-cr/Crash.wav",
+    "RolandTR626/rolandtr626-cr/zChina.wav"
+  ],
+  "RolandTR626_hh": ["RolandTR626/rolandtr626-hh/Hat Closed.wav"],
+  "RolandTR626_ht": [
+    "RolandTR626/rolandtr626-ht/Tom H-01.wav",
+    "RolandTR626/rolandtr626-ht/Tom H-02.wav"
+  ],
+  "RolandTR626_lt": [
+    "RolandTR626/rolandtr626-lt/Tom L-01.wav",
+    "RolandTR626/rolandtr626-lt/Tom L-02.wav"
+  ],
+  "RolandTR626_mt": [
+    "RolandTR626/rolandtr626-mt/Tom M-01.wav",
+    "RolandTR626/rolandtr626-mt/Tom M-02.wav"
+  ],
+  "RolandTR626_oh": ["RolandTR626/rolandtr626-oh/Hat Open.wav"],
+  "RolandTR626_perc": [
+    "RolandTR626/rolandtr626-perc/Agogo H.wav",
+    "RolandTR626/rolandtr626-perc/Agogo L.wav",
+    "RolandTR626/rolandtr626-perc/Clave.wav",
+    "RolandTR626/rolandtr626-perc/Conga H.wav",
+    "RolandTR626/rolandtr626-perc/Conga L.wav",
+    "RolandTR626/rolandtr626-perc/Conga M.wav",
+    "RolandTR626/rolandtr626-perc/Timbale H.wav",
+    "RolandTR626/rolandtr626-perc/Timbale L.wav"
+  ],
+  "RolandTR626_rd": [
+    "RolandTR626/rolandtr626-rd/Ride-01.wav",
+    "RolandTR626/rolandtr626-rd/Ride-02.wav"
+  ],
+  "RolandTR626_rim": ["RolandTR626/rolandtr626-rim/Rimshot.wav"],
+  "RolandTR626_sd": [
+    "RolandTR626/rolandtr626-sd/Snaredrum-01.wav",
+    "RolandTR626/rolandtr626-sd/Snaredrum-02.wav",
+    "RolandTR626/rolandtr626-sd/Snaredrum-03.wav"
+  ],
+  "RolandTR626_sh": ["RolandTR626/rolandtr626-sh/Shaker.wav"],
+  "RolandTR626_tb": ["RolandTR626/rolandtr626-tb/Tambourine.wav"],
+  "RolandTR707_bd": [
+    "RolandTR707/rolandtr707-bd/Bassdrum-01.wav",
+    "RolandTR707/rolandtr707-bd/Bassdrum-02.wav"
+  ],
+  "RolandTR707_cb": ["RolandTR707/rolandtr707-cb/Cowbell.wav"],
+  "RolandTR707_cp": ["RolandTR707/rolandtr707-cp/Clap.wav"],
+  "RolandTR707_cr": ["RolandTR707/rolandtr707-cr/Crash.wav"],
+  "RolandTR707_hh": ["RolandTR707/rolandtr707-hh/Hat Closed.wav"],
+  "RolandTR707_ht": ["RolandTR707/rolandtr707-ht/Tom H.wav"],
+  "RolandTR707_lt": ["RolandTR707/rolandtr707-lt/Tom L.wav"],
+  "RolandTR707_mt": ["RolandTR707/rolandtr707-mt/Tom M.wav"],
+  "RolandTR707_oh": ["RolandTR707/rolandtr707-oh/Hat Open.wav"],
+  "RolandTR707_rim": ["RolandTR707/rolandtr707-rim/Rimshot.wav"],
+  "RolandTR707_sd": [
+    "RolandTR707/rolandtr707-sd/Snaredrum-01.wav",
+    "RolandTR707/rolandtr707-sd/Snaredrum-02.wav"
+  ],
   "RolandTR808_bd": [
     "RolandTR808/rolandtr808-bd/BD0000.WAV",
     "RolandTR808/rolandtr808-bd/BD0010.WAV",

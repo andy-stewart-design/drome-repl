@@ -1,3 +1,42 @@
+import { autocompletion, CompletionContext } from "@codemirror/autocomplete";
+const rawSuggestions = ["tr505", "tr606", "tr626", "tr707", "tr808", "tr909"];
+
+function bankCompletionSource(context: CompletionContext) {
+  // Match: bank(   or bank("text
+  const before = context.matchBefore(/bank\(\s*"?.*$/);
+  if (!before) return null;
+  if (before.from === before.to && !context.explicit) return null;
+
+  // Check if there's a closing paren before the next period on the current line
+  const restOfLine = context.state.sliceDoc(before.to).split("\n")[0];
+  const nextPeriodIndex = restOfLine.indexOf(".");
+  const hasClosingParen =
+    nextPeriodIndex === -1
+      ? /\)/.test(restOfLine) // If no period, just check for closing paren
+      : /\)/.test(restOfLine.slice(0, nextPeriodIndex)); // Check for closing paren before the period
+  // Detect if user already typed a quote
+  const hasQuote = /bank\(\s*"/.test(before.text);
+
+  const completion = (str: string) => {
+    const label = hasQuote ? str : `"${str}"`;
+    const paren = hasClosingParen ? "" : ")";
+    return `${label}${paren}`;
+  };
+
+  return {
+    from: before.from + "bank(".length + (hasQuote ? 1 : 0),
+    options: rawSuggestions.map((label) => ({
+      label,
+      type: "text",
+      apply: completion(label),
+    })),
+  };
+}
+
+const autocomplete = autocompletion({ override: [bankCompletionSource] });
+
+export { autocomplete };
+
 // import {
 //   NodeWeakMap,
 //   type SyntaxNodeRef,

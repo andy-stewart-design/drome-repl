@@ -1,25 +1,22 @@
 import DelayEffect from "../effects/delay";
-import FilterEffect from "../effects/filter";
-import ReverbEffect from "../effects/reverb";
 import DistortionEffect from "../effects/distortion";
 import GainEffect from "../effects/gain";
+import ReverbEffect from "../effects/reverb";
 import { euclid } from "../utils/euclid-2";
+import { hex } from "../utils/hex";
+import type Drome from "../core/drome";
 import type {
   ADSRParams,
+  CycleValue,
   DromeAudioNode,
   FilterOptions,
   FilterType,
-  // SampleNote,
 } from "../types";
-import { hex } from "../utils/hex";
-import type Drome from "../core/drome";
 
-type falsy = null | undefined;
-
-class DromeInstrument<T extends string | number | falsy> {
+class DromeInstrument {
   readonly drome: Drome;
   private _destination: DromeAudioNode;
-  public cycles: (T | T[])[][] = [];
+  public cycles: (CycleValue | CycleValue[])[][];
 
   public _gain = 1;
   readonly _filters: Map<FilterType, FilterOptions> = new Map();
@@ -29,10 +26,16 @@ class DromeInstrument<T extends string | number | falsy> {
   private _postgain: GainEffect;
   readonly _env: ADSRParams = { a: 0.001, d: 0.125, s: 1.0, r: 0.01 };
 
-  constructor(drome: Drome, destination: DromeAudioNode) {
+  constructor(
+    drome: Drome,
+    destination: DromeAudioNode,
+    type: "synth" | "sample"
+  ) {
     this.drome = drome;
     this._destination = destination;
     this._postgain = new GainEffect(this.drome.ctx, 1);
+    if (type === "synth") this.cycles = [];
+    else this.cycles = [[1]];
   }
 
   /* ----------------------------------------------------------------
@@ -40,14 +43,15 @@ class DromeInstrument<T extends string | number | falsy> {
   ---------------------------------------------------------------- */
 
   private applyPattern(patterns: number[][]) {
-    const loops = Math.max(this.cycles.length, patterns.length);
-    const nextCycles: (T | T[])[][] = [];
+    const cycles = this.cycles.length ? this.cycles : [[60]];
+    const loops = Math.max(cycles.length, patterns.length);
+    const nextCycles: (CycleValue | CycleValue[])[][] = [];
 
     for (let i = 0; i < loops; i++) {
       let noteIndex = 0;
-      const cycle = this.cycles[i % this.cycles.length];
+      const cycle = cycles[i % cycles.length];
       const nextCycle = patterns[i % patterns.length].map((p) =>
-        p === 0 ? (null as T) : cycle[noteIndex++ % cycle.length]
+        p === 0 ? (null as CycleValue) : cycle[noteIndex++ % cycle.length]
       );
       nextCycles.push(nextCycle);
     }
@@ -55,7 +59,7 @@ class DromeInstrument<T extends string | number | falsy> {
     return nextCycles;
   }
 
-  note(...cycles: (T | T[] | T[][])[]) {
+  note(...cycles: (CycleValue | CycleValue[] | CycleValue[][])[]) {
     this.cycles = cycles.map((cycle) =>
       Array.isArray(cycle) ? cycle : [cycle]
     );
@@ -63,7 +67,9 @@ class DromeInstrument<T extends string | number | falsy> {
     return this;
   }
 
-  arrange(...arrangements: [number, T | T[] | T[][]][]) {
+  arrange(
+    ...arrangements: [number, CycleValue | CycleValue[] | CycleValue[][]][]
+  ) {
     let nextCycles: typeof this.cycles = [];
 
     for (const arr of arrangements) {
@@ -78,6 +84,7 @@ class DromeInstrument<T extends string | number | falsy> {
 
   euclid(pulses: number | number[], steps: number, rotation = 0) {
     this.cycles = this.applyPattern(euclid(pulses, steps, rotation));
+
     return this;
   }
 
@@ -118,20 +125,20 @@ class DromeInstrument<T extends string | number | falsy> {
 
   slow(n: number) {
     if (n <= 1) return this;
-    const nextCycles: (T | T[])[][] = [];
+    const nextCycles: (CycleValue | CycleValue[])[][] = [];
 
     for (const cycle of this.cycles) {
       const chunkSize = Math.ceil((cycle.length * n) / n); // equals cycle.length
 
       // Create n chunks directly
       for (let k = 0; k < n; k++) {
-        const chunk: (T | T[])[] = [];
+        const chunk: (CycleValue | CycleValue[])[] = [];
         const startPos = k * chunkSize;
         const endPos = Math.min((k + 1) * chunkSize, cycle.length * n);
 
         for (let pos = startPos; pos < endPos; pos++) {
           if (pos % n === 0) chunk.push(cycle[pos / n]);
-          else chunk.push(null as T);
+          else chunk.push(null as CycleValue);
         }
 
         nextCycles.push(chunk);
@@ -196,7 +203,7 @@ class DromeInstrument<T extends string | number | falsy> {
   bpenv(depth: number, a?: number, d?: number, s?: number, r?: number) {
     const adsr =
       typeof a === "number"
-        ? { a, d: d || this._env.d, s: s || this._env.s, r: r || this._env.r }
+        ? { a, d: d ?? this._env.d, s: s ?? this._env.s, r: r ?? this._env.r }
         : undefined;
     this.updateFilter("bandpass", depth, adsr);
     return this;
@@ -210,7 +217,7 @@ class DromeInstrument<T extends string | number | falsy> {
   hpenv(depth: number, a?: number, d?: number, s?: number, r?: number) {
     const adsr =
       typeof a === "number"
-        ? { a, d: d || this._env.d, s: s || this._env.s, r: r || this._env.r }
+        ? { a, d: d ?? this._env.d, s: s ?? this._env.s, r: r ?? this._env.r }
         : undefined;
     this.updateFilter("highpass", depth, adsr);
     return this;
@@ -224,7 +231,7 @@ class DromeInstrument<T extends string | number | falsy> {
   lpenv(depth: number, a?: number, d?: number, s?: number, r?: number) {
     const adsr =
       typeof a === "number"
-        ? { a, d: d || this._env.d, s: s || this._env.s, r: r || this._env.r }
+        ? { a, d: d ?? this._env.d, s: s ?? this._env.s, r: r ?? this._env.r }
         : undefined;
     this.updateFilter("lowpass", depth, adsr);
     return this;
@@ -250,16 +257,10 @@ class DromeInstrument<T extends string | number | falsy> {
   }
 
   connectChain() {
-    const filters = [...(this._filters?.values() ?? [])].map((opts) => {
-      if (opts.env && !opts.env.adsr) opts.env.adsr = { ...this._env };
-      return new FilterEffect(this.drome.ctx, opts);
-    });
-
     const nodes = [
-      ...filters,
       this._distortion,
-      this._reverb,
       this._delay,
+      this._reverb,
       this._postgain,
       this._destination,
     ].filter(isAudioNode);
@@ -303,7 +304,3 @@ const isAudioNode = (
 ): node is DromeAudioNode => {
   return node !== undefined;
 };
-
-// function isNested(arr: number[] | number[][]): arr is number[][] {
-//   return Array.isArray(arr[0]);
-// }
