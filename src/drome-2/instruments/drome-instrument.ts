@@ -203,7 +203,7 @@ class DromeInstrument {
   bpenv(depth: number, a?: number, d?: number, s?: number, r?: number) {
     const adsr =
       typeof a === "number"
-        ? { a, d: d || this._env.d, s: s || this._env.s, r: r || this._env.r }
+        ? { a, d: d ?? this._env.d, s: s ?? this._env.s, r: r ?? this._env.r }
         : undefined;
     this.updateFilter("bandpass", depth, adsr);
     return this;
@@ -217,7 +217,7 @@ class DromeInstrument {
   hpenv(depth: number, a?: number, d?: number, s?: number, r?: number) {
     const adsr =
       typeof a === "number"
-        ? { a, d: d || this._env.d, s: s || this._env.s, r: r || this._env.r }
+        ? { a, d: d ?? this._env.d, s: s ?? this._env.s, r: r ?? this._env.r }
         : undefined;
     this.updateFilter("highpass", depth, adsr);
     return this;
@@ -231,7 +231,7 @@ class DromeInstrument {
   lpenv(depth: number, a?: number, d?: number, s?: number, r?: number) {
     const adsr =
       typeof a === "number"
-        ? { a, d: d || this._env.d, s: s || this._env.s, r: r || this._env.r }
+        ? { a, d: d ?? this._env.d, s: s ?? this._env.s, r: r ?? this._env.r }
         : undefined;
     this.updateFilter("lowpass", depth, adsr);
     return this;

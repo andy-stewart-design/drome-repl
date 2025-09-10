@@ -25,7 +25,7 @@ type DromeAudioSourceOptions = DromeOscillatorOptions | DromeBufferOptions;
 class DromeAudioSource {
   private ctx: AudioContext;
   private gainNode: GainNode;
-  private baseGain = 0.35;
+  private baseGain: number;
   private gain: number;
   private srcNodes: (OscillatorNode | AudioBufferSourceNode)[] = [];
   private env: ADSRParams;
@@ -41,6 +41,7 @@ class DromeAudioSource {
     this.gainNode = new GainNode(this.ctx, { gain: 0 });
     this.gain = opts.gain;
     this.env = opts.env;
+    this.baseGain = opts.type === "oscillator" ? 0.35 : 1;
 
     if (opts.type === "oscillator") {
       this.createOscillator(opts.waveform, opts.frequency);
@@ -128,14 +129,11 @@ class DromeAudioSource {
     if (this.startTime > this.ctx.currentTime) {
       this.srcNodes.forEach((osc) => osc.stop());
     } else {
-      // Cancel any scheduled value changes after the stop time
       this.gainNode.gain.cancelScheduledValues(stopTime);
 
-      // Apply a quick release envelope to avoid clicks
       this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, stopTime);
       this.gainNode.gain.linearRampToValueAtTime(0, stopTime + releaseTime);
 
-      // Stop the oscillator after the release
       this.srcNodes.forEach((osc) => osc.stop(stopTime + releaseTime));
     }
   }

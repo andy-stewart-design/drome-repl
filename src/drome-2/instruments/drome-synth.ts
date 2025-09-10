@@ -1,5 +1,5 @@
 import DromeInstrument from "./drome-instrument";
-import DromeOscillator from "./drome-oscillator";
+import DromeAudioSource from "./drome-audio-source-node";
 import { midiToFreq } from "../utils/midi-to-frequency";
 import { noteToMidi } from "../utils/note-name-to-midi";
 import { scaleAliasMap } from "../dictionaries/notes/scale-alias";
@@ -14,11 +14,10 @@ import type {
   ScaleAlias,
 } from "../types";
 import type Drome from "../core/drome";
-// import { transpose } from "../utils/transpose";
 
 class DromeSynth extends DromeInstrument {
   private waveforms: OscType[] = [];
-  private oscillators: Set<DromeOscillator> = new Set();
+  private oscillators: Set<DromeAudioSource> = new Set();
   private rootNote = 0;
   private _scale: number[] | null = null;
 
@@ -44,16 +43,9 @@ class DromeSynth extends DromeInstrument {
   }
 
   root(n: NoteName | NoteValue | number) {
-    if (typeof n === "number") {
-      this.rootNote = n;
-      // this.cycles = transpose(this.cycles, n);
-    } else {
-      const note = noteToMidi(n);
-      if (note) {
-        this.rootNote = note;
-        // this.cycles = transpose(this.cycles, note);
-      }
-    }
+    if (typeof n === "number") this.rootNote = n;
+    else this.rootNote = noteToMidi(n) || 0;
+
     if (!this.cycles.length) this.cycles = [[0]];
     return this;
   }
@@ -82,8 +74,17 @@ class DromeSynth extends DromeInstrument {
       const frequency = this.getFrequency(note);
 
       this.waveforms.forEach((type) => {
-        const osc = new DromeOscillator(this.drome.ctx, nodes[0].input, {
-          type,
+        // const osc = new DromeOscillator(this.drome.ctx, nodes[0].input, {
+        //   type,
+        //   frequency,
+        //   env: this._env,
+        //   gain: this._gain,
+        //   filters: this._filters,
+        // });
+
+        const osc = new DromeAudioSource(this.drome.ctx, nodes[0].input, {
+          type: "oscillator",
+          waveform: type,
           frequency,
           env: this._env,
           gain: this._gain,
