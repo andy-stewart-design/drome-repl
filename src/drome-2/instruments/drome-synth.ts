@@ -1,5 +1,5 @@
 import DromeInstrument from "./drome-instrument";
-import DromeAudioSource from "./drome-audio-source-node";
+import DromeAudioSource from "./drome-audio-source";
 import { midiToFreq } from "../utils/midi-to-frequency";
 import { noteToMidi } from "../utils/note-name-to-midi";
 import { scaleAliasMap } from "../dictionaries/notes/scale-alias";
@@ -74,20 +74,12 @@ class DromeSynth extends DromeInstrument {
       const frequency = this.getFrequency(note);
 
       this.waveforms.forEach((type) => {
-        // const osc = new DromeOscillator(this.drome.ctx, nodes[0].input, {
-        //   type,
-        //   frequency,
-        //   env: this._env,
-        //   gain: this._gain,
-        //   filters: this._filters,
-        // });
-
         const osc = new DromeAudioSource(this.drome.ctx, nodes[0].input, {
           type: "oscillator",
           waveform: type,
           frequency,
           env: this._env,
-          gain: this._gain,
+          gain: this.getCurrentGain(cycleIndex, i),
           filters: this._filters,
         });
 

@@ -18,7 +18,7 @@ class DromeInstrument {
   private _destination: DromeAudioNode;
   public cycles: (CycleValue | CycleValue[])[][];
 
-  public _gain = 1;
+  private _gain: number[][] = [[1]];
   readonly _filters: Map<FilterType, FilterOptions> = new Map();
   private _delay: DelayEffect | undefined;
   private _reverb: ReverbEffect | undefined;
@@ -168,8 +168,8 @@ class DromeInstrument {
     filter.env = { depth: d, adsr };
   }
 
-  gain(n: number) {
-    this._gain = n;
+  gain(...n: (number | number[])[]) {
+    this._gain = n.map((m) => (Array.isArray(m) ? m : [m]));
     return this;
   }
 
@@ -293,7 +293,13 @@ class DromeInstrument {
 
     this._filters.clear();
     this.cycles = [];
-    this._gain = 1;
+    this._gain = [];
+  }
+
+  getCurrentGain(cycleIndex: number, noteIndex: number) {
+    return this._gain[this.drome.metronome.bar % this._gain.length][
+      noteIndex % this._gain[cycleIndex].length
+    ];
   }
 }
 

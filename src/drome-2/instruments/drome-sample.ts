@@ -1,6 +1,6 @@
 import DromeInstrument from "./drome-instrument";
 import _drumMachines from "../dictionaries/samples/drum-machines.json";
-import DromeAudioSource from "./drome-audio-source-node";
+import DromeAudioSource from "./drome-audio-source";
 import FilterEffect from "../effects/filter";
 import { drumAliases as _drumAliases } from "../dictionaries/samples/drum-alias";
 import type Drome from "../core/drome";
@@ -94,18 +94,11 @@ class DromeSample extends DromeInstrument {
         let [buffer] = await this.loadSample(name);
         if (!buffer) return;
 
-        // const source = new DromeBuffer(this.drome.ctx, nodes[0].input, buffer, {
-        //   rate: this._playbackRate,
-        //   gain: this._gain,
-        //   env: this._env,
-        //   filters: this._filters,
-        // });
-
         const source = new DromeAudioSource(this.drome.ctx, nodes[0].input, {
           type: "buffer",
           buffer,
           rate: this._playbackRate,
-          gain: this._gain,
+          gain: this.getCurrentGain(cycleIndex, i),
           env: this._env,
           filters: this._filters,
         });
