@@ -24,6 +24,7 @@ class DromeInstrument {
   private _reverb: ReverbEffect | undefined;
   private _distortion: DistortionEffect | undefined;
   private _postgain: GainEffect;
+  private _pan = [[0]];
   readonly _env: ADSRParams = { a: 0.001, d: 0.125, s: 1.0, r: 0.01 };
 
   constructor(
@@ -178,6 +179,11 @@ class DromeInstrument {
     return this;
   }
 
+  pan(...n: (number | number[])[]) {
+    this._pan = n.map((m) => (Array.isArray(m) ? m : [m]));
+    return this;
+  }
+
   adsr(p1: Partial<ADSRParams>): this;
   adsr(p1: number, d?: number, s?: number, r?: number): this;
   adsr(p1: Partial<ADSRParams> | number, d?: number, s?: number, r?: number) {
@@ -299,6 +305,12 @@ class DromeInstrument {
   getCurrentGain(cycleIndex: number, noteIndex: number) {
     return this._gain[this.drome.metronome.bar % this._gain.length][
       noteIndex % this._gain[cycleIndex].length
+    ];
+  }
+
+  getCurrentPan(cycleIndex: number, noteIndex: number) {
+    return this._pan[this.drome.metronome.bar % this._pan.length][
+      noteIndex % this._pan[cycleIndex].length
     ];
   }
 }

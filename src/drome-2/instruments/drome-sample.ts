@@ -101,6 +101,7 @@ class DromeSample extends DromeInstrument {
           gain: this.getCurrentGain(cycleIndex, i),
           env: this._env,
           filters: this._filters,
+          pan: this.getCurrentPan(cycleIndex, i),
         });
 
         nodes.forEach((node) => {

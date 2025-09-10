@@ -6,6 +6,7 @@ interface BaseAudioSourceOptions {
   gain: number;
   env: ADSRParams;
   filters: Map<FilterType, FilterOptions>;
+  pan: number;
 }
 
 interface DromeOscillatorOptions extends BaseAudioSourceOptions {
@@ -58,8 +59,10 @@ class DromeAudioSource {
       filterNodes.push(effect.input);
     });
 
+    const pan = new StereoPannerNode(ctx, { pan: opts.pan });
+
     for (const osc of this.srcNodes) {
-      const nodes = [osc, this.gainNode, ...filterNodes, destination];
+      const nodes = [osc, pan, this.gainNode, ...filterNodes, destination];
       for (let i = 0; i < nodes.length - 1; i++) {
         nodes[i].connect(nodes[i + 1]);
       }

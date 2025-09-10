@@ -81,6 +81,7 @@ class DromeSynth extends DromeInstrument {
           env: this._env,
           gain: this.getCurrentGain(cycleIndex, i),
           filters: this._filters,
+          pan: this.getCurrentPan(cycleIndex, i),
         });
 
         osc.play(startTime + noteOffset * i, noteDuration);
