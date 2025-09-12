@@ -3,18 +3,21 @@ import DromeSynth from "../instruments/drome-synth";
 import DromeSample from "../instruments/drome-sample";
 import GainEffect from "../effects/gain";
 import type { OscTypeAlias, SampleNote } from "../types";
+import { createRand, type Rand } from "../utils/random";
 
 const achans = [0.375, 0.875];
 
 class Drome extends AudioClock {
   private instruments: Set<DromeSynth | DromeSample> = new Set();
   private audioChannels: GainEffect[];
+  readonly rand: Rand;
   readonly sampleBuffers: Map<string, AudioBuffer> = new Map();
 
   constructor(bpm?: number) {
     super(bpm);
     this.audioChannels = achans.map((gain) => new GainEffect(this.ctx, gain));
     this.on("bar", this.handleTick.bind(this));
+    this.rand = createRand(this.metronome);
   }
 
   private handleTick() {
