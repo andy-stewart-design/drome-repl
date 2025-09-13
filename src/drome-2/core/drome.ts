@@ -15,7 +15,7 @@ import {
   createBinaryRand,
 } from "../utils/random";
 
-const achans = [0.375, 0.875];
+const AUDIO_CHANNELS = [0.375, 0.875];
 
 class Drome extends AudioClock {
   private instruments: Set<DromeSynth | DromeSample> = new Set();
@@ -28,7 +28,9 @@ class Drome extends AudioClock {
 
   constructor(bpm?: number) {
     super(bpm);
-    this.audioChannels = achans.map((gain) => new GainEffect(this.ctx, gain));
+    this.audioChannels = AUDIO_CHANNELS.map(
+      (gain) => new GainEffect(this.ctx, gain)
+    );
     this.rand = createRand(this.metronome);
     this.brand = createBinaryRand(this.metronome);
     this.irand = createIntegerRand(this.metronome);
