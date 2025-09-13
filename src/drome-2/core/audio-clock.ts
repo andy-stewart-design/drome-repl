@@ -1,9 +1,6 @@
 // inspired by: https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Advanced_techniques
 
-import type { Metronome } from "../types";
-
-type DromeEventType = "start" | "pause" | "stop" | "beat" | "bar";
-type DromeEventCallback = (m: Metronome) => void;
+import type { DromeEventCallback, DromeEventType, Metronome } from "../types";
 
 class AudioClock {
   static lookahead = 25.0; // How frequently to call scheduling function (in milliseconds)
@@ -43,6 +40,8 @@ class AudioClock {
   }
 
   public async start() {
+    console.log(this.listeners);
+
     if (!this._paused) return;
     if (this.ctx.state === "suspended") {
       console.log("audio context is suspended", this.ctx.state);

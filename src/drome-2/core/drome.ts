@@ -2,7 +2,13 @@ import AudioClock from "./audio-clock";
 import DromeSynth from "../instruments/drome-synth";
 import DromeSample from "../instruments/drome-sample";
 import GainEffect from "../effects/gain";
-import type { OscTypeAlias, SampleNote } from "../types";
+import type {
+  OscTypeAlias,
+  SampleNote,
+  DromeEventType,
+  DromeEventCallback,
+} from "../types";
+
 import {
   createRand,
   createIntegerRand,
@@ -18,6 +24,7 @@ class Drome extends AudioClock {
   readonly brand: ReturnType<typeof createBinaryRand>;
   readonly irand: ReturnType<typeof createIntegerRand>;
   readonly sampleBuffers: Map<string, AudioBuffer> = new Map();
+  readonly replListeners: [DromeEventType, DromeEventCallback][] = [];
 
   constructor(bpm?: number) {
     super(bpm);
@@ -49,6 +56,7 @@ class Drome extends AudioClock {
   public stop() {
     super.stop();
     this.instruments.forEach((inst) => inst.stop());
+    this.clearReplListeners();
   }
 
   public push(inst: DromeSynth | DromeSample) {
@@ -61,6 +69,7 @@ class Drome extends AudioClock {
 
   public clear() {
     this.instruments.clear();
+    this.clearReplListeners();
   }
 
   public synth(...types: OscTypeAlias[]) {
@@ -69,6 +78,23 @@ class Drome extends AudioClock {
 
   public sample(...name: SampleNote[]) {
     return new DromeSample(this, this.audioChannels[1], ...name);
+  }
+
+  public onBeat(cb: DromeEventCallback) {
+    this.on("beat", cb);
+    this.replListeners.push(["beat", cb]);
+  }
+
+  public onBar(cb: DromeEventCallback) {
+    this.on("bar", cb);
+    this.replListeners.push(["bar", cb]);
+  }
+
+  public clearReplListeners() {
+    this.replListeners.forEach(([type, cb]) => {
+      this.off(type, cb);
+    });
+    this.replListeners.length = 0;
   }
 
   public cleanup() {

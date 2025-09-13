@@ -12,6 +12,9 @@ interface Metronome {
   bar: number;
 }
 
+type DromeEventType = "start" | "pause" | "stop" | "beat" | "bar";
+type DromeEventCallback = (m: Metronome) => void;
+
 type Falsy = null | undefined;
 type CycleValue = number | Falsy;
 
@@ -75,6 +78,8 @@ export type {
   ADSRParams,
   CycleValue,
   DromeAudioNode,
+  DromeEventCallback,
+  DromeEventType,
   FilterType,
   FilterOptions,
   Metronome,
