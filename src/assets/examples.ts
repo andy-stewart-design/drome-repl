@@ -36,7 +36,7 @@ d.stack(
     .lpf(400).lpenv(7,0,0.5,0.2,0.1)
     .delay(0.2).reverb(0.2).postgain(1.5),
   d.synth("sq","sine").note(...bass_notes).root("c2").scale("maj").sequence(...kick_seq,16)
-    .adsr(0,1,0.5,0.2).lpf(200).lpenv(2,0,0.5,0,0),
+    .adsr(0,1,0.5,0.2).lpf(200).lpenv(2,0,1,0,0),
 )
 
 d.stack(

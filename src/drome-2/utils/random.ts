@@ -1,64 +1,64 @@
 import type { Metronome } from "../types";
 
 const PERIOD = 300;
+const SEED_MAX = 2 ** 29; // 536870912
 
-function xorwise(x: number) {
+function xorwise(x: number): number {
   const a = (x << 13) ^ x;
   const b = (a >> 17) ^ a;
   return (b << 5) ^ b;
 }
 
-// stretch 300 cycles over the range of [0,2**29 == 536870912) then apply the xorshift algorithm
 const frac = (n: number) => n - Math.trunc(n);
 
-const getSeed = (n: number) => {
-  if (n % PERIOD === 0) {
-    return xorwise(Math.trunc(frac(0x9e3779b9 / PERIOD) * 536870912));
-  }
-  return xorwise(Math.trunc(frac(n / PERIOD) * 536870912));
-};
-
-const seedToRand = (seed: number) => (seed % 536870912) / 536870912;
-
-export interface Rand {
-  (n?: number): Rand;
-  range(start: number, end: number): Rand;
-  arr(length?: number): number[];
-  num(): number;
+function getSeed(n: number): number {
+  const value = n % PERIOD === 0 ? 0x9e3779b9 / PERIOD : n / PERIOD;
+  return xorwise(Math.trunc(frac(value) * SEED_MAX));
 }
 
-function createRand(met: Metronome): Rand {
+const seedToRand = (seed: number) => (seed % SEED_MAX) / SEED_MAX;
+
+type RandMapper = (r: number, start: number, end: number) => number;
+
+interface RandBase {
+  (n?: number): RandBase;
+  arr(length?: number): number[];
+  num(): number;
+  range(start: number, end: number): RandBase;
+}
+
+function createRandFactory(met: Metronome, mapper: RandMapper) {
   let counter: number | undefined;
   let rangeStart = 0;
   let rangeEnd = 1;
 
-  const proxy = new Proxy(function () {}, {
-    apply(_target, _thisArg, args) {
+  // Explicitly type proxy as RandBase
+  const handler: ProxyHandler<(...args: any[]) => any> = {
+    apply(_target, _thisArg, args): RandBase {
       counter = args[0] ?? 0;
-      return proxy as Rand;
+      return proxy;
     },
-    get(_target, prop) {
+    get(_target, prop): any {
       if (prop === "range") {
-        return (start: number, end: number): Rand => {
+        return (start: number, end: number): RandBase => {
           rangeStart = start;
           rangeEnd = end;
-          return proxy as Rand;
+          return proxy;
         };
       }
       if (prop === "num") {
-        return () => {
+        return (): number => {
           const rFloat = Math.abs(seedToRand(getSeed(counter ?? met.bar)));
-          return rFloat * (rangeEnd - rangeStart) + rangeStart;
+          return mapper(rFloat, rangeStart, rangeEnd);
         };
       }
       if (prop === "arr") {
-        return (length = 1) => {
+        return (length = 4): number[] => {
           let seed = getSeed(counter ?? met.bar);
           const result: number[] = [];
           for (let i = 0; i < length; i++) {
-            result.push(
-              Math.abs(seedToRand(seed)) * (rangeEnd - rangeStart) + rangeStart
-            );
+            const rFloat = Math.abs(seedToRand(seed));
+            result.push(mapper(rFloat, rangeStart, rangeEnd));
             seed = xorwise(seed);
           }
           return result;
@@ -66,9 +66,29 @@ function createRand(met: Metronome): Rand {
       }
       return undefined;
     },
-  });
+  };
 
-  return proxy as Rand;
+  const proxy = new Proxy(function () {}, handler) as unknown as RandBase;
+  return proxy;
 }
 
-export { createRand };
+// Mappers
+const floatMapper: RandMapper = (r, start, end) => r * (end - start) + start;
+const intMapper: RandMapper = (r, start, end) =>
+  Math.floor(r * (end - start) + start);
+const binaryMapper: RandMapper = (r) => Math.round(r);
+
+// Public factories
+function createRand(met: Metronome) {
+  return createRandFactory(met, floatMapper);
+}
+
+function createIntegerRand(met: Metronome) {
+  return createRandFactory(met, intMapper);
+}
+
+function createBinaryRand(met: Metronome) {
+  return createRandFactory(met, binaryMapper);
+}
+
+export { createRand, createIntegerRand, createBinaryRand };
