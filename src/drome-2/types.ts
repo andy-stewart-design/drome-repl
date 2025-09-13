@@ -7,6 +7,11 @@ import type FilterEffect from "./effects/filter";
 import type GainEffect from "./effects/gain";
 import type ReverbEffect from "./effects/reverb";
 
+interface Metronome {
+  beat: number;
+  bar: number;
+}
+
 type Falsy = null | undefined;
 type CycleValue = number | Falsy;
 
@@ -72,6 +77,7 @@ export type {
   DromeAudioNode,
   FilterType,
   FilterOptions,
+  Metronome,
   NoteName,
   NoteValue,
   OscTypeAlias,

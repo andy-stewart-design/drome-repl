@@ -85,7 +85,6 @@ class DromeInstrument {
 
   euclid(pulses: number | number[], steps: number, rotation = 0) {
     this.cycles = this.applyPattern(euclid(pulses, steps, rotation));
-
     return this;
   }
 
@@ -279,6 +278,18 @@ class DromeInstrument {
     return nodes;
   }
 
+  getCurrentGain(cycleIndex: number, noteIndex: number) {
+    return this._gain[this.drome.metronome.bar % this._gain.length][
+      noteIndex % this._gain[cycleIndex % this._gain.length].length
+    ];
+  }
+
+  getCurrentPan(cycleIndex: number, noteIndex: number) {
+    return this._pan[this.drome.metronome.bar % this._pan.length][
+      noteIndex % this._pan[cycleIndex % this._gain.length].length
+    ];
+  }
+
   cleanup() {
     if (this._delay) {
       this._delay.disconnect();
@@ -300,18 +311,6 @@ class DromeInstrument {
     this._filters.clear();
     this.cycles = [];
     this._gain = [];
-  }
-
-  getCurrentGain(cycleIndex: number, noteIndex: number) {
-    return this._gain[this.drome.metronome.bar % this._gain.length][
-      noteIndex % this._gain[cycleIndex].length
-    ];
-  }
-
-  getCurrentPan(cycleIndex: number, noteIndex: number) {
-    return this._pan[this.drome.metronome.bar % this._pan.length][
-      noteIndex % this._pan[cycleIndex].length
-    ];
   }
 }
 

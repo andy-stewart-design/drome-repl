@@ -1,9 +1,6 @@
 // inspired by: https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Advanced_techniques
 
-interface Metronome {
-  beat: number;
-  bar: number;
-}
+import type { Metronome } from "../types";
 
 type DromeEventType = "start" | "pause" | "stop" | "beat" | "bar";
 type DromeEventCallback = (m: Metronome) => void;
