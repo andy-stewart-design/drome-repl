@@ -10,8 +10,8 @@ html {
   --color-bg-primary: rgb(10 10 10);
   --color-bg-secondary: rgb(21 21 21);
   --color-border-subtle: rgb(255 255 255 / 0.125);
-  --header-height: 4rem;
-  --content-height: calc(100vh - var(--header-height));
+  --header-height: 3.5rem;
+  --content-height: 100vh;
 
   background: var(--color-bg-primary);
   color-scheme: dark;
@@ -96,10 +96,15 @@ button {
   background: var(--color-bg-secondary);
   padding: 1rem;
   font-weight: bold;
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-block-end: 1px solid var(--color-border-subtle);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: var(--header-height);
+
+  &:not(:first-child) {
+    border-block-start: 1px solid var(--color-border-subtle);
+  }
 }
 
 .repl-section {

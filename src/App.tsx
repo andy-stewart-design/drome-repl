@@ -114,62 +114,61 @@ function App() {
   }
 
   return (
-    <>
-      <div class="header">
-        <div class="title">Drome</div>
-        <div class="controls">
-          <Show when={metronome()}>
-            <span>
-              {metronome()?.beat} / {metronome()?.bar}
-            </span>
-          </Show>
-          <div class="status">
-            <div class="status-dot" id="statusDot" data-playing={playing()} />
-            <span id="statusText">{playing() ? "Playing" : "Stopped"}</span>
+    <div class="container">
+      <div class="repl-section">
+        <div class="header">
+          <div class="title">Drome</div>
+          <div class="controls">
+            <Show when={metronome()}>
+              <span>
+                {metronome()?.beat} / {metronome()?.bar}
+              </span>
+            </Show>
+            <div class="status">
+              <div class="status-dot" id="statusDot" data-playing={playing()} />
+              <span id="statusText">{playing() ? "Playing" : "Stopped"}</span>
+            </div>
+            <button onclick={handlePlay}>
+              {playing() ? "Update" : "Play"}
+            </button>
+            <button onclick={handleStop} disabled={!playing()}>
+              Stop
+            </button>
           </div>
-          <button onclick={handlePlay}>{playing() ? "Update" : "Play"}</button>
-          <button onclick={handleStop} disabled={!playing()}>
-            Stop
-          </button>
         </div>
+        <div ref={editorContainer} class="editor-container" />
       </div>
-
-      <div class="container">
-        <div class="repl-section">
-          <div ref={editorContainer} class="editor-container" />
-          <div class="section-header">Output</div>
-          <div ref={logOutput} class="output">
-            {logs().map((log) => (
-              <div class="log-entry" data-type={log.type}>
-                {log.message}
+      <div class="examples-section">
+        <div class="section-header">Examples</div>
+        <div class="examples">
+          {examples.map((ex) => (
+            <button
+              class="example"
+              onClick={() => handleInsertExample(ex.code)}
+            >
+              <div class="example-title">{ex.title}</div>
+              <div class="example-code">
+                {ex.code
+                  .replace(/(\r?\n){2,}/g, "\n")
+                  .split(/\r?\n|\r/)
+                  .slice(0, 3)
+                  .map((line) => (
+                    <p>{line}</p>
+                  ))}
               </div>
-            ))}
-          </div>
+            </button>
+          ))}
         </div>
-        <div class="examples-section">
-          <div class="section-header">Examples</div>
-          <div class="examples">
-            {examples.map((ex) => (
-              <button
-                class="example"
-                onClick={() => handleInsertExample(ex.code)}
-              >
-                <div class="example-title">{ex.title}</div>
-                <div class="example-code">
-                  {ex.code
-                    .replace(/(\r?\n){2,}/g, "\n")
-                    .split(/\r?\n|\r/)
-                    .slice(0, 3)
-                    .map((line) => (
-                      <p>{line}</p>
-                    ))}
-                </div>
-              </button>
-            ))}
-          </div>
+        <div class="section-header">Output</div>
+        <div ref={logOutput} class="output">
+          {logs().map((log) => (
+            <div class="log-entry" data-type={log.type}>
+              {log.message}
+            </div>
+          ))}
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
