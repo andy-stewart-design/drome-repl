@@ -16,7 +16,8 @@ type DromeEventType = "start" | "pause" | "stop" | "beat" | "bar";
 type DromeEventCallback = (m: Metronome) => void;
 
 type Falsy = null | undefined;
-type CycleValue = number | Falsy;
+type DromeCycleValue = number | Falsy;
+type DromeCycle = (DromeCycleValue | DromeCycleValue[])[][];
 
 type OscType = Exclude<OscillatorType, "custom"> | "supersaw";
 type OscTypeAlias = keyof typeof synthAliasMap;
@@ -76,7 +77,8 @@ type SampleBank = keyof typeof drumAliases;
 
 export type {
   ADSRParams,
-  CycleValue,
+  DromeCycleValue,
+  DromeCycle,
   DromeAudioNode,
   DromeEventCallback,
   DromeEventType,

@@ -7,7 +7,8 @@ import { hex } from "../utils/hex";
 import type Drome from "../core/drome";
 import type {
   ADSRParams,
-  CycleValue,
+  DromeCycleValue,
+  DromeCycle,
   DromeAudioNode,
   FilterOptions,
   FilterType,
@@ -16,7 +17,7 @@ import type {
 class DromeInstrument {
   readonly drome: Drome;
   private _destination: DromeAudioNode;
-  public cycles: (CycleValue | CycleValue[])[][];
+  public cycles: DromeCycle;
 
   private _gain: number[][] = [[1]];
   readonly _filters: Map<FilterType, FilterOptions> = new Map();
@@ -25,6 +26,7 @@ class DromeInstrument {
   private _distortion: DistortionEffect | undefined;
   private _postgain: GainEffect;
   private _pan = [[0]];
+  protected _legato = false;
   readonly _env: ADSRParams = { a: 0.001, d: 0.125, s: 1.0, r: 0.01 };
 
   constructor(
@@ -46,13 +48,13 @@ class DromeInstrument {
   private applyPattern(patterns: number[][]) {
     const cycles = this.cycles.length ? this.cycles : [[60]];
     const loops = Math.max(cycles.length, patterns.length);
-    const nextCycles: (CycleValue | CycleValue[])[][] = [];
+    const nextCycles: DromeCycle = [];
 
     for (let i = 0; i < loops; i++) {
       let noteIndex = 0;
       const cycle = cycles[i % cycles.length];
       const nextCycle = patterns[i % patterns.length].map((p) =>
-        p === 0 ? (null as CycleValue) : cycle[noteIndex++ % cycle.length]
+        p === 0 ? (null as DromeCycleValue) : cycle[noteIndex++ % cycle.length]
       );
       nextCycles.push(nextCycle);
     }
@@ -60,7 +62,9 @@ class DromeInstrument {
     return nextCycles;
   }
 
-  note(...cycles: (CycleValue | CycleValue[] | CycleValue[][])[]) {
+  note(
+    ...cycles: (DromeCycleValue | DromeCycleValue[] | DromeCycleValue[][])[]
+  ) {
     this.cycles = cycles.map((cycle) =>
       Array.isArray(cycle) ? cycle : [cycle]
     );
@@ -69,7 +73,10 @@ class DromeInstrument {
   }
 
   arrange(
-    ...arrangements: [number, CycleValue | CycleValue[] | CycleValue[][]][]
+    ...arrangements: [
+      number,
+      DromeCycleValue | DromeCycleValue[] | DromeCycleValue[][]
+    ][]
   ) {
     let nextCycles: typeof this.cycles = [];
 
@@ -125,20 +132,20 @@ class DromeInstrument {
 
   slow(n: number) {
     if (n <= 1) return this;
-    const nextCycles: (CycleValue | CycleValue[])[][] = [];
+    const nextCycles: DromeCycle = [];
 
     for (const cycle of this.cycles) {
       const chunkSize = Math.ceil((cycle.length * n) / n); // equals cycle.length
 
       // Create n chunks directly
       for (let k = 0; k < n; k++) {
-        const chunk: (CycleValue | CycleValue[])[] = [];
+        const chunk: (DromeCycleValue | DromeCycleValue[])[] = [];
         const startPos = k * chunkSize;
         const endPos = Math.min((k + 1) * chunkSize, cycle.length * n);
 
         for (let pos = startPos; pos < endPos; pos++) {
           if (pos % n === 0) chunk.push(cycle[pos / n]);
-          else chunk.push(null as CycleValue);
+          else chunk.push(null as DromeCycleValue);
         }
 
         nextCycles.push(chunk);
@@ -151,6 +158,11 @@ class DromeInstrument {
 
   stretch(factor: number) {
     this.cycles = this.cycles.flatMap((cycle) => Array(factor).fill(cycle));
+    return this;
+  }
+
+  legato(v = true) {
+    this._legato = v;
     return this;
   }
 

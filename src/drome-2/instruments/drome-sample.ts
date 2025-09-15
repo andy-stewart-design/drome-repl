@@ -5,7 +5,7 @@ import FilterEffect from "../effects/filter";
 import { drumAliases as _drumAliases } from "../dictionaries/samples/drum-alias";
 import type Drome from "../core/drome";
 import type {
-  CycleValue,
+  DromeCycleValue,
   DromeAudioNode,
   SampleBank,
   SampleName,
@@ -88,7 +88,7 @@ class DromeSample extends DromeInstrument {
     const startTime = this.drome.barStartTime;
     const noteDuration = this.drome.barDuration / cycle.length;
 
-    const play = async (note: CycleValue, i: number) => {
+    const play = async (note: DromeCycleValue, i: number) => {
       if (!note) return;
       this.sampleNames.forEach(async (name) => {
         let [buffer] = await this.loadSample(name);

@@ -5,7 +5,7 @@ import { noteToMidi } from "../utils/note-name-to-midi";
 import { scaleAliasMap } from "../dictionaries/notes/scale-alias";
 import { synthAliasMap } from "../dictionaries/synths/synth-aliases";
 import type {
-  CycleValue,
+  DromeCycleValue,
   DromeAudioNode,
   NoteName,
   NoteValue,
@@ -42,6 +42,24 @@ class DromeSynth extends DromeInstrument {
     return midiToFreq(this.rootNote + octave + step);
   }
 
+  private getDuration(
+    cycle: (DromeCycleValue | DromeCycleValue[])[],
+    i: number
+  ) {
+    const baseSize = this.drome.barDuration / cycle.length;
+    const offset = baseSize * i;
+
+    if (!this._legato) {
+      const duration = Math.max(baseSize + this._env.r, 0.125);
+      return { offset, duration };
+    }
+
+    const nextNonNull = cycle.findIndex((val, idx) => idx > i && val !== null);
+    const nullCount = (nextNonNull === -1 ? cycle.length : nextNonNull) - i - 1;
+    const duration = Math.max(baseSize * (1 + nullCount) + this._env.r, 0.125);
+    return { offset, duration };
+  }
+
   root(n: NoteName | NoteValue | number) {
     if (typeof n === "number") this.rootNote = n;
     else this.rootNote = noteToMidi(n) || 0;
@@ -65,10 +83,8 @@ class DromeSynth extends DromeInstrument {
     const cycleIndex = this.drome.metronome.bar % (this.cycles.length || 1);
     const cycle = this.cycles[cycleIndex] || [[60]];
     const startTime = this.drome.barStartTime;
-    const noteOffset = this.drome.barDuration / cycle.length;
-    const noteDuration = Math.max(noteOffset + this._env.r, 0.125);
 
-    const play = (note: CycleValue, i: number) => {
+    const play = (note: DromeCycleValue, i: number) => {
       if (typeof note !== "number") return;
 
       const frequency = this.getFrequency(note);
@@ -84,7 +100,8 @@ class DromeSynth extends DromeInstrument {
           pan: this.getCurrentPan(cycleIndex, i),
         });
 
-        osc.play(startTime + noteOffset * i, noteDuration);
+        const { offset, duration } = this.getDuration(cycle, i);
+        osc.play(startTime + offset, duration);
 
         this.oscillators.add(osc);
         osc.node.onended = () => this.oscillators.delete(osc);

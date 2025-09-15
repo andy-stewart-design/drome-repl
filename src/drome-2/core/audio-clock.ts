@@ -40,8 +40,6 @@ class AudioClock {
   }
 
   public async start() {
-    console.log(this.listeners);
-
     if (!this._paused) return;
     if (this.ctx.state === "suspended") {
       console.log("audio context is suspended", this.ctx.state);
