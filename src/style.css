@@ -31,7 +31,7 @@ button {
 
 .header {
   background: var(--color-bg-primary);
-  border-bottom: 1px solid var(--color-border-subtle);
+  /* border-bottom: 1px solid var(--color-border-subtle); */
   padding: 0.875rem 2rem;
   display: flex;
   justify-content: space-between;
@@ -123,6 +123,10 @@ button {
 
   & > div.cm-editor {
     height: 100% !important;
+  }
+
+  .cm-lineNumbers .cm-gutterElement {
+    padding-inline-start: 1.5rem;
   }
 }
 
