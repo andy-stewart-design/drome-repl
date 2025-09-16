@@ -117,17 +117,20 @@ function App() {
     <div class="container">
       <div class="repl-section">
         <div class="header">
-          <div class="title">Drome</div>
+          <div class="title">
+            <div class="status-dot" id="statusDot" data-playing={playing()} />
+            Drome
+          </div>
           <div class="controls">
             <Show when={metronome()}>
               <span>
                 {metronome()?.beat} / {metronome()?.bar}
               </span>
             </Show>
-            <div class="status">
+            {/* <div class="status">
               <div class="status-dot" id="statusDot" data-playing={playing()} />
               <span id="statusText">{playing() ? "Playing" : "Stopped"}</span>
-            </div>
+            </div> */}
             <button onclick={handlePlay}>
               {playing() ? "Update" : "Play"}
             </button>
