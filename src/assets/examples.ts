@@ -4,7 +4,7 @@ const examples = [
     code: `drome.synth().push() // default waveform is "sine"`,
   },
   {
-    title: "Roots & Scales",
+    title: "Roots + Scales",
     code: `d.stack(
   d.synth("saw").root("c5").scale("maj").note([0,2,4,6],[-2,0,2,4])
     .euclid(4,8).fast(4).adsr(0,1,0.75,0).lpf(1000).lpenv(2,0,0.333,0.125,0.1)

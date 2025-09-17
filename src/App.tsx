@@ -76,7 +76,7 @@ function App() {
       ],
     });
     setEditor(view);
-    editorContainer.addEventListener("keydown", handleKeydown);
+    window.addEventListener("keydown", handleKeydown);
     drome.on("start", () => {
       setPlaying(true);
       log(`▶ Starting playback loop...`, "output");
@@ -89,7 +89,7 @@ function App() {
   });
 
   onCleanup(() => {
-    editorContainer?.removeEventListener("keydown", handleKeydown);
+    window.removeEventListener("keydown", handleKeydown);
     drome.cleanup();
   });
 
@@ -123,14 +123,11 @@ function App() {
           </div>
           <div class="controls">
             <Show when={metronome()}>
-              <span>
-                {metronome()?.beat} / {metronome()?.bar}
+              <span class="metronome">
+                <span>beat</span> {metronome()?.beat} <span>: bar </span>
+                {metronome()?.bar.toString().padStart(2, "0")}
               </span>
             </Show>
-            {/* <div class="status">
-              <div class="status-dot" id="statusDot" data-playing={playing()} />
-              <span id="statusText">{playing() ? "Playing" : "Stopped"}</span>
-            </div> */}
             <button onclick={handlePlay}>
               {playing() ? "Update" : "Play"}
             </button>
@@ -141,7 +138,7 @@ function App() {
         </div>
         <div ref={editorContainer} class="editor-container" />
       </div>
-      <div class="examples-section">
+      <div class="sidebar">
         <div class="section-header">Examples</div>
         <div class="examples">
           {examples.map((ex) => (

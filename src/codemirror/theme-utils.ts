@@ -1,7 +1,7 @@
 // Helper module for styling options
 export const generalContent = {
   fontSize: "14px",
-  fontFamily: "JetBrains Mono, Consolas, monospace",
+  fontFamily: "MDIO, Consolas, monospace",
   lineHeight: "1.6",
 };
 
