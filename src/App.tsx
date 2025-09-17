@@ -124,7 +124,7 @@ function App() {
           <div class="controls">
             <Show when={metronome()}>
               <span class="metronome">
-                <span>beat</span> {metronome()?.beat} <span>: bar </span>
+                <span>Beat</span> {metronome()?.beat} <span>: Bar </span>
                 {metronome()?.bar.toString().padStart(2, "0")}
               </span>
             </Show>
@@ -162,7 +162,7 @@ function App() {
           </div>
         </section>
         <section>
-          <div class="section-header">Output</div>
+          <div class="section-header">Console</div>
           <div ref={logOutput} class="output">
             {logs().map((log) => (
               <div class="log-entry" data-type={log.type}>
