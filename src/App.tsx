@@ -139,34 +139,38 @@ function App() {
         <div ref={editorContainer} class="editor-container" />
       </div>
       <div class="sidebar">
-        <div class="section-header">Examples</div>
-        <div class="examples">
-          {examples.map((ex) => (
-            <button
-              class="example"
-              onClick={() => handleInsertExample(ex.code)}
-            >
-              <div class="example-title">{ex.title}</div>
-              <div class="example-code">
-                {ex.code
-                  .replace(/(\r?\n){2,}/g, "\n")
-                  .split(/\r?\n|\r/)
-                  .slice(0, 3)
-                  .map((line) => (
-                    <p>{line}</p>
-                  ))}
+        <section>
+          <div class="section-header">Examples</div>
+          <div class="examples">
+            {examples.map((ex) => (
+              <button
+                class="example"
+                onClick={() => handleInsertExample(ex.code)}
+              >
+                <div class="example-title">{ex.title}</div>
+                <div class="example-code">
+                  {ex.code
+                    .replace(/(\r?\n){2,}/g, "\n")
+                    .split(/\r?\n|\r/)
+                    .slice(0, 3)
+                    .map((line) => (
+                      <p>{line}</p>
+                    ))}
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+        <section>
+          <div class="section-header">Output</div>
+          <div ref={logOutput} class="output">
+            {logs().map((log) => (
+              <div class="log-entry" data-type={log.type}>
+                {log.message}
               </div>
-            </button>
-          ))}
-        </div>
-        <div class="section-header">Output</div>
-        <div ref={logOutput} class="output">
-          {logs().map((log) => (
-            <div class="log-entry" data-type={log.type}>
-              {log.message}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );

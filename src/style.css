@@ -184,45 +184,48 @@ button {
 /* EXAMPLES */
 
 .sidebar {
-  width: 350px;
+  display: grid;
+  grid-template-rows: 1fr minmax(0, 300px);
   background: var(--color-bg-primary);
   border-left: 1px solid var(--color-border-subtle);
-  display: flex;
-  flex-direction: column;
+  width: 350px;
   height: var(--content-height);
 
-  section:first-of-type {
-    flex: 1 0 0;
+  section {
+    position: relative;
     overflow: hidden;
-  }
 
-  section:last-of-type {
-    flex: 0 0 200px;
-    overflow: hidden;
-  }
-
-  .section-header {
-    background: var(--color-bg-secondary);
-    padding: 1rem;
-    font-weight: 600;
-    font-size: 0.9375rem;
-    border-block-end: 1px solid var(--color-border-subtle);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: var(--header-height);
-
-    &:not(:first-child) {
+    &:last-of-type {
+      overflow: hidden;
       border-block-start: 1px solid var(--color-border-subtle);
     }
   }
 
+  .section-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(
+      to bottom,
+      var(--color-bg-primary),
+      transparent
+    );
+    padding: 1rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    display: flex;
+    align-items: center;
+    height: var(--header-height);
+  }
+
   .examples {
-    flex: 1;
     display: grid;
     grid-auto-rows: min-content;
     overflow-y: scroll;
     padding: 1rem;
+    height: 100%;
+    padding-block-start: var(--header-height);
 
     .example {
       display: grid;
@@ -263,13 +266,13 @@ button {
 
   .output {
     flex: 0 0 200px;
-    background: rgba(0, 0, 0, 0.3);
     padding: 1rem;
     overflow-y: auto;
     font-size: 0.9rem;
     line-height: 1.5;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
     font-family: "MDIO", "Monaco", "Menlo", "Ubuntu Mono", monospace;
+    height: 100%;
+    padding-block-start: var(--header-height);
 
     .log-entry {
       margin-bottom: 0.5rem;
