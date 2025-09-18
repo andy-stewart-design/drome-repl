@@ -13,48 +13,6 @@
 }
 
 @font-face {
-  font-family: "Planc";
-  src: url("/fonts/Planc-Book.ttf");
-  font-display: swap;
-  font-style: normal;
-  font-weight: 400;
-}
-
-@font-face {
-  font-family: "Planc";
-  src: url("/fonts/Planc-Medium.ttf");
-  font-display: swap;
-  font-style: normal;
-  font-weight: 500;
-}
-
-@font-face {
-  font-family: "Planc";
-  src: url("/fonts/Planc-SemiBold.ttf");
-  font-display: swap;
-  font-style: normal;
-  font-weight: 600;
-}
-
-@font-face {
-  font-family: "DMSans";
-  src: url("/fonts/DMSans-Variable.ttf") format("truetype");
-  font-weight: 200 900;
-  font-display: swap;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "PlusJakartaSans-Variable";
-  src: url("/fonts/PlusJakartaSans-Variable.woff2") format("woff2"),
-    url("/fonts/PlusJakartaSans-Variable.woff") format("woff"),
-    url("/fonts/PlusJakartaSans-Variable.ttf") format("truetype");
-  font-weight: 200 800;
-  font-display: swap;
-  font-style: normal;
-}
-
-@font-face {
   font-family: "Geist";
   src: url("../fonts/Geist-Variable.woff2") format("woff2"),
     url("../fonts/Geist-Variable.ttf") format("truetype");
