@@ -152,11 +152,11 @@ button {
         width: 0.75rem;
         height: 0.75rem;
         border-radius: 100vmax;
-        background: #ff6b6b;
+        background: color(display-p3 1 0 1);
       }
 
       &[data-playing="true"]::before {
-        background: #48ce48;
+        background: color(display-p3 0 0.9125 0.625);
         animation: pulse 1s infinite;
       }
     }
@@ -242,6 +242,7 @@ button {
   border-left: 1px solid var(--color-border-subtle);
   width: 350px;
   height: var(--content-height);
+  isolation: isolate;
 
   section {
     position: relative;
@@ -258,6 +259,9 @@ button {
     top: 0;
     left: 0;
     right: 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
     background: linear-gradient(
       to bottom,
       var(--color-bg-primary),
@@ -269,6 +273,15 @@ button {
     display: flex;
     align-items: center;
     height: var(--header-height);
+    z-index: 2;
+
+    button {
+      background: none;
+      padding-block: 0;
+      border: none;
+      font: inherit;
+      opacity: 0.5;
+    }
   }
 
   .examples {
@@ -294,14 +307,14 @@ button {
 
       &:hover {
         background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(74, 172, 254, 0.5);
+        border-color: color(display-p3 0 0.75 1);
         transform: translateY(-2px);
       }
 
       .example-title {
         font-size: 0.9125rem;
         font-weight: 600;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.375rem;
       }
 
       .example-code {
@@ -331,15 +344,15 @@ button {
       padding: 0.25rem 0;
 
       &[data-type="input"] {
-        color: #4facfe;
+        color: color(display-p3 0 0.75 1);
       }
 
       &[data-type="output"] {
-        color: #98fb98;
+        color: color(display-p3 0 0.9125 0.625);
       }
 
       &[data-type="error"] {
-        color: #ff6b6b;
+        color: color(display-p3 1 0 1);
       }
     }
   }

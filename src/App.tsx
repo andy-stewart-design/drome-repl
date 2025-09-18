@@ -14,7 +14,7 @@ import {
 } from "./codemirror";
 import type { Metronome } from "./drome/audio-clock";
 
-export type LogType = "input" | "output" | "error";
+export type LogType = "input" | "output" | "error" | "user";
 
 interface ReplLog {
   type: LogType;
@@ -162,7 +162,10 @@ function App() {
           </div>
         </section>
         <section>
-          <div class="section-header">Console</div>
+          <div class="section-header">
+            <span>Console</span>
+            <button onClick={() => setLogs([])}>Clear</button>
+          </div>
           <div ref={logOutput} class="output">
             {logs().map((log) => (
               <div class="log-entry" data-type={log.type}>
