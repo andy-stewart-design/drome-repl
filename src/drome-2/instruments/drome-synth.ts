@@ -64,7 +64,7 @@ class DromeSynth extends DromeInstrument {
     if (typeof n === "number") this.rootNote = n;
     else this.rootNote = noteToMidi(n) || 0;
 
-    if (!this.cycles.value.length) this.cycles.note([[0]]);
+    if (!this.cycles.value.length) this.cycles.note([0]);
     return this;
   }
 
