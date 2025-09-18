@@ -1,3 +1,26 @@
+@font-face {
+  font-family: "MDIO";
+  src: local("MDIO-Regular"), url("/fonts/MDIOTrial-Regular.otf");
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "MDIO";
+  src: local("MDIO-Italic"), url("/fonts/MDIOTrial-Italic.otf");
+  font-display: swap;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Geist";
+  src: url("../fonts/Geist-Variable.woff2") format("woff2"),
+    url("../fonts/Geist-Variable.ttf") format("truetype");
+  font-weight: 300 900;
+  font-display: swap;
+  font-style: normal;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -10,13 +33,17 @@ html {
   --color-bg-primary: rgb(10 10 10);
   --color-bg-secondary: rgb(21 21 21);
   --color-border-subtle: rgb(255 255 255 / 0.125);
-  --header-height: 4rem;
-  --content-height: calc(100vh - var(--header-height));
+  --header-height: 3.5rem;
+  --content-height: 100vh;
 
   background: var(--color-bg-primary);
   color-scheme: dark;
   color: #e0e6ed;
-  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-family: "MDIO", "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-family: "Geist";
+  font-weight: 400;
+  /* font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif; */
 }
 
 button {
@@ -29,61 +56,6 @@ button {
   grid-template-rows: 4rem 1fr;
 }
 
-.header {
-  background: var(--color-bg-primary);
-  border-bottom: 1px solid var(--color-border-subtle);
-  padding: 0.875rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: var(--header-height);
-
-  .title {
-    font-size: 1rem;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-      Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
-      sans-serif;
-    font-variation-settings: "wdth" 112;
-    text-transform: uppercase;
-    letter-spacing: 0.375em;
-    font-weight: 500;
-  }
-
-  .controls {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
-
-  .status {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    margin-inline-end: 0.75rem;
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #ff6b6b;
-
-      &[data-playing="true"] {
-        background: #98fb98;
-        animation: pulse 1s infinite;
-      }
-    }
-  }
-
-  button {
-    background: var(--color-bg-primary);
-    border: 1px solid var(--color-border-subtle);
-    padding: 0.5rem 1rem;
-    border-radius: 100vmax;
-    min-width: 5rem;
-  }
-}
-
 .container {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 350px);
@@ -92,21 +64,90 @@ button {
   height: var(--content-height);
 }
 
-.section-header {
-  background: var(--color-bg-secondary);
-  padding: 1rem;
-  font-weight: bold;
-  border-bottom: 1px solid var(--color-border-subtle);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
 .repl-section {
+  position: relative;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   height: var(--content-height);
+}
+
+.header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  background: linear-gradient(to bottom, var(--color-bg-primary), transparent);
+  padding: 0.875rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: var(--header-height);
+
+  .title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.25rem;
+    font-weight: 800;
+    text-transform: lowercase;
+    font-feature-settings: "ss02";
+    font-variation-settings: "wght" 800;
+    line-height: 1;
+
+    .status-dot {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: 1rem;
+      height: 1rem;
+      margin-top: 2px;
+
+      &::before {
+        content: "";
+        display: block;
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 100vmax;
+        background: color(display-p3 1 0 1);
+      }
+
+      &[data-playing="true"]::before {
+        background: color(display-p3 0 0.9125 0.625);
+        animation: pulse 1s infinite;
+      }
+    }
+  }
+
+  .metronome {
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    font-size: 0.875rem;
+    margin-inline-end: 0.5rem;
+
+    span {
+      opacity: 0.5;
+    }
+  }
+
+  .controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  button {
+    font-family: inherit;
+    font-weight: 500;
+    letter-spacing: 0.0125em;
+    font-size: 0.875rem;
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border-subtle);
+    padding: 0.5rem 1rem 0.5rem;
+    border-radius: 100vmax;
+    min-width: 5rem;
+  }
 }
 
 /* -------------------------------------------- */
@@ -118,6 +159,16 @@ button {
 
   & > div.cm-editor {
     height: 100% !important;
+  }
+
+  .cm-scroller {
+    padding-block-start: var(--header-height);
+    font-family: "MDIO", "Monaco", "Menlo", "Ubuntu Mono", monospace;
+    font-size: 0.9375rem;
+  }
+
+  .cm-lineNumbers .cm-gutterElement {
+    padding-inline-start: 1.5rem;
   }
 }
 
@@ -140,52 +191,64 @@ button {
 } */
 
 /* -------------------------------------------- */
-/* LOG OUTPUT */
-
-.output {
-  height: 200px;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 1rem;
-  overflow-y: auto;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-
-  .log-entry {
-    margin-bottom: 0.5rem;
-    padding: 0.25rem 0;
-
-    &[data-type="input"] {
-      color: #4facfe;
-    }
-
-    &[data-type="output"] {
-      color: #98fb98;
-    }
-
-    &[data-type="error"] {
-      color: #ff6b6b;
-    }
-  }
-}
-
-/* -------------------------------------------- */
 /* EXAMPLES */
 
-.examples-section {
-  width: 350px;
+.sidebar {
+  display: grid;
+  grid-template-rows: 1fr minmax(0, 300px);
   background: var(--color-bg-primary);
   border-left: 1px solid var(--color-border-subtle);
-  display: flex;
-  flex-direction: column;
+  width: 350px;
   height: var(--content-height);
+  isolation: isolate;
+
+  section {
+    position: relative;
+    overflow: hidden;
+
+    &:last-of-type {
+      overflow: hidden;
+      border-block-start: 1px solid var(--color-border-subtle);
+    }
+  }
+
+  .section-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    background: linear-gradient(
+      to bottom,
+      var(--color-bg-primary),
+      transparent
+    );
+    padding: 1rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    height: var(--header-height);
+    z-index: 2;
+
+    button {
+      background: none;
+      padding-block: 0;
+      border: none;
+      font: inherit;
+      opacity: 0.5;
+    }
+  }
 
   .examples {
-    flex: 1;
     display: grid;
     grid-auto-rows: min-content;
     overflow-y: scroll;
     padding: 1rem;
+    height: 100%;
+    padding-block-start: var(--header-height);
 
     .example {
       display: grid;
@@ -202,27 +265,59 @@ button {
 
       &:hover {
         background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(74, 172, 254, 0.5);
+        border-color: color(display-p3 0 0.75 1);
         transform: translateY(-2px);
       }
 
       .example-title {
-        font-size: 0.875rem;
-        font-weight: bold;
-        margin-bottom: 0.5rem;
+        font-size: 0.9125rem;
+        font-weight: 600;
+        margin-bottom: 0.375rem;
       }
 
       .example-code {
         display: grid;
         gap: 0.5rem;
-        font-size: 0.85rem;
-        color: #a8b5c8;
+        font-size: 0.8125rem;
+        color: #8a919e;
         white-space: nowrap;
         overflow-x: auto;
+        font-family: "MDIO", "Monaco", "Menlo", "Ubuntu Mono", monospace;
+      }
+    }
+  }
+
+  .output {
+    flex: 0 0 200px;
+    padding: 1rem;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    font-family: "MDIO", "Monaco", "Menlo", "Ubuntu Mono", monospace;
+    height: 100%;
+    padding-block-start: var(--header-height);
+
+    .log-entry {
+      margin-bottom: 0.5rem;
+      padding: 0.25rem 0;
+
+      &[data-type="input"] {
+        color: color(display-p3 0 0.75 1);
+      }
+
+      &[data-type="output"] {
+        color: color(display-p3 0 0.9125 0.625);
+      }
+
+      &[data-type="error"] {
+        color: color(display-p3 1 0 1);
       }
     }
   }
 }
+
+/* -------------------------------------------- */
+/* KEYFRAMES */
 
 @keyframes pulse {
   0%,

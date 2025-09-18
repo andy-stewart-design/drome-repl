@@ -14,7 +14,7 @@ import {
 } from "./codemirror";
 import type { Metronome } from "./drome/audio-clock";
 
-export type LogType = "input" | "output" | "error";
+export type LogType = "input" | "output" | "error" | "user";
 
 interface ReplLog {
   type: LogType;
@@ -76,7 +76,7 @@ function App() {
       ],
     });
     setEditor(view);
-    editorContainer.addEventListener("keydown", handleKeydown);
+    window.addEventListener("keydown", handleKeydown);
     drome.on("start", () => {
       setPlaying(true);
       log(`▶ Starting playback loop...`, "output");
@@ -89,7 +89,7 @@ function App() {
   });
 
   onCleanup(() => {
-    editorContainer?.removeEventListener("keydown", handleKeydown);
+    window.removeEventListener("keydown", handleKeydown);
     drome.cleanup();
   });
 
@@ -114,39 +114,32 @@ function App() {
   }
 
   return (
-    <>
-      <div class="header">
-        <div class="title">Drome</div>
-        <div class="controls">
-          <Show when={metronome()}>
-            <span>
-              {metronome()?.beat} / {metronome()?.bar}
-            </span>
-          </Show>
-          <div class="status">
+    <div class="container">
+      <div class="repl-section">
+        <div class="header">
+          <div class="title">
             <div class="status-dot" id="statusDot" data-playing={playing()} />
-            <span id="statusText">{playing() ? "Playing" : "Stopped"}</span>
+            Drome
           </div>
-          <button onclick={handlePlay}>{playing() ? "Update" : "Play"}</button>
-          <button onclick={handleStop} disabled={!playing()}>
-            Stop
-          </button>
+          <div class="controls">
+            <Show when={metronome()}>
+              <span class="metronome">
+                <span>Beat</span> {metronome()?.beat} <span>: Bar </span>
+                {metronome()?.bar.toString().padStart(2, "0")}
+              </span>
+            </Show>
+            <button onclick={handlePlay}>
+              {playing() ? "Update" : "Play"}
+            </button>
+            <button onclick={handleStop} disabled={!playing()}>
+              Stop
+            </button>
+          </div>
         </div>
+        <div ref={editorContainer} class="editor-container" />
       </div>
-
-      <div class="container">
-        <div class="repl-section">
-          <div ref={editorContainer} class="editor-container" />
-          <div class="section-header">Output</div>
-          <div ref={logOutput} class="output">
-            {logs().map((log) => (
-              <div class="log-entry" data-type={log.type}>
-                {log.message}
-              </div>
-            ))}
-          </div>
-        </div>
-        <div class="examples-section">
+      <div class="sidebar">
+        <section>
           <div class="section-header">Examples</div>
           <div class="examples">
             {examples.map((ex) => (
@@ -167,9 +160,22 @@ function App() {
               </button>
             ))}
           </div>
-        </div>
+        </section>
+        <section>
+          <div class="section-header">
+            <span>Console</span>
+            <button onClick={() => setLogs([])}>Clear</button>
+          </div>
+          <div ref={logOutput} class="output">
+            {logs().map((log) => (
+              <div class="log-entry" data-type={log.type}>
+                {log.message}
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
-    </>
+    </div>
   );
 }
 
