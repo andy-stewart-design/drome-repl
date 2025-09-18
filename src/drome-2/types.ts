@@ -15,8 +15,7 @@ interface Metronome {
 type DromeEventType = "start" | "pause" | "stop" | "beat" | "bar";
 type DromeEventCallback = (m: Metronome) => void;
 
-type Falsy = null | undefined;
-type DromeCycleValue = number | Falsy;
+type DromeCycleValue = number | null | undefined;
 type DromeCycle = (DromeCycleValue | DromeCycleValue[])[][];
 
 type OscType = Exclude<OscillatorType, "custom"> | "supersaw";

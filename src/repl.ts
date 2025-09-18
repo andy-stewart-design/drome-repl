@@ -7,7 +7,8 @@ function runCode(drome: Drome, code: string, log: LogCallback) {
   const msg = drome.paused ? `◑ Evaluating code...` : `◑ Queuing update...`;
   log(msg, "input");
 
-  const userLog = (msg: string) => log(`→ ${msg}`, "user");
+  const userLog = (msg: string) =>
+    log(`→ ${JSON.stringify(msg).replaceAll("null", "-")}`, "user");
 
   try {
     drome.clear();
