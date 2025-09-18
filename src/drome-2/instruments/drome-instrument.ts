@@ -2,13 +2,11 @@ import DelayEffect from "../effects/delay";
 import DistortionEffect from "../effects/distortion";
 import GainEffect from "../effects/gain";
 import ReverbEffect from "../effects/reverb";
-import { euclid } from "../utils/euclid-2";
-import { hex } from "../utils/hex";
+import DromeArray from "../core/drome-array";
 import type Drome from "../core/drome";
 import type {
   ADSRParams,
   DromeCycleValue,
-  DromeCycle,
   DromeAudioNode,
   FilterOptions,
   FilterType,
@@ -17,7 +15,7 @@ import type {
 class DromeInstrument {
   readonly drome: Drome;
   private _destination: DromeAudioNode;
-  public cycles: DromeCycle;
+  public cycles: DromeArray;
 
   private _gain: number[][] = [[1]];
   readonly _filters: Map<FilterType, FilterOptions> = new Map();
@@ -37,38 +35,18 @@ class DromeInstrument {
     this.drome = drome;
     this._destination = destination;
     this._postgain = new GainEffect(this.drome.ctx, 1);
-    if (type === "synth") this.cycles = [];
-    else this.cycles = [[1]];
+    if (type === "synth") this.cycles = new DromeArray();
+    else this.cycles = new DromeArray([[1]]);
   }
 
   /* ----------------------------------------------------------------
   /* PATTERN METHODS
   ---------------------------------------------------------------- */
 
-  private applyPattern(patterns: number[][]) {
-    const cycles = this.cycles.length ? this.cycles : [[60]];
-    const loops = Math.max(cycles.length, patterns.length);
-    const nextCycles: DromeCycle = [];
-
-    for (let i = 0; i < loops; i++) {
-      let noteIndex = 0;
-      const cycle = cycles[i % cycles.length];
-      const nextCycle = patterns[i % patterns.length].map((p) =>
-        p === 0 ? (null as DromeCycleValue) : cycle[noteIndex++ % cycle.length]
-      );
-      nextCycles.push(nextCycle);
-    }
-
-    return nextCycles;
-  }
-
   note(
     ...cycles: (DromeCycleValue | DromeCycleValue[] | DromeCycleValue[][])[]
   ) {
-    this.cycles = cycles.map((cycle) =>
-      Array.isArray(cycle) ? cycle : [cycle]
-    );
-
+    this.cycles.note(...cycles);
     return this;
   }
 
@@ -78,86 +56,42 @@ class DromeInstrument {
       DromeCycleValue | DromeCycleValue[] | DromeCycleValue[][]
     ][]
   ) {
-    let nextCycles: typeof this.cycles = [];
-
-    for (const arr of arrangements) {
-      for (let i = 0; i < arr[0]; i++) {
-        nextCycles.push(Array.isArray(arr[1]) ? arr[1] : [arr[1]]);
-      }
-    }
-
-    this.cycles = nextCycles;
+    this.cycles.arrange(...arrangements);
     return this;
   }
 
   euclid(pulses: number | number[], steps: number, rotation = 0) {
-    this.cycles = this.applyPattern(euclid(pulses, steps, rotation));
+    this.cycles.euclid(pulses, steps, rotation);
     return this;
   }
 
   hex(...hexes: (string | number)[]) {
-    this.cycles = this.applyPattern(hexes.map(hex));
+    this.cycles.hex(...hexes);
     return this;
   }
 
   sequence(...args: [...number[][], number]) {
-    const steps = args[args.length - 1] as number;
-    const pulses = args.slice(0, -1) as number[][];
-    const patterns = pulses.map((p) => {
-      return Array.from({ length: steps }, (_, i) => (p.includes(i) ? 1 : 0));
-    });
-    this.cycles = this.applyPattern(patterns);
+    this.cycles.sequence(...args);
     return this;
   }
 
   struct(...patterns: number[][]) {
-    this.cycles = this.applyPattern(patterns);
+    this.cycles.struct(...patterns);
     return this;
   }
 
   fast(multiplier: number) {
-    if (multiplier <= 1) return this;
-    const length = Math.ceil(this.cycles.length / multiplier);
-    const numLoops = multiplier * length;
-    const nextCyles: typeof this.cycles = Array.from({ length }, () => []);
-
-    for (let i = 0; i < numLoops; i++) {
-      const currentIndex = Math.floor(i / multiplier);
-      nextCyles[currentIndex].push(...this.cycles[i % this.cycles.length]);
-    }
-
-    this.cycles = nextCyles;
+    this.cycles.fast(multiplier);
     return this;
   }
 
   slow(n: number) {
-    if (n <= 1) return this;
-    const nextCycles: DromeCycle = [];
-
-    for (const cycle of this.cycles) {
-      const chunkSize = Math.ceil((cycle.length * n) / n); // equals cycle.length
-
-      // Create n chunks directly
-      for (let k = 0; k < n; k++) {
-        const chunk: (DromeCycleValue | DromeCycleValue[])[] = [];
-        const startPos = k * chunkSize;
-        const endPos = Math.min((k + 1) * chunkSize, cycle.length * n);
-
-        for (let pos = startPos; pos < endPos; pos++) {
-          if (pos % n === 0) chunk.push(cycle[pos / n]);
-          else chunk.push(null as DromeCycleValue);
-        }
-
-        nextCycles.push(chunk);
-      }
-    }
-
-    this.cycles = nextCycles;
+    this.cycles.slow(n);
     return this;
   }
 
   stretch(factor: number) {
-    this.cycles = this.cycles.flatMap((cycle) => Array(factor).fill(cycle));
+    this.cycles.stretch(factor);
     return this;
   }
 
@@ -321,7 +255,7 @@ class DromeInstrument {
     }
 
     this._filters.clear();
-    this.cycles = [];
+    this.cycles.clear();
     this._gain = [];
   }
 }
