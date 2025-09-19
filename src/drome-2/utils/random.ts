@@ -22,14 +22,13 @@ const seedToRand = (seed: number) => (seed % SEED_MAX) / SEED_MAX;
 type RandMapper = (r: number, start: number, end: number) => number;
 
 interface RandBase {
-  (n?: number): RandBase;
-  arr(length?: number): DromeRandomArray;
-  num(): number;
+  (off?: number | number[]): RandBase;
+  get(length?: number): DromeRandomArray;
   range(start: number, end: number): RandBase;
 }
 
 function createRandFactory(met: Metronome, mapper: RandMapper) {
-  let offset: number | undefined;
+  let offset: number | number[] | undefined;
   let loop: number | undefined;
   let rangeStart = 0;
   let rangeEnd = 1;
@@ -38,7 +37,7 @@ function createRandFactory(met: Metronome, mapper: RandMapper) {
   const handler: ProxyHandler<(...args: any[]) => any> = {
     apply(_target, _thisArg, args): RandBase {
       offset = args[0] ?? 0;
-      loop = args[1] ?? -1;
+      loop = args[1] ?? undefined;
       return proxy;
     },
     get(_target, prop): any {
@@ -49,13 +48,7 @@ function createRandFactory(met: Metronome, mapper: RandMapper) {
           return proxy;
         };
       }
-      if (prop === "num") {
-        return (): number => {
-          const rFloat = Math.abs(seedToRand(getSeed(offset ?? met.bar)));
-          return mapper(rFloat, rangeStart, rangeEnd);
-        };
-      }
-      if (prop === "arr") {
+      if (prop === "get") {
         return (length = 4) => {
           return new DromeRandomArray({
             met,
