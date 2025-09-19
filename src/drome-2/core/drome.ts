@@ -30,9 +30,6 @@ class Drome extends AudioClock {
     this.audioChannels = AUDIO_CHANNELS.map(
       (gain) => new GainEffect(this.ctx, gain)
     );
-    // this.rand = createRand(this.metronome);
-    // this.brand = createBinaryRand(this.metronome);
-    // this.irand = createIntegerRand(this.metronome);
     this.on("bar", this.handleTick.bind(this));
   }
 
@@ -115,6 +112,7 @@ class Drome extends AudioClock {
     return new DromeArray().euclid(pulses, steps, rotation);
   }
 
+  // RANDOM GETTERS
   get rand() {
     return createRand(this.metronome);
   }

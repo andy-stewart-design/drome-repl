@@ -7,7 +7,7 @@ import type { DromeCycle, DromeCycleValue, DromeCyclePartial } from "../types";
 type DromeArrangement = [number, DromeCyclePartial];
 
 class DromeArray {
-  private _value: DromeCycle = [];
+  protected _value: DromeCycle = [];
 
   constructor(...notes: DromeCyclePartial[]) {
     this.note(...notes);

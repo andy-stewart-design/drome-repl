@@ -23,7 +23,7 @@ type RandMapper = (r: number, start: number, end: number) => number;
 
 interface RandBase {
   (n?: number): RandBase;
-  arr(length?: number): number[];
+  arr(length?: number): DromeRandomArray;
   num(): number;
   range(start: number, end: number): RandBase;
 }
@@ -99,4 +99,11 @@ function createBinaryRand(met: Metronome) {
   return createRandFactory(met, binaryMapper);
 }
 
-export { createRand, createIntegerRand, createBinaryRand };
+export {
+  createRand,
+  createIntegerRand,
+  createBinaryRand,
+  xorwise,
+  getSeed,
+  seedToRand,
+};
