@@ -29,14 +29,16 @@ interface RandBase {
 }
 
 function createRandFactory(met: Metronome, mapper: RandMapper) {
-  let counter: number | undefined;
+  let offset: number | undefined;
+  let loop: number | undefined;
   let rangeStart = 0;
   let rangeEnd = 1;
 
   // Explicitly type proxy as RandBase
   const handler: ProxyHandler<(...args: any[]) => any> = {
     apply(_target, _thisArg, args): RandBase {
-      counter = args[0] ?? 0;
+      offset = args[0] ?? 0;
+      loop = args[1] ?? -1;
       return proxy;
     },
     get(_target, prop): any {
@@ -49,7 +51,7 @@ function createRandFactory(met: Metronome, mapper: RandMapper) {
       }
       if (prop === "num") {
         return (): number => {
-          const rFloat = Math.abs(seedToRand(getSeed(counter ?? met.bar)));
+          const rFloat = Math.abs(seedToRand(getSeed(offset ?? met.bar)));
           return mapper(rFloat, rangeStart, rangeEnd);
         };
       }
@@ -59,17 +61,10 @@ function createRandFactory(met: Metronome, mapper: RandMapper) {
             met,
             mapper,
             range: { start: rangeStart, end: rangeEnd },
-            counter,
+            loop,
+            offset,
             length,
           });
-          // let seed = getSeed(counter ?? met.bar);
-          // const result: number[] = [];
-          // for (let i = 0; i < length; i++) {
-          //   const rFloat = Math.abs(seedToRand(seed));
-          //   result.push(mapper(rFloat, rangeStart, rangeEnd));
-          //   seed = xorwise(seed);
-          // }
-          // return result;
         };
       }
       return undefined;
