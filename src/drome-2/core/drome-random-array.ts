@@ -40,10 +40,26 @@ class DromeRandomArray extends DromeArray {
     let seed = getSeed(offsets[offsetIndex] + progress);
     const nextCycle: DromeCycle = [[]];
 
-    for (let i = 0; i < this.length; i++) {
-      const rFloat = Math.abs(seedToRand(seed));
-      nextCycle[0].push(this.mapper(rFloat, this.range.start, this.range.end));
-      seed = xorwise(seed);
+    if (!this._value.length) {
+      for (let i = 0; i < this.length; i++) {
+        const rFloat = Math.abs(seedToRand(seed));
+        nextCycle[0].push(
+          this.mapper(rFloat, this.range.start, this.range.end)
+        );
+        seed = xorwise(seed);
+      }
+    } else {
+      this._value[this.met.bar % this._value.length].forEach((val) => {
+        if (val == null) {
+          nextCycle[0].push(null);
+        } else {
+          const rFloat = Math.abs(seedToRand(seed));
+          nextCycle[0].push(
+            this.mapper(rFloat, this.range.start, this.range.end)
+          );
+          seed = xorwise(seed);
+        }
+      });
     }
 
     return nextCycle;
