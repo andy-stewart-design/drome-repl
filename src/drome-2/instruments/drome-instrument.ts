@@ -3,6 +3,7 @@ import DistortionEffect from "../effects/distortion";
 import GainEffect from "../effects/gain";
 import ReverbEffect from "../effects/reverb";
 import DromeArray from "../core/drome-array";
+import DromeRandomArray from "../core/drome-random-array";
 import type Drome from "../core/drome";
 import type {
   ADSRParams,
@@ -47,6 +48,11 @@ class DromeInstrument {
     ...cycles: (DromeCycleValue | DromeCycleValue[] | DromeCycleValue[][])[]
   ) {
     this.cycles.note(...cycles);
+    return this;
+  }
+
+  apply(dromeArray: DromeArray) {
+    this.cycles = dromeArray;
     return this;
   }
 

@@ -80,9 +80,9 @@ class DromeSynth extends DromeInstrument {
 
   start() {
     const nodes = super.connectChain();
-    const cycleIndex =
-      this.drome.metronome.bar % (this.cycles.value.length || 1);
-    const cycle = this.cycles.value[cycleIndex] || [[60]];
+    const cycles = this.cycles.value;
+    const cycleIndex = this.drome.metronome.bar % (cycles.length || 1);
+    const cycle = cycles[cycleIndex] || [[60]];
     const startTime = this.drome.barStartTime;
 
     const play = (note: DromeCycleValue, i: number) => {

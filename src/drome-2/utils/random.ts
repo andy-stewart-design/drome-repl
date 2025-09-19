@@ -1,3 +1,4 @@
+import DromeRandomArray from "../core/drome-random-array";
 import type { Metronome } from "../types";
 
 const PERIOD = 300;
@@ -53,15 +54,22 @@ function createRandFactory(met: Metronome, mapper: RandMapper) {
         };
       }
       if (prop === "arr") {
-        return (length = 4): number[] => {
-          let seed = getSeed(counter ?? met.bar);
-          const result: number[] = [];
-          for (let i = 0; i < length; i++) {
-            const rFloat = Math.abs(seedToRand(seed));
-            result.push(mapper(rFloat, rangeStart, rangeEnd));
-            seed = xorwise(seed);
-          }
-          return result;
+        return (length = 4) => {
+          return new DromeRandomArray({
+            met,
+            mapper,
+            range: { start: rangeStart, end: rangeEnd },
+            counter,
+            length,
+          });
+          // let seed = getSeed(counter ?? met.bar);
+          // const result: number[] = [];
+          // for (let i = 0; i < length; i++) {
+          //   const rFloat = Math.abs(seedToRand(seed));
+          //   result.push(mapper(rFloat, rangeStart, rangeEnd));
+          //   seed = xorwise(seed);
+          // }
+          // return result;
         };
       }
       return undefined;

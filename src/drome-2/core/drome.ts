@@ -22,9 +22,6 @@ const AUDIO_CHANNELS = [0.375, 0.875];
 class Drome extends AudioClock {
   private instruments: Set<DromeSynth | DromeSample> = new Set();
   private audioChannels: GainEffect[];
-  readonly rand: ReturnType<typeof createRand>;
-  readonly brand: ReturnType<typeof createBinaryRand>;
-  readonly irand: ReturnType<typeof createIntegerRand>;
   readonly sampleBuffers: Map<string, AudioBuffer> = new Map();
   readonly replListeners: [DromeEventType, DromeEventCallback][] = [];
 
@@ -33,9 +30,9 @@ class Drome extends AudioClock {
     this.audioChannels = AUDIO_CHANNELS.map(
       (gain) => new GainEffect(this.ctx, gain)
     );
-    this.rand = createRand(this.metronome);
-    this.brand = createBinaryRand(this.metronome);
-    this.irand = createIntegerRand(this.metronome);
+    // this.rand = createRand(this.metronome);
+    // this.brand = createBinaryRand(this.metronome);
+    // this.irand = createIntegerRand(this.metronome);
     this.on("bar", this.handleTick.bind(this));
   }
 
@@ -116,6 +113,18 @@ class Drome extends AudioClock {
 
   euclid(pulses: number | number[], steps: number, rotation = 0) {
     return new DromeArray().euclid(pulses, steps, rotation);
+  }
+
+  get rand() {
+    return createRand(this.metronome);
+  }
+
+  get brand() {
+    return createBinaryRand(this.metronome);
+  }
+
+  get irand() {
+    return createIntegerRand(this.metronome);
   }
 }
 

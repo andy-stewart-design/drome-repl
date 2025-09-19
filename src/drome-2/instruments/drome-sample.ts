@@ -83,8 +83,9 @@ class DromeSample extends DromeInstrument {
 
   start() {
     const nodes = super.connectChain();
-    const cycleIndex = this.drome.metronome.bar % this.cycles.value.length;
-    const cycle = this.cycles.value[cycleIndex];
+    const cycles = this.cycles.value;
+    const cycleIndex = this.drome.metronome.bar % cycles.length;
+    const cycle = cycles[cycleIndex];
     const startTime = this.drome.barStartTime;
     const noteDuration = this.drome.barDuration / cycle.length;
 

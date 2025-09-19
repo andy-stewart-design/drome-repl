@@ -2,24 +2,22 @@ import { euclid } from "../utils/euclid-2";
 import { hex } from "../utils/hex";
 // import { range } from "../utils/range";
 // import { rotateArray } from "../utils/rotate";
-import type { DromeCycle, DromeCycleValue } from "../types";
+import type { DromeCycle, DromeCycleValue, DromeCyclePartial } from "../types";
 
-type DCV = DromeCycleValue;
-type DromeCycleInput = DCV | DCV[] | DCV[][];
-type DromeArrangement = [number, DromeCycleInput];
+type DromeArrangement = [number, DromeCyclePartial];
 
 class DromeArray {
   private _value: DromeCycle = [];
 
-  constructor(initialValue?: DromeCycle) {
-    this._value = initialValue ?? [];
+  constructor(...notes: DromeCyclePartial[]) {
+    this.note(...notes);
   }
 
   /* ----------------------------------------------------------------
   /* PATTERN SETTERS
   ---------------------------------------------------------------- */
 
-  private applyPattern(patterns: number[][]) {
+  private applyPattern(patterns: DromeCycleValue[][]) {
     const cycles = this._value.length ? this._value : [[0]];
     const loops = Math.max(cycles.length, patterns.length);
     const nextCycles: DromeCycle = [];
@@ -59,7 +57,7 @@ class DromeArray {
     return this;
   }
 
-  note(...notes: DromeCycleInput[]) {
+  note(...notes: DromeCyclePartial[]) {
     this._value = notes.map((cycle) =>
       Array.isArray(cycle) ? cycle : [cycle]
     );
@@ -77,7 +75,7 @@ class DromeArray {
     return this;
   }
 
-  struct(...patterns: number[][]) {
+  struct(...patterns: DromeCycleValue[][]) {
     this._value = this.applyPattern(patterns);
     return this;
   }
