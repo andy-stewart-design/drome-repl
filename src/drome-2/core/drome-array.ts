@@ -138,6 +138,14 @@ class DromeArray {
   /* GETTERS
   ---------------------------------------------------------------- */
 
+  setValue(value: DromeCycle) {
+    this._value = value;
+  }
+
+  set value(value: DromeCycle) {
+    this._value = value;
+  }
+
   get value() {
     return this._value;
   }

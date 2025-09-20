@@ -64,7 +64,7 @@ class DromeSynth extends DromeInstrument {
     if (typeof n === "number") this.rootNote = n;
     else this.rootNote = noteToMidi(n) || 0;
 
-    if (!this.cycles.value.length) this.cycles.note([0]);
+    // if (!this.cycles.value.length) this.cycles.note([0]);
     return this;
   }
 
@@ -82,7 +82,7 @@ class DromeSynth extends DromeInstrument {
     const nodes = super.connectChain();
     const cycles = this.cycles.value;
     const cycleIndex = this.drome.metronome.bar % (cycles.length || 1);
-    const cycle = cycles[cycleIndex] || [[60]];
+    const cycle = cycles[cycleIndex] || (this.rootNote && [[0]]) || [[60]];
     const startTime = this.drome.barStartTime;
 
     const play = (note: DromeCycleValue, i: number) => {

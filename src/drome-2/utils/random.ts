@@ -50,7 +50,7 @@ function createRandFactory(met: Metronome, mapper: RandMapper) {
       }
       if (prop === "get") {
         return (length = 4) => {
-          return new DromeRandomArray({
+          const arr = new DromeRandomArray({
             met,
             mapper,
             range: { start: rangeStart, end: rangeEnd },
@@ -58,6 +58,8 @@ function createRandFactory(met: Metronome, mapper: RandMapper) {
             offset,
             length,
           });
+          arr.euclid(length, length);
+          return arr;
         };
       }
       return undefined;

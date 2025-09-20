@@ -64,28 +64,6 @@ class DromeRandomArray extends DromeArray {
 
     return nextCycle;
   }
-
-  //   get value() {
-  //     const offsets = [this.offset].flat();
-  //     const nextCycle: DromeCycle = [];
-
-  //     offsets.forEach((offset, i) => {
-  //       const progress = this.loop > 0 ? this.met.bar % this.loop : this.met.bar;
-  //       let seed = getSeed(offset + progress);
-
-  //       for (let j = 0; j < this.length; j++) {
-  //         const rFloat = Math.abs(seedToRand(seed));
-  //         const rand = this.mapper(rFloat, this.range.start, this.range.end);
-  //         if (!nextCycle[i]) nextCycle.push([rand]);
-  //         else nextCycle[i].push(rand);
-  //         seed = xorwise(seed);
-  //       }
-  //     });
-
-  //     console.log(nextCycle);
-
-  //     return nextCycle;
-  //   }
 }
 
 export default DromeRandomArray;

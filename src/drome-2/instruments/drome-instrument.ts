@@ -11,6 +11,7 @@ import type {
   FilterOptions,
   FilterType,
 } from "../types";
+import DromeRandomArray from "../core/drome-random-array";
 
 class DromeInstrument {
   readonly drome: Drome;
@@ -36,7 +37,7 @@ class DromeInstrument {
     this._destination = destination;
     this._postgain = new GainEffect(this.drome.ctx, 1);
     if (type === "synth") this.cycles = new DromeArray();
-    else this.cycles = new DromeArray([[1]]);
+    else this.cycles = new DromeArray();
   }
 
   /* ----------------------------------------------------------------
@@ -51,6 +52,10 @@ class DromeInstrument {
   }
 
   apply(dromeArray: DromeArray) {
+    console.log(this.cycles.value);
+    if (dromeArray instanceof DromeRandomArray) {
+      if (this.cycles.value.length) dromeArray.setValue(this.cycles.value);
+    }
     this.cycles = dromeArray;
     return this;
   }
