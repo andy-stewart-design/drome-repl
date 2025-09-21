@@ -88,7 +88,7 @@ class DromeSynth extends DromeInstrument {
     const play = (note: DromeCycleValue, i: number) => {
       if (typeof note !== "number") return;
 
-      const frequency = this.getFrequency(note);
+      const frequency = this.getFrequency(note + (!this.rootNote ? 60 : 0));
 
       this.waveforms.forEach((type) => {
         const osc = new DromeAudioSource(this.drome.ctx, nodes[0].input, {

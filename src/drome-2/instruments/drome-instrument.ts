@@ -13,13 +13,17 @@ import type {
 } from "../types";
 import DromeRandomArray from "../core/drome-random-array";
 
+function isDromeArrayTuple(n: any[]): n is [DromeArray] {
+  return n[0] instanceof DromeArray;
+}
+
 class DromeInstrument {
   readonly drome: Drome;
   private _destination: DromeAudioNode;
   public cycles: DromeArray;
 
-  private _gain: number[][] = [[1]];
-  readonly _filters: Map<FilterType, FilterOptions> = new Map();
+  private _gain: DromeArray = new DromeArray([[1]]);
+  protected readonly _filters: Map<FilterType, FilterOptions> = new Map();
   private _delay: DelayEffect | undefined;
   private _reverb: ReverbEffect | undefined;
   private _distortion: DistortionEffect | undefined;
@@ -52,7 +56,6 @@ class DromeInstrument {
   }
 
   apply(dromeArray: DromeArray) {
-    console.log(this.cycles.value);
     if (dromeArray instanceof DromeRandomArray) {
       if (this.cycles.value.length) dromeArray.setValue(this.cycles.value);
     }
@@ -124,8 +127,13 @@ class DromeInstrument {
     filter.env = { depth: d, adsr };
   }
 
-  gain(...n: (number | number[])[]) {
-    this._gain = n.map((m) => (Array.isArray(m) ? m : [m]));
+  gain(...n: (number | number[])[] | [DromeArray]) {
+    if (isDromeArrayTuple(n)) {
+      this._gain = n[0];
+      return this;
+    }
+
+    this._gain.setValue(n.map((m) => (Array.isArray(m) ? m : [m])));
     return this;
   }
 
@@ -235,14 +243,17 @@ class DromeInstrument {
   }
 
   getCurrentGain(cycleIndex: number, noteIndex: number) {
-    return this._gain[this.drome.metronome.bar % this._gain.length][
-      noteIndex % this._gain[cycleIndex % this._gain.length].length
-    ];
+    const { value } = this._gain;
+    const currentGain =
+      value[this.drome.metronome.bar % value.length][
+        noteIndex % value[cycleIndex % value.length].length
+      ];
+    return typeof currentGain === "number" ? currentGain : 1;
   }
 
   getCurrentPan(cycleIndex: number, noteIndex: number) {
     return this._pan[this.drome.metronome.bar % this._pan.length][
-      noteIndex % this._pan[cycleIndex % this._gain.length].length
+      noteIndex % this._pan[cycleIndex % this._gain.value.length].length
     ];
   }
 
@@ -266,7 +277,7 @@ class DromeInstrument {
 
     this._filters.clear();
     this.cycles.clear();
-    this._gain = [];
+    // this._gain = [];
   }
 }
 
