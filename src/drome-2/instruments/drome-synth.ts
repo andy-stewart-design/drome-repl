@@ -15,12 +15,6 @@ import type {
 } from "../types";
 import type Drome from "../core/drome";
 
-// Binary: 0 | 1
-// pattern: (Binary | Binary[])[][]
-// sound: SynthType | SampleType
-// notes: (number | number[])[][] // synth only
-// rate: number[][] // sample only
-
 class DromeSynth extends DromeInstrument {
   private waveforms: OscType[] = [];
   private oscillators: Set<DromeAudioSource> = new Set();
