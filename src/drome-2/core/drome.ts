@@ -2,13 +2,12 @@ import AudioClock from "./audio-clock";
 import DromeSynth from "../instruments/drome-synth";
 import DromeSample from "../instruments/drome-sample";
 import GainEffect from "../effects/gain";
-import DromeArray from "./drome-array";
+import DromeArray, { type DromeCyclePartial } from "./drome-array";
 import type {
   OscTypeAlias,
   SampleNote,
   DromeEventType,
   DromeEventCallback,
-  DromeCycleValue,
 } from "../types";
 
 import {
@@ -102,14 +101,12 @@ class Drome extends AudioClock {
   }
 
   // DROME ARRAY METHODS
-  note(
-    ...notes: (DromeCycleValue | DromeCycleValue[] | DromeCycleValue[][])[]
-  ) {
-    return new DromeArray().note(...notes);
+  note(...notes: DromeCyclePartial<number>[]) {
+    return new DromeArray([[0]]).note(...notes);
   }
 
   euclid(pulses: number | number[], steps: number, rotation = 0) {
-    return new DromeArray().euclid(pulses, steps, rotation);
+    return new DromeArray([[1]]).euclid(pulses, steps, rotation);
   }
 
   // RANDOM GETTERS

@@ -5,7 +5,7 @@ import { noteToMidi } from "../utils/note-name-to-midi";
 import { scaleAliasMap } from "../dictionaries/notes/scale-alias";
 import { synthAliasMap } from "../dictionaries/synths/synth-aliases";
 import type {
-  DromeCycleValue,
+  // DromeCycleValue,
   DromeAudioNode,
   NoteName,
   NoteValue,
@@ -14,15 +14,18 @@ import type {
   ScaleAlias,
 } from "../types";
 import type Drome from "../core/drome";
+import type { DromeCycleValue } from "../core/drome-array";
 
-class DromeSynth extends DromeInstrument {
+type SynthCycleValue = DromeCycleValue<number | number[]>;
+
+class DromeSynth extends DromeInstrument<number | number[]> {
   private waveforms: OscType[] = [];
   private oscillators: Set<DromeAudioSource> = new Set();
   private rootNote = 0;
   private _scale: number[] | null = null;
 
   constructor(drome: Drome, dest: DromeAudioNode, ...types: OscTypeAlias[]) {
-    super(drome, dest, "synth");
+    super(drome, dest, [[60]]);
     if (types.length === 0) {
       this.waveforms.push("sine");
     } else {
@@ -42,10 +45,7 @@ class DromeSynth extends DromeInstrument {
     return midiToFreq(this.rootNote + octave + step);
   }
 
-  private getDuration(
-    cycle: (DromeCycleValue | DromeCycleValue[])[],
-    i: number
-  ) {
+  private getDuration(cycle: SynthCycleValue[], i: number) {
     const baseSize = this.drome.barDuration / cycle.length;
     const offset = baseSize * i;
 
@@ -63,8 +63,7 @@ class DromeSynth extends DromeInstrument {
   root(n: NoteName | NoteValue | number) {
     if (typeof n === "number") this.rootNote = n;
     else this.rootNote = noteToMidi(n) || 0;
-
-    // if (!this.cycles.value.length) this.cycles.note([0]);
+    this.cycles.defaultValue = [[0]];
     return this;
   }
 
@@ -81,15 +80,14 @@ class DromeSynth extends DromeInstrument {
   start() {
     const nodes = super.connectChain();
     const cycles = this.cycles.value;
-    const cycleIndex = this.drome.metronome.bar % (cycles.length || 1);
-    const cycle = cycles[cycleIndex] || (this.rootNote && [[0]]) || [[60]];
+    const cycleIndex = this.drome.metronome.bar % cycles.length;
+    const cycle = cycles[cycleIndex];
     const startTime = this.drome.barStartTime;
 
-    const play = (note: DromeCycleValue, i: number) => {
+    const play = (note: SynthCycleValue, i: number) => {
       if (typeof note !== "number") return;
 
-      const frequency = this.getFrequency(note + (!this.rootNote ? 60 : 0));
-
+      const frequency = this.getFrequency(note);
       this.waveforms.forEach((type) => {
         const osc = new DromeAudioSource(this.drome.ctx, nodes[0].input, {
           type: "oscillator",

@@ -5,24 +5,25 @@ import FilterEffect from "../effects/filter";
 import { drumAliases as _drumAliases } from "../dictionaries/samples/drum-alias";
 import type Drome from "../core/drome";
 import type {
-  DromeCycleValue,
+  // DromeCycleValue,
   DromeAudioNode,
   SampleBank,
   SampleName,
   SampleNote,
 } from "../types";
+import type { DromeCycleValue } from "../core/drome-array";
 
 const drumMachines: Record<string, string | string[]> = _drumMachines;
 const drumAliases: Record<string, string> = _drumAliases;
 
-class DromeSample extends DromeInstrument {
+class DromeSample extends DromeInstrument<number> {
   private sampleNames: SampleName[];
   private sampleBank: SampleBank = "rolandtr909";
   private sources: Set<DromeAudioSource> = new Set();
   private _playbackRate = 1;
 
   constructor(drome: Drome, dest: DromeAudioNode, ...names: SampleNote[]) {
-    super(drome, dest, "sample");
+    super(drome, dest, [[1]]);
     if (names.length) this.sampleNames = names;
     else this.sampleNames = ["bd"];
   }
@@ -84,13 +85,12 @@ class DromeSample extends DromeInstrument {
   start() {
     const nodes = super.connectChain();
     const cycles = this.cycles.value;
-    console.log(cycles);
-    const cycleIndex = this.drome.metronome.bar % (cycles.length || 1);
-    const cycle = cycles[cycleIndex] || [[1]];
+    const cycleIndex = this.drome.metronome.bar % cycles.length;
+    const cycle = cycles[cycleIndex];
     const startTime = this.drome.barStartTime;
     const noteDuration = this.drome.barDuration / cycle.length;
 
-    const play = async (note: DromeCycleValue, i: number) => {
+    const play = async (note: DromeCycleValue<number>, i: number) => {
       if (!note) return;
       this.sampleNames.forEach(async (name) => {
         let [buffer] = await this.loadSample(name);
@@ -118,9 +118,7 @@ class DromeSample extends DromeInstrument {
     };
 
     cycle.forEach(async (pat, i) => {
-      if (!pat) return;
-      else if (Array.isArray(pat)) pat.forEach((el) => play(el, i));
-      else play(pat, i);
+      if (pat) play(pat, i);
     });
   }
 

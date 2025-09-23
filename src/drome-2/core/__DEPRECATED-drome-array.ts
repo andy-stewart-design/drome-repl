@@ -2,39 +2,31 @@ import { euclid } from "../utils/euclid-2";
 import { hex } from "../utils/hex";
 // import { range } from "../utils/range";
 // import { rotateArray } from "../utils/rotate";
+import type { DromeCycle, DromeCycleValue, DromeCyclePartial } from "../types";
 
-/* ----------------------------------------------------------------
-/* TYPES
----------------------------------------------------------------- */
-type DromeCycleValue<T> = T | null | undefined;
-type DromeCycle<T> = DromeCycleValue<T>[][];
-type DromeCyclePartial<T> = DromeCycleValue<T> | DromeCycleValue<T>[];
-type DromeArrangement<T> = [number, DromeCyclePartial<T>];
+type DromeArrangement = [number, DromeCyclePartial];
 
-/* ----------------------------------------------------------------
-/* BASE CLASS
----------------------------------------------------------------- */
-class DromeArray<T> {
-  protected _value: DromeCycle<T> = [];
-  protected _defaultValue: DromeCycle<T>;
+class DromeArray {
+  protected _value: DromeCycle = [];
 
-  constructor(defaultValue: DromeCycle<T>) {
-    this._defaultValue = defaultValue;
+  constructor(...notes: DromeCyclePartial[]) {
+    this.note(...notes);
   }
 
   /* ----------------------------------------------------------------
   /* PATTERN SETTERS
   ---------------------------------------------------------------- */
-  protected applyPattern(patterns: (number | null | undefined)[][]) {
-    const cycles = this._value.length ? this._value : this._defaultValue;
+
+  private applyPattern(patterns: DromeCycleValue[][]) {
+    const cycles = this._value.length ? this._value : [[0]];
     const loops = Math.max(cycles.length, patterns.length);
-    const nextCycles: DromeCycle<T> = [];
+    const nextCycles: DromeCycle = [];
 
     for (let i = 0; i < loops; i++) {
       let noteIndex = 0;
       const cycle = cycles[i % cycles.length];
       const nextCycle = patterns[i % patterns.length].map((p) =>
-        p === 0 ? null : cycle[noteIndex++ % cycle.length]
+        p === 0 ? (null as DromeCycleValue) : cycle[noteIndex++ % cycle.length]
       );
       nextCycles.push(nextCycle);
     }
@@ -42,8 +34,8 @@ class DromeArray<T> {
     return nextCycles;
   }
 
-  arrange(...arrangements: DromeArrangement<T>[]) {
-    let nextCycles: DromeCycle<T> = [];
+  arrange(...arrangements: DromeArrangement[]) {
+    let nextCycles: DromeCycle = [];
 
     for (const arr of arrangements) {
       for (let i = 0; i < arr[0]; i++) {
@@ -65,24 +57,25 @@ class DromeArray<T> {
     return this;
   }
 
-  note(...notes: DromeCyclePartial<T>[]) {
+  note(...notes: DromeCyclePartial[]) {
     this._value = notes.map((cycle) =>
       Array.isArray(cycle) ? cycle : [cycle]
     );
+
     return this;
   }
 
   sequence(...args: [...number[][], number]) {
     const steps = args[args.length - 1] as number;
     const pulses = args.slice(0, -1) as number[][];
-    const patterns = pulses.map((p) =>
-      Array.from({ length: steps }, (_, i) => (p.includes(i) ? 1 : 0))
-    );
+    const patterns = pulses.map((p) => {
+      return Array.from({ length: steps }, (_, i) => (p.includes(i) ? 1 : 0));
+    });
     this._value = this.applyPattern(patterns);
     return this;
   }
 
-  struct(...patterns: number[][]) {
+  struct(...patterns: DromeCycleValue[][]) {
     this._value = this.applyPattern(patterns);
     return this;
   }
@@ -90,6 +83,7 @@ class DromeArray<T> {
   /* ----------------------------------------------------------------
   /* PATTERN MODIFIERS
   ---------------------------------------------------------------- */
+
   fast(multiplier: number) {
     if (multiplier <= 1) return this;
     const length = Math.ceil(this._value.length / multiplier);
@@ -107,19 +101,20 @@ class DromeArray<T> {
 
   slow(n: number) {
     if (n <= 1) return this;
-    const nextCycles: DromeCycle<T> = [];
+    const nextCycles: DromeCycle = [];
 
     for (const cycle of this._value) {
-      const chunkSize = Math.ceil((cycle.length * n) / n);
+      const chunkSize = Math.ceil((cycle.length * n) / n); // equals cycle.length
 
+      // Create n chunks directly
       for (let k = 0; k < n; k++) {
-        const chunk: DromeCycleValue<T>[] = [];
+        const chunk: (DromeCycleValue | DromeCycleValue[])[] = [];
         const startPos = k * chunkSize;
         const endPos = Math.min((k + 1) * chunkSize, cycle.length * n);
 
         for (let pos = startPos; pos < endPos; pos++) {
           if (pos % n === 0) chunk.push(cycle[pos / n]);
-          else chunk.push(null);
+          else chunk.push(null as DromeCycleValue);
         }
 
         nextCycles.push(chunk);
@@ -142,29 +137,18 @@ class DromeArray<T> {
   /* ----------------------------------------------------------------
   /* GETTERS
   ---------------------------------------------------------------- */
-  set defaultValue(value: DromeCycle<T>) {
-    this._defaultValue = value;
+
+  setValue(value: DromeCycle) {
+    this._value = value;
   }
 
-  set value(value: DromeCycle<T>) {
+  set value(value: DromeCycle) {
     this._value = value;
   }
 
   get value() {
-    return this._value.length ? this._value : this._defaultValue;
+    return this._value;
   }
 }
 
 export default DromeArray;
-export type {
-  DromeCycleValue,
-  DromeCycle,
-  DromeCyclePartial,
-  DromeArrangement,
-};
-
-// /* ----------------------------------------------------------------
-// /* SPECIALIZED CLASSES
-// ---------------------------------------------------------------- */
-// export class FlatDromeArray extends DromeArray<number> {}
-// export class NestedDromeArray extends DromeArray<number | number[]> {}

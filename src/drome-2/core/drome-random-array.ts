@@ -1,6 +1,6 @@
-import DromeArray from "./drome-array";
+import DromeArray, { type DromeCycle } from "./drome-array";
 import { getSeed, seedToRand, xorwise } from "../utils/random";
-import type { DromeCycle, Metronome } from "../types";
+import type { Metronome } from "../types";
 
 type RandMapper = (r: number, start: number, end: number) => number;
 
@@ -13,7 +13,7 @@ interface DromeRandomArrayOption {
   mapper: RandMapper;
 }
 
-class DromeRandomArray extends DromeArray {
+class DromeRandomArray extends DromeArray<number | number[]> {
   private met: Metronome;
   private offset: number | number[];
   private loop: number | null;
@@ -22,13 +22,17 @@ class DromeRandomArray extends DromeArray {
   private mapper: RandMapper;
 
   constructor(opts: DromeRandomArrayOption) {
-    super();
+    super([[0]]);
     this.met = opts.met;
     this.length = opts.length;
     this.offset = opts.offset ?? 0;
     this.loop = opts.loop ?? null;
     this.range = opts.range;
     this.mapper = opts.mapper;
+  }
+
+  set value(value: DromeCycle<number | number[]>) {
+    this._value = value;
   }
 
   get value() {
@@ -38,7 +42,7 @@ class DromeRandomArray extends DromeArray {
 
     const progress = this.loop ? this.met.bar % this.loop : this.met.bar;
     let seed = getSeed(offsets[offsetIndex] + progress);
-    const nextCycle: DromeCycle = [[]];
+    const nextCycle: DromeCycle<number> = [[]];
 
     if (!this._value.length) {
       for (let i = 0; i < this.length; i++) {
@@ -50,7 +54,7 @@ class DromeRandomArray extends DromeArray {
       }
     } else {
       this._value[this.met.bar % this._value.length].forEach((val) => {
-        if (val == null) {
+        if (val === null || val === undefined) {
           nextCycle[0].push(null);
         } else {
           const rFloat = Math.abs(seedToRand(seed));
