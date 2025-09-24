@@ -153,6 +153,10 @@ class DromeArray<T> {
   get value() {
     return this._value.length ? this._value : this._defaultValue;
   }
+
+  getRawValue() {
+    return this._value;
+  }
 }
 
 export default DromeArray;

@@ -45,6 +45,28 @@ d.stack(
 )`,
   },
   {
+    title: "Randomness",
+    code: `const root = "a"
+const scale = "min"
+d.bpm(140)
+
+d.sample("bd:3").bank("tr909").euclid(3,8).gain(0.75).push()
+d.sample("hh:4").bank("tr909").hex("ff").gain(d.rand.range(0.5,0.75).get(8)).pan(0.5).push()
+d.sample("cp").bank("tr808").euclid(1,4,2).push()
+
+d.synth("sine","saw").root("c3").scale(scale).note(d.euclid(6,16)).legato()
+  .lpf(500).lpenv(3,0,1,0,0.2).postgain(0.5).push()
+
+d.synth("saw").root(root + 3).scale(scale)
+  .note(d.irand([100,88],1).range(0,7).get(8))
+  .euclid(8,8).legato().reverb(0.5).pan([-1,1]).delay(0.5, 0.25)
+  .adsr(0,1,0,0).lpf(600).lpenv(3,0.25,0.25,0.333,0).push()
+
+d.synth("sq","sine").root(root + 1).scale(scale)
+  .note(6,5).euclid(8,8).reverb(0.1)
+  .adsr(0,0.5,0.5,0.1).lpf(400).lpenv(2,0,0.5,0.5,0).push()`,
+  },
+  {
     title: "Music 4 Machines",
     code: `d.bpm(134)
 

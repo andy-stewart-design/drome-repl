@@ -2,40 +2,34 @@ import DelayEffect from "../effects/delay";
 import DistortionEffect from "../effects/distortion";
 import GainEffect from "../effects/gain";
 import ReverbEffect from "../effects/reverb";
-// import DromeArray from "../core/drome-array";
 import type Drome from "../core/drome";
 import type {
   ADSRParams,
-  // DromeCycleValue,
   DromeAudioNode,
   FilterOptions,
   FilterType,
 } from "../types";
 import DromeRandomArray from "../core/drome-random-array";
 
-import DromeArray2 from "../core/drome-array";
+import DromeArray from "../core/drome-array";
 import type {
   DromeCycle,
   DromeCyclePartial,
   DromeArrangement,
 } from "../core/drome-array";
 
-function isDromeArrayTuple(n: any[]): n is [DromeArray2<number>] {
-  return n[0] instanceof DromeArray2;
-}
-
 class DromeInstrument<T extends number | number[]> {
   readonly drome: Drome;
   private _destination: DromeAudioNode;
-  protected cycles: DromeArray2<T>;
+  protected cycles: DromeArray<T>;
 
-  private _gain = new DromeArray2([[1]]);
   protected readonly _filters: Map<FilterType, FilterOptions> = new Map();
   private _delay: DelayEffect | undefined;
   private _reverb: ReverbEffect | undefined;
   private _distortion: DistortionEffect | undefined;
+  private _gain = new DromeArray([[1]]);
   private _postgain: GainEffect;
-  private _pan: number[][] = [[0]];
+  private _pan = new DromeArray([[0]]);
   protected _legato = false;
   protected readonly _env: ADSRParams = { a: 0.001, d: 0.125, s: 1.0, r: 0.01 };
 
@@ -47,21 +41,25 @@ class DromeInstrument<T extends number | number[]> {
     this.drome = drome;
     this._destination = destination;
     this._postgain = new GainEffect(this.drome.ctx, 1);
-    this.cycles = new DromeArray2<T>(defaultCycle);
+    this.cycles = new DromeArray<T>(defaultCycle);
   }
 
   /* ----------------------------------------------------------------
   /* PATTERN METHODS
   ---------------------------------------------------------------- */
 
-  note(...cycles: DromeCyclePartial<T>[]) {
-    this.cycles.note(...cycles);
+  note(...cycles: DromeCyclePartial<T>[] | [DromeArray<T>]) {
+    if (isDromeArrayTuple(cycles)) this.apply(cycles[0]);
+    else this.cycles.note(...cycles);
     return this;
   }
 
-  apply(dromeArray: DromeArray2<T>) {
-    if (dromeArray instanceof DromeRandomArray) {
-      if (this.cycles.value.length) dromeArray.value = this.cycles.value;
+  apply(dromeArray: DromeArray<T>) {
+    if (
+      dromeArray instanceof DromeRandomArray &&
+      this.cycles.getRawValue().length
+    ) {
+      dromeArray.value = this.cycles.value;
     }
     this.cycles = dromeArray;
     return this;
@@ -87,8 +85,9 @@ class DromeInstrument<T extends number | number[]> {
     return this;
   }
 
-  struct(...patterns: number[][]) {
-    this.cycles.struct(...patterns);
+  struct(...patterns: number[][] | [DromeArray<T>]) {
+    if (isDromeArrayTuple(patterns)) this.apply(patterns[0]);
+    else this.cycles.struct(...patterns);
     return this;
   }
 
@@ -126,8 +125,7 @@ class DromeInstrument<T extends number | number[]> {
     filter.env = { depth: d, adsr };
   }
 
-  // gain(...n: (number | number[])[] | [DromeArray]) {
-  gain(...n: (number | number[])[]) {
+  gain(...n: (number | number[])[] | [DromeArray<number>]) {
     if (isDromeArrayTuple(n)) {
       this._gain = n[0];
       return this;
@@ -142,8 +140,13 @@ class DromeInstrument<T extends number | number[]> {
     return this;
   }
 
-  pan(...n: (number | number[])[]) {
-    this._pan = n.map((m) => (Array.isArray(m) ? m : [m]));
+  pan(...n: (number | number[])[] | [DromeArray<number>]) {
+    if (isDromeArrayTuple(n)) {
+      this._pan = n[0];
+      return this;
+    }
+
+    this._pan.value = n.map((m) => (Array.isArray(m) ? m : [m]));
     return this;
   }
 
@@ -248,14 +251,16 @@ class DromeInstrument<T extends number | number[]> {
       value[this.drome.metronome.bar % value.length][
         noteIndex % value[cycleIndex % value.length].length
       ];
-    return typeof currentGain === "number" ? currentGain : 1;
+    return currentGain || 1;
   }
 
   getCurrentPan(cycleIndex: number, noteIndex: number) {
-    const gainValue = this._gain.value.length ? this._gain.value : [[1]];
-    return this._pan[this.drome.metronome.bar % this._pan.length][
-      noteIndex % this._pan[cycleIndex % gainValue.length].length
-    ];
+    const value = this._pan.value.length ? this._pan.value : [[1]];
+    const currentPan =
+      value[this.drome.metronome.bar % value.length][
+        noteIndex % value[cycleIndex % value.length].length
+      ];
+    return currentPan || 0;
   }
 
   cleanup() {
@@ -289,3 +294,7 @@ const isAudioNode = (
 ): node is DromeAudioNode => {
   return node !== undefined;
 };
+
+function isDromeArrayTuple<T>(n: any[]): n is [DromeArray<T>] {
+  return n[0] instanceof DromeArray;
+}
