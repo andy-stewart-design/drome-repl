@@ -84,7 +84,7 @@ class DromeSynth extends DromeInstrument<number | number[]> {
     const cycle = cycles[cycleIndex];
     const startTime = this.drome.barStartTime;
 
-    const play = (note: SynthCycleValue, i: number) => {
+    const play = (note: SynthCycleValue, noteIndex: number, chordIndex = 0) => {
       if (typeof note !== "number") return;
 
       const frequency = this.getFrequency(note);
@@ -94,13 +94,13 @@ class DromeSynth extends DromeInstrument<number | number[]> {
           waveform: type,
           frequency,
           env: this._env,
-          gain: this.getCurrentGain(cycleIndex, i),
+          gain: this.getCurrentGain(cycleIndex, noteIndex),
           filters: this._filters,
-          pan: this.getCurrentPan(cycleIndex, i),
+          pan: this.getCurrentPan(cycleIndex, noteIndex),
         });
 
-        const { offset, duration } = this.getDuration(cycle, i);
-        osc.play(startTime + offset, duration);
+        const { offset, duration } = this.getDuration(cycle, noteIndex);
+        osc.play(startTime + offset, duration, chordIndex);
 
         this.oscillators.add(osc);
         osc.node.onended = () => this.oscillators.delete(osc);
@@ -109,7 +109,7 @@ class DromeSynth extends DromeInstrument<number | number[]> {
 
     cycle.forEach((pat, i) => {
       if (!Array.isArray(pat) && typeof pat !== "number") return;
-      else if (Array.isArray(pat)) pat.forEach((el) => play(el, i));
+      else if (Array.isArray(pat)) pat.forEach((el, j) => play(el, i, j));
       else play(pat, i);
     });
   }

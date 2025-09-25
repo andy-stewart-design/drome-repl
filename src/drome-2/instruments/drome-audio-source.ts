@@ -23,6 +23,19 @@ interface DromeBufferOptions extends BaseAudioSourceOptions {
 
 type DromeAudioSourceOptions = DromeOscillatorOptions | DromeBufferOptions;
 
+const startOffset = [
+  0.0037173433480637208, 0.0036399005414373565, 0.004805912343136861,
+  0.008835915924177914, 0.0010848983101914178, 0.009249816039756987,
+  0.008960220899601473, 0.0033275763528526417, 0.008992876217121193,
+  0.0017311246659923974, 0.000011548745340322908, 0.006543725187045033,
+  0.007157623846783098, 0.004417757250503166, 0.00696252757730683,
+  0.0001743504746143354, 0.006431837170037681, 0.0020687575086174624,
+  0.0057192790612300235, 0.0026010047087347875, 0.0006599113349611319,
+  0.0007921460560189053, 0.008698528828336757, 0.007802407803619387,
+  0.007860481516273603, 0.003387970143172543, 0.0033498809218984117,
+  0.0019562771237912756,
+];
+
 class DromeAudioSource {
   private ctx: AudioContext;
   private gainNode: GainNode;
@@ -80,14 +93,29 @@ class DromeAudioSource {
       this.srcNodes.push(new OscillatorNode(this.ctx, { type, frequency }));
     } else {
       const voices = 7;
-      const detune = 12;
-      const type = "sawtooth";
+      const detune = 12; // in cents
+      const oscType = "sawtooth";
+
       for (let i = 0; i < voices; i++) {
         const osc = new OscillatorNode(this.ctx, {
-          type,
+          type: oscType,
           frequency,
           detune: (i / (voices - 1) - 0.5) * 2 * detune,
         });
+
+        // --- add independent slow LFO to detune ---
+        const lfo = new OscillatorNode(this.ctx, {
+          type: "sine",
+          frequency: 0.1 + Math.random() * 0.3, // 0.1–0.4 Hz, very slow drift
+        });
+
+        const lfoGain = new GainNode(this.ctx, {
+          gain: 2 + Math.random() * 3, // depth in cents (2–5 cents is enough)
+        });
+
+        lfo.connect(lfoGain).connect(osc.detune);
+        lfo.start();
+
         this.srcNodes.push(osc);
       }
     }
@@ -99,7 +127,7 @@ class DromeAudioSource {
     else return Math.max(duration, src.buffer?.duration ?? 0);
   }
 
-  play(startTime: number, duration: number) {
+  play(startTime: number, duration: number, chordIndex = 0) {
     this.filters.forEach((filter) => {
       filter.apply(startTime, duration);
     });
@@ -114,8 +142,11 @@ class DromeAudioSource {
       env: this.env,
     });
 
-    this.srcNodes.forEach((node) => {
-      const jitter = this.srcNodes.length > 1 ? Math.random() * 0.005 : 0;
+    this.srcNodes.forEach((node, noteIndex) => {
+      const jitter =
+        this.srcNodes.length > 1
+          ? startOffset[noteIndex + this.srcNodes.length * chordIndex]
+          : 0;
       node.start(startTime + jitter);
       const releaseTime = this.env.r * duration;
       node.stop(startTime + this.getDuration(duration) + releaseTime + 0.2);
