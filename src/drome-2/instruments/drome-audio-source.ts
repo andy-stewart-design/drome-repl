@@ -42,7 +42,7 @@ class DromeAudioSource {
     this.gainNode = new GainNode(this.ctx, { gain: 0 });
     this.gain = opts.gain;
     this.env = opts.env;
-    this.baseGain = opts.type === "oscillator" ? 0.35 : 1;
+    this.baseGain = opts.type === "oscillator" ? 0.6 : 1;
 
     if (opts.type === "oscillator") {
       this.createOscillator(opts.waveform, opts.frequency);
@@ -108,7 +108,7 @@ class DromeAudioSource {
       target: this.gainNode.gain,
       startTime,
       duration: this.getDuration(duration),
-      maxVal: this.gain * this.baseGain * (this.srcNodes.length > 2 ? 0.75 : 1),
+      maxVal: (this.gain * this.baseGain) / Math.sqrt(this.srcNodes.length),
       minVal: 0,
       startVal: 0.01,
       env: this.env,
