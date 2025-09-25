@@ -2,13 +2,12 @@ import AudioClock from "./audio-clock";
 import DromeSynth from "../instruments/drome-synth";
 import DromeSample from "../instruments/drome-sample";
 import GainEffect from "../effects/gain";
-import DromeArray from "./drome-array";
+import DromeArray, { type DromeCyclePartial } from "./drome-array";
 import type {
   OscTypeAlias,
   SampleNote,
   DromeEventType,
   DromeEventCallback,
-  DromeCycleValue,
 } from "../types";
 
 import {
@@ -22,9 +21,6 @@ const AUDIO_CHANNELS = [0.375, 0.875];
 class Drome extends AudioClock {
   private instruments: Set<DromeSynth | DromeSample> = new Set();
   private audioChannels: GainEffect[];
-  readonly rand: ReturnType<typeof createRand>;
-  readonly brand: ReturnType<typeof createBinaryRand>;
-  readonly irand: ReturnType<typeof createIntegerRand>;
   readonly sampleBuffers: Map<string, AudioBuffer> = new Map();
   readonly replListeners: [DromeEventType, DromeEventCallback][] = [];
 
@@ -33,9 +29,6 @@ class Drome extends AudioClock {
     this.audioChannels = AUDIO_CHANNELS.map(
       (gain) => new GainEffect(this.ctx, gain)
     );
-    this.rand = createRand(this.metronome);
-    this.brand = createBinaryRand(this.metronome);
-    this.irand = createIntegerRand(this.metronome);
     this.on("bar", this.handleTick.bind(this));
   }
 
@@ -108,14 +101,25 @@ class Drome extends AudioClock {
   }
 
   // DROME ARRAY METHODS
-  note(
-    ...notes: (DromeCycleValue | DromeCycleValue[] | DromeCycleValue[][])[]
-  ) {
-    return new DromeArray().note(...notes);
+  note(...notes: DromeCyclePartial<number>[]) {
+    return new DromeArray([[0]]).note(...notes);
   }
 
   euclid(pulses: number | number[], steps: number, rotation = 0) {
-    return new DromeArray().euclid(pulses, steps, rotation);
+    return new DromeArray([[1]]).euclid(pulses, steps, rotation);
+  }
+
+  // RANDOM GETTERS
+  get rand() {
+    return createRand(this.metronome);
+  }
+
+  get brand() {
+    return createBinaryRand(this.metronome);
+  }
+
+  get irand() {
+    return createIntegerRand(this.metronome);
   }
 }
 

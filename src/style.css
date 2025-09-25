@@ -165,6 +165,7 @@ button {
     padding-block-start: var(--header-height);
     font-family: "MDIO", "Monaco", "Menlo", "Ubuntu Mono", monospace;
     font-size: 0.9375rem;
+    overscroll-behavior: contain;
   }
 
   .cm-lineNumbers .cm-gutterElement {
@@ -246,6 +247,7 @@ button {
     display: grid;
     grid-auto-rows: min-content;
     overflow-y: scroll;
+    overscroll-behavior: contain;
     padding: 1rem;
     height: 100%;
     padding-block-start: var(--header-height);
@@ -291,6 +293,7 @@ button {
     flex: 0 0 200px;
     padding: 1rem;
     overflow-y: auto;
+    overscroll-behavior: contain;
     font-size: 0.9rem;
     line-height: 1.5;
     font-family: "MDIO", "Monaco", "Menlo", "Ubuntu Mono", monospace;

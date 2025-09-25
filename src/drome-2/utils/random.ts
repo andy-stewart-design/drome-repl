@@ -1,3 +1,4 @@
+import DromeRandomArray from "../core/drome-random-array";
 import type { Metronome } from "../types";
 
 const PERIOD = 300;
@@ -21,21 +22,22 @@ const seedToRand = (seed: number) => (seed % SEED_MAX) / SEED_MAX;
 type RandMapper = (r: number, start: number, end: number) => number;
 
 interface RandBase {
-  (n?: number): RandBase;
-  arr(length?: number): number[];
-  num(): number;
+  (off?: number | number[]): RandBase;
+  get(length?: number): DromeRandomArray;
   range(start: number, end: number): RandBase;
 }
 
 function createRandFactory(met: Metronome, mapper: RandMapper) {
-  let counter: number | undefined;
+  let offset: number | number[] | undefined;
+  let loop: number | undefined;
   let rangeStart = 0;
   let rangeEnd = 1;
 
   // Explicitly type proxy as RandBase
   const handler: ProxyHandler<(...args: any[]) => any> = {
     apply(_target, _thisArg, args): RandBase {
-      counter = args[0] ?? 0;
+      offset = args[0] ?? 0;
+      loop = args[1] ?? undefined;
       return proxy;
     },
     get(_target, prop): any {
@@ -46,22 +48,18 @@ function createRandFactory(met: Metronome, mapper: RandMapper) {
           return proxy;
         };
       }
-      if (prop === "num") {
-        return (): number => {
-          const rFloat = Math.abs(seedToRand(getSeed(counter ?? met.bar)));
-          return mapper(rFloat, rangeStart, rangeEnd);
-        };
-      }
-      if (prop === "arr") {
-        return (length = 4): number[] => {
-          let seed = getSeed(counter ?? met.bar);
-          const result: number[] = [];
-          for (let i = 0; i < length; i++) {
-            const rFloat = Math.abs(seedToRand(seed));
-            result.push(mapper(rFloat, rangeStart, rangeEnd));
-            seed = xorwise(seed);
-          }
-          return result;
+      if (prop === "get") {
+        return (length = 4) => {
+          const arr = new DromeRandomArray({
+            met,
+            mapper,
+            range: { start: rangeStart, end: rangeEnd },
+            loop,
+            offset,
+            length,
+          });
+          arr.euclid(length, length);
+          return arr;
         };
       }
       return undefined;
@@ -91,4 +89,11 @@ function createBinaryRand(met: Metronome) {
   return createRandFactory(met, binaryMapper);
 }
 
-export { createRand, createIntegerRand, createBinaryRand };
+export {
+  createRand,
+  createIntegerRand,
+  createBinaryRand,
+  xorwise,
+  getSeed,
+  seedToRand,
+};

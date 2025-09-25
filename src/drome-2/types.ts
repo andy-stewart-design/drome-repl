@@ -17,6 +17,10 @@ type DromeEventCallback = (m: Metronome) => void;
 
 type DromeCycleValue = number | null | undefined;
 type DromeCycle = (DromeCycleValue | DromeCycleValue[])[][];
+type DromeCyclePartial =
+  | DromeCycleValue
+  | DromeCycleValue[]
+  | DromeCycleValue[][];
 
 type OscType = Exclude<OscillatorType, "custom"> | "supersaw";
 type OscTypeAlias = keyof typeof synthAliasMap;
@@ -76,8 +80,9 @@ type SampleBank = keyof typeof drumAliases;
 
 export type {
   ADSRParams,
-  DromeCycleValue,
   DromeCycle,
+  DromeCyclePartial,
+  DromeCycleValue,
   DromeAudioNode,
   DromeEventCallback,
   DromeEventType,
