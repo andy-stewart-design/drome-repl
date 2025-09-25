@@ -11,8 +11,7 @@ const examples = [
     .postgain(1.25),
   d.synth("saw").root("c4").scale("maj").note([[0,2,4,6]],[[-2,0,2,4]])
     .hex("ff").stretch(2)
-    .adsr(0.25, 0.25, 0.5, 0.1)
-    .lpf(300).lpenv(2, 0.25, 0.25, 0, 0)
+    .lpf(400).lpenv(2, 0.333, 0.333, 0, 0)
     .postgain(1.25),
   d.synth("saw","sine").root("c3").scale("maj").note([[-7,0]],[[-9,-2]])
     .euclid(8,8).stretch(2)
