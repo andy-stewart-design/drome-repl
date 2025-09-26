@@ -13,8 +13,7 @@ d.stack(
     .postgain(1.25),
   d.synth("ssaw").root(r+4).scale("maj").note([[0,2,4,6]],[[-2,0,2,4]])
     .hex("ff").stretch(2)
-    .lpf(300).lpenv(3, 0.333, 0.333, 0, 0).hpf(500).reverb(0.2)
-    .postgain(1.25),
+    .lpf(600).lpenv(2, 0.333, 0.333, 0, 0).hpf(800).reverb(0.2),
   d.synth("saw","sine").root(r+3).scale("maj").note([[-7,0]],[[-9,-2]])
     .euclid(8,8).stretch(2)
     .lpf(300).lpenv(2,0.25,0.25,0.5,0).postgain(0.75),
