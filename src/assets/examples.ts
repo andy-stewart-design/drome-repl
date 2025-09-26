@@ -5,15 +5,17 @@ const examples = [
   },
   {
     title: "Roots + Scales",
-    code: `d.stack(
-  d.synth("saw").root("c5").scale("maj").note([0,2,4,6],[-2,0,2,4])
+    code: `const r = "c"
+
+d.stack(
+  d.synth("saw").root(r+5).scale("maj").note([0,2,4,6],[-2,0,2,4])
     .euclid(4,8).fast(4).adsr(0,1,0.75,0).lpf(1000).lpenv(2,0,0.333,0.125,0.1)
     .postgain(1.25),
-  d.synth("saw").root("c4").scale("maj").note([[0,2,4,6]],[[-2,0,2,4]])
+  d.synth("ssaw").root(r+4).scale("maj").note([[0,2,4,6]],[[-2,0,2,4]])
     .hex("ff").stretch(2)
-    .lpf(500).lpenv(2, 0.333, 0.333, 0, 0)
+    .lpf(300).lpenv(3, 0.333, 0.333, 0, 0).hpf(500).reverb(0.2)
     .postgain(1.25),
-  d.synth("saw","sine").root("c3").scale("maj").note([[-7,0]],[[-9,-2]])
+  d.synth("saw","sine").root(r+3).scale("maj").note([[-7,0]],[[-9,-2]])
     .euclid(8,8).stretch(2)
     .lpf(300).lpenv(2,0.25,0.25,0.5,0).postgain(0.75),
   d.sample("bd:3").euclid([3,5], 8).reverb(0.1),

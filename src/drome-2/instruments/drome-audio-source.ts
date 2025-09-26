@@ -7,6 +7,7 @@ interface BaseAudioSourceOptions {
   env: ADSRParams;
   filters: Map<FilterType, FilterOptions>;
   pan: number;
+  panSpread?: number;
 }
 
 interface DromeOscillatorOptions extends BaseAudioSourceOptions {
@@ -21,9 +22,14 @@ interface DromeBufferOptions extends BaseAudioSourceOptions {
   rate: number;
 }
 
+interface LFO {
+  osc: OscillatorNode;
+  gain: GainNode;
+}
+
 type DromeAudioSourceOptions = DromeOscillatorOptions | DromeBufferOptions;
 
-const startOffset = [
+const startOffsets = [
   0.0037173433480637208, 0.0036399005414373565, 0.004805912343136861,
   0.008835915924177914, 0.0010848983101914178, 0.009249816039756987,
   0.008960220899601473, 0.0033275763528526417, 0.008992876217121193,
@@ -42,6 +48,8 @@ class DromeAudioSource {
   private baseGain: number;
   private gain: number;
   private srcNodes: (OscillatorNode | AudioBufferSourceNode)[] = [];
+  private lfoNodes: LFO[] = [];
+  private panNodes: StereoPannerNode[] = [];
   private env: ADSRParams;
   private startTime: number | undefined;
   private filters: Map<FilterType, FilterEffect> = new Map();
@@ -55,7 +63,7 @@ class DromeAudioSource {
     this.gainNode = new GainNode(this.ctx, { gain: 0 });
     this.gain = opts.gain;
     this.env = opts.env;
-    this.baseGain = opts.type === "oscillator" ? 0.6 : 1;
+    this.baseGain = opts.type === "oscillator" ? 0.2 : 1;
 
     if (opts.type === "oscillator") {
       this.createOscillator(opts.waveform, opts.frequency);
@@ -72,14 +80,28 @@ class DromeAudioSource {
       filterNodes.push(effect.input);
     });
 
-    const pan = new StereoPannerNode(ctx, { pan: opts.pan });
+    const spread =
+      opts.panSpread ??
+      (opts.type === "oscillator" && opts.waveform === "supersaw" ? 0.5 : 0);
 
-    for (const osc of this.srcNodes) {
-      const nodes = [osc, pan, this.gainNode, ...filterNodes, destination];
-      for (let i = 0; i < nodes.length - 1; i++) {
-        nodes[i].connect(nodes[i + 1]);
+    const count = this.srcNodes.length;
+
+    this.srcNodes.forEach((src, i) => {
+      let panValue = opts.pan; // base (center)
+
+      if (count > 1 && spread > 0) {
+        const offset = (i / (count - 1) - 0.5) * 2 * spread; // offset across [-spread, +spread]
+        panValue = Math.min(Math.max(opts.pan + offset, -1), 1); // cluster around opts.pan
       }
-    }
+
+      const panNode = new StereoPannerNode(ctx, { pan: panValue });
+      this.panNodes.push(panNode);
+
+      const nodes = [src, panNode, this.gainNode, ...filterNodes, destination];
+      for (let j = 0; j < nodes.length - 1; j++) {
+        nodes[j].connect(nodes[j + 1]);
+      }
+    });
   }
 
   private createBuffer(buffer: AudioBuffer, playbackRate: number) {
@@ -91,33 +113,38 @@ class DromeAudioSource {
   private createOscillator(type: OscType, frequency: number) {
     if (type !== "supersaw") {
       this.srcNodes.push(new OscillatorNode(this.ctx, { type, frequency }));
-    } else {
-      const voices = 7;
-      const detune = 12; // in cents
-      const oscType = "sawtooth";
+      this.srcNodes[0].addEventListener("ended", this.destroy.bind(this));
+      return;
+    }
 
-      for (let i = 0; i < voices; i++) {
-        const osc = new OscillatorNode(this.ctx, {
-          type: oscType,
-          frequency,
-          detune: (i / (voices - 1) - 0.5) * 2 * detune,
-        });
+    const voices = 7;
+    const detune = 12; // in cents
+    const oscType = "sawtooth";
 
-        // --- add independent slow LFO to detune ---
-        const lfo = new OscillatorNode(this.ctx, {
-          type: "sine",
-          frequency: 0.1 + Math.random() * 0.3, // 0.1–0.4 Hz, very slow drift
-        });
+    for (let i = 0; i < voices; i++) {
+      const osc = new OscillatorNode(this.ctx, {
+        type: oscType,
+        frequency,
+        detune: (i / (voices - 1) - 0.5) * 2 * detune,
+      });
 
-        const lfoGain = new GainNode(this.ctx, {
-          gain: 2 + Math.random() * 3, // depth in cents (2–5 cents is enough)
-        });
+      // --- add independent slow LFO to detune ---
+      const lfo = new OscillatorNode(this.ctx, {
+        type: "sine",
+        frequency: 0.1 + Math.random() * 0.3, // 0.1–0.4 Hz, very slow drift
+      });
 
-        lfo.connect(lfoGain).connect(osc.detune);
-        lfo.start();
+      const lfoGain = new GainNode(this.ctx, {
+        gain: 2 + Math.random() * 3, // depth in cents (2–5 cents is enough)
+      });
 
-        this.srcNodes.push(osc);
-      }
+      lfo.connect(lfoGain).connect(osc.detune);
+      lfo.start();
+
+      osc.addEventListener("ended", this.destroy.bind(this));
+
+      this.srcNodes.push(osc);
+      this.lfoNodes.push({ osc: lfo, gain: lfoGain });
     }
   }
 
@@ -145,7 +172,7 @@ class DromeAudioSource {
     this.srcNodes.forEach((node, noteIndex) => {
       const jitter =
         this.srcNodes.length > 1
-          ? startOffset[noteIndex + this.srcNodes.length * chordIndex]
+          ? startOffsets[noteIndex + this.srcNodes.length * chordIndex]
           : 0;
       node.start(startTime + jitter);
       const releaseTime = this.env.r * duration;
@@ -162,6 +189,7 @@ class DromeAudioSource {
 
     if (this.startTime > this.ctx.currentTime) {
       this.srcNodes.forEach((osc) => osc.stop());
+      this.lfoNodes.forEach((lfo) => lfo.osc.stop());
     } else {
       this.gainNode.gain.cancelScheduledValues(stopTime);
 
@@ -169,7 +197,28 @@ class DromeAudioSource {
       this.gainNode.gain.linearRampToValueAtTime(0, stopTime + releaseTime);
 
       this.srcNodes.forEach((osc) => osc.stop(stopTime + releaseTime));
+      this.lfoNodes.forEach((lfo) => lfo.osc.stop(stopTime + releaseTime));
     }
+  }
+
+  destroy() {
+    this.srcNodes.forEach((node) => {
+      node.disconnect();
+    });
+    this.lfoNodes.forEach((node) => {
+      node.osc.disconnect();
+      node.gain.disconnect();
+    });
+    this.filters.forEach((filter) => {
+      filter.disconnect();
+    });
+    this.panNodes.forEach((node) => {
+      node.disconnect();
+    });
+    this.gainNode.disconnect();
+    this.filters.clear();
+    this.srcNodes.length = 0;
+    this.lfoNodes.length = 0;
   }
 
   get node() {

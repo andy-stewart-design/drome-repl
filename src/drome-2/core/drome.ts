@@ -16,7 +16,7 @@ import {
   createBinaryRand,
 } from "../utils/random";
 
-const AUDIO_CHANNELS = [0.375, 0.875];
+const AUDIO_CHANNELS = [0.75, 0.75];
 
 class Drome extends AudioClock {
   private instruments: Set<DromeSynth | DromeSample> = new Set();

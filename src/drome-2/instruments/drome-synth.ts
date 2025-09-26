@@ -103,7 +103,7 @@ class DromeSynth extends DromeInstrument<number | number[]> {
         osc.play(startTime + offset, duration, chordIndex);
 
         this.oscillators.add(osc);
-        osc.node.onended = () => this.oscillators.delete(osc);
+        osc.node.addEventListener("ended", () => this.oscillators.delete(osc));
       });
     };
 
