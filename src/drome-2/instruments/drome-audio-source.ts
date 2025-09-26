@@ -80,15 +80,11 @@ class DromeAudioSource {
       filterNodes.push(effect.input);
     });
 
-    const spread =
-      opts.panSpread ??
-      (opts.type === "oscillator" && opts.waveform === "supersaw" ? 0.5 : 0);
-
+    const spread = opts.panSpread ?? (isSuperSaw(opts) ? 0.5 : 0);
     const count = this.srcNodes.length;
+    let panValue = opts.pan; // base (center)
 
     this.srcNodes.forEach((src, i) => {
-      let panValue = opts.pan; // base (center)
-
       if (count > 1 && spread > 0) {
         const offset = (i / (count - 1) - 0.5) * 2 * spread; // offset across [-spread, +spread]
         panValue = Math.min(Math.max(opts.pan + offset, -1), 1); // cluster around opts.pan
@@ -227,3 +223,7 @@ class DromeAudioSource {
 }
 
 export default DromeAudioSource;
+
+function isSuperSaw(opts: DromeAudioSourceOptions) {
+  return opts.type === "oscillator" && opts.waveform === "supersaw";
+}
