@@ -50,9 +50,6 @@ class Drome extends AudioClock {
     if (!this.paused) return;
     await this.preloadSamples();
     super.start();
-
-    this.duck(0);
-    this.onBeat(() => this.duck(0));
   }
 
   public stop() {
@@ -82,16 +79,19 @@ class Drome extends AudioClock {
     return new DromeSample(this, this.audioChannels[1], ...name);
   }
 
-  public duck(channel: number, att = 0.5) {
-    const chan = this.audioChannels[channel];
-    const now = this.ctx.currentTime;
-    chan.gain.cancelScheduledValues(now);
-    chan.gain.setValueAtTime(chan.gain.value, now);
-    chan.gain.linearRampToValueAtTime(0.0, now + 0.01); // quick dip
-    chan.gain.linearRampToValueAtTime(
-      1.0,
-      now + this.beatDuration * Math.min(att, 1)
-    );
+  public duck(chanIdx: number | number[], t?: number, d?: number, a = 0.5) {
+    [chanIdx].flat().forEach((idx) => {
+      const chan = this.audioChannels[idx];
+      if (!t) t = this.ctx.currentTime;
+      d = d ? Math.min(Math.max(d, 0), 1) : 0.1;
+      chan.gain.cancelScheduledValues(t);
+      chan.gain.setValueAtTime(chan.gain.value, t);
+      chan.gain.linearRampToValueAtTime(0.1, t + 0.01); // quick dip
+      chan.gain.linearRampToValueAtTime(
+        1.0,
+        t + this.beatDuration * Math.min(a, 1)
+      );
+    });
   }
 
   public onBeat(cb: DromeEventCallback) {

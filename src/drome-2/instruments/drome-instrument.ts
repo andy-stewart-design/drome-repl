@@ -31,6 +31,7 @@ class DromeInstrument<T extends number | number[]> {
   private _postgain: GainEffect;
   private _pan = new DromeArray([[0]]);
   protected _legato = false;
+  protected duckChannels: number[] | undefined;
   protected readonly _env: ADSRParams = { a: 0.001, d: 0.125, s: 1.0, r: 0.01 };
 
   constructor(
@@ -228,6 +229,11 @@ class DromeInstrument<T extends number | number[]> {
     return this;
   }
 
+  duck(...channels: number[]) {
+    this.duckChannels = channels;
+    return this;
+  }
+
   connectChain() {
     const nodes = [
       this._distortion,
@@ -251,7 +257,9 @@ class DromeInstrument<T extends number | number[]> {
       value[this.drome.metronome.bar % value.length][
         noteIndex % value[cycleIndex % value.length].length
       ];
-    return currentGain || 1;
+    console.log({ currentGain });
+
+    return currentGain ?? 1;
   }
 
   getCurrentPan(cycleIndex: number, noteIndex: number) {
@@ -260,7 +268,7 @@ class DromeInstrument<T extends number | number[]> {
       value[this.drome.metronome.bar % value.length][
         noteIndex % value[cycleIndex % value.length].length
       ];
-    return currentPan || 0;
+    return currentPan ?? 0;
   }
 
   cleanup() {

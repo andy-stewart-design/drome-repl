@@ -112,6 +112,8 @@ class DromeSample extends DromeInstrument<number> {
         });
 
         source.play(startTime + noteDuration * i, noteDuration);
+        if (this.duckChannels)
+          this.drome.duck(this.duckChannels, startTime + noteDuration * i);
         this.sources.add(source);
         source.node.onended = () => this.sources.delete(source);
       });
