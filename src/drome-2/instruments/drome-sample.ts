@@ -22,10 +22,11 @@ class DromeSample extends DromeInstrument<number> {
   private sources: Set<DromeAudioSource> = new Set();
   private _playbackRate = 1;
 
-  constructor(drome: Drome, dest: DromeAudioNode, ...names: SampleNote[]) {
+  constructor(drome: Drome, dest: DromeAudioNode[], ...names: SampleNote[]) {
     super(drome, dest, [[1]]);
     if (names.length) this.sampleNames = names;
     else this.sampleNames = ["bd"];
+    this.channelIndex = 1;
   }
 
   push() {

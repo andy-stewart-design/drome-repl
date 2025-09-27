@@ -20,7 +20,7 @@ import type {
 
 class DromeInstrument<T extends number | number[]> {
   readonly drome: Drome;
-  private _destination: DromeAudioNode;
+  private _destination: DromeAudioNode[];
   protected cycles: DromeArray<T>;
 
   protected readonly _filters: Map<FilterType, FilterOptions> = new Map();
@@ -31,12 +31,13 @@ class DromeInstrument<T extends number | number[]> {
   private _postgain: GainEffect;
   private _pan = new DromeArray([[0]]);
   protected _legato = false;
+  protected channelIndex: number | undefined;
   protected duckChannels: number[] | undefined;
   protected readonly _env: ADSRParams = { a: 0.001, d: 0.125, s: 1.0, r: 0.01 };
 
   constructor(
     drome: Drome,
-    destination: DromeAudioNode,
+    destination: DromeAudioNode[],
     defaultCycle: DromeCycle<T>
   ) {
     this.drome = drome;
@@ -229,6 +230,11 @@ class DromeInstrument<T extends number | number[]> {
     return this;
   }
 
+  chan(n: number) {
+    this.channelIndex = n;
+    return this;
+  }
+
   duck(...channels: number[]) {
     this.duckChannels = channels;
     return this;
@@ -240,7 +246,7 @@ class DromeInstrument<T extends number | number[]> {
       this._delay,
       this._reverb,
       this._postgain,
-      this._destination,
+      this._destination[this.channelIndex ?? 0],
     ].filter(isAudioNode);
 
     nodes.forEach((node, i) => {
@@ -257,7 +263,6 @@ class DromeInstrument<T extends number | number[]> {
       value[this.drome.metronome.bar % value.length][
         noteIndex % value[cycleIndex % value.length].length
       ];
-    console.log({ currentGain });
 
     return currentGain ?? 1;
   }

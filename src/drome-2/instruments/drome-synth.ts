@@ -24,7 +24,7 @@ class DromeSynth extends DromeInstrument<number | number[]> {
   private rootNote = 0;
   private _scale: number[] | null = null;
 
-  constructor(drome: Drome, dest: DromeAudioNode, ...types: OscTypeAlias[]) {
+  constructor(drome: Drome, dest: DromeAudioNode[], ...types: OscTypeAlias[]) {
     super(drome, dest, [[60]]);
     if (types.length === 0) {
       this.waveforms.push("sine");
@@ -33,6 +33,7 @@ class DromeSynth extends DromeInstrument<number | number[]> {
         this.waveforms.push(synthAliasMap[type]);
       });
     }
+    this.channelIndex = 0;
   }
 
   private getFrequency(note: number) {

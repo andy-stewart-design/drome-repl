@@ -56,6 +56,10 @@ class Drome extends AudioClock {
     super.stop();
     this.instruments.forEach((inst) => inst.stop());
     this.clearReplListeners();
+    this.audioChannels.forEach((chan) => {
+      chan.gain.cancelScheduledValues(this.ctx.currentTime);
+      chan.volume = BASE_GAIN;
+    });
   }
 
   public push(inst: DromeSynth | DromeSample) {
@@ -72,23 +76,23 @@ class Drome extends AudioClock {
   }
 
   public synth(...types: OscTypeAlias[]) {
-    return new DromeSynth(this, this.audioChannels[0], ...types);
+    return new DromeSynth(this, this.audioChannels, ...types);
   }
 
   public sample(...name: SampleNote[]) {
-    return new DromeSample(this, this.audioChannels[1], ...name);
+    return new DromeSample(this, this.audioChannels, ...name);
   }
 
-  public duck(chanIdx: number | number[], t?: number, d?: number, a = 0.5) {
+  public duck(chanIdx: number | number[], t?: number, d?: number, a = 0.333) {
     [chanIdx].flat().forEach((idx) => {
       const chan = this.audioChannels[idx];
       if (!t) t = this.ctx.currentTime;
-      d = d ? Math.min(Math.max(d, 0), 1) : 0.1;
+      d = d ? Math.min(Math.max(d, 0), 1) : 0;
       chan.gain.cancelScheduledValues(t);
       chan.gain.setValueAtTime(chan.gain.value, t);
-      chan.gain.linearRampToValueAtTime(0.1, t + 0.01); // quick dip
+      chan.gain.linearRampToValueAtTime(0.1, t + 0.02); // quick dip
       chan.gain.linearRampToValueAtTime(
-        1.0,
+        BASE_GAIN,
         t + this.beatDuration * Math.min(a, 1)
       );
     });
