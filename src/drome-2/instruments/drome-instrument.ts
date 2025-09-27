@@ -224,7 +224,6 @@ class DromeInstrument<T extends number | number[]> {
   }
 
   reverb(mix: number, duration = 2) {
-    console.log(this.drome.reverbCache.get(`${mix}-${duration}`));
     this._reverb = new ReverbEffect(this.drome, { duration, mix });
     return this;
   }
