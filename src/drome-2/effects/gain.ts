@@ -16,6 +16,9 @@ class GainEffect {
   set volume(v: number) {
     this.node.gain.value = v;
   }
+  get gain() {
+    return this.node.gain;
+  }
 }
 
 export default GainEffect;

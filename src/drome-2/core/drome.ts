@@ -16,7 +16,8 @@ import {
   createBinaryRand,
 } from "../utils/random";
 
-const AUDIO_CHANNELS = [0.75, 0.75];
+const BASE_GAIN = 0.75;
+const NUM_CHANNELS = 8;
 
 class Drome extends AudioClock {
   private instruments: Set<DromeSynth | DromeSample> = new Set();
@@ -27,8 +28,8 @@ class Drome extends AudioClock {
 
   constructor(bpm?: number) {
     super(bpm);
-    this.audioChannels = AUDIO_CHANNELS.map(
-      (gain) => new GainEffect(this.ctx, gain)
+    this.audioChannels = Array.from({ length: NUM_CHANNELS }).map(
+      () => new GainEffect(this.ctx, BASE_GAIN)
     );
     this.on("bar", this.handleTick.bind(this));
   }
@@ -49,6 +50,9 @@ class Drome extends AudioClock {
     if (!this.paused) return;
     await this.preloadSamples();
     super.start();
+
+    this.duck(0);
+    this.onBeat(() => this.duck(0));
   }
 
   public stop() {
@@ -76,6 +80,18 @@ class Drome extends AudioClock {
 
   public sample(...name: SampleNote[]) {
     return new DromeSample(this, this.audioChannels[1], ...name);
+  }
+
+  public duck(channel: number, att = 0.5) {
+    const chan = this.audioChannels[channel];
+    const now = this.ctx.currentTime;
+    chan.gain.cancelScheduledValues(now);
+    chan.gain.setValueAtTime(chan.gain.value, now);
+    chan.gain.linearRampToValueAtTime(0.0, now + 0.01); // quick dip
+    chan.gain.linearRampToValueAtTime(
+      1.0,
+      now + this.beatDuration * Math.min(att, 1)
+    );
   }
 
   public onBeat(cb: DromeEventCallback) {
