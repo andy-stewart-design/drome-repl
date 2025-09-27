@@ -22,6 +22,7 @@ class Drome extends AudioClock {
   private instruments: Set<DromeSynth | DromeSample> = new Set();
   private audioChannels: GainEffect[];
   readonly sampleBuffers: Map<string, AudioBuffer> = new Map();
+  readonly reverbCache: Map<string, AudioBuffer> = new Map();
   readonly replListeners: [DromeEventType, DromeEventCallback][] = [];
 
   constructor(bpm?: number) {

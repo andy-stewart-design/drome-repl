@@ -50,4 +50,4 @@ async function generateImpulseResponse(
   return rendered;
 }
 
-export { generateImpulseResponse as generateHighQualityImpulseResponse };
+export { generateImpulseResponse };
