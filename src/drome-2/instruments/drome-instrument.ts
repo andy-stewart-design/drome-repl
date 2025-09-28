@@ -18,6 +18,12 @@ import type {
   DromeArrangement,
 } from "../core/drome-array";
 
+interface DuckParams {
+  channels: number[];
+  depth: number | undefined;
+  attack: number | undefined;
+}
+
 class DromeInstrument<T extends number | number[]> {
   readonly drome: Drome;
   private _destination: DromeAudioNode[];
@@ -32,7 +38,7 @@ class DromeInstrument<T extends number | number[]> {
   private _pan = new DromeArray([[0]]);
   protected _legato = false;
   protected channelIndex: number | undefined;
-  protected duckChannels: number[] | undefined;
+  protected duckParams: DuckParams | undefined;
   protected readonly _env: ADSRParams = { a: 0.001, d: 0.125, s: 1.0, r: 0.01 };
 
   constructor(
@@ -235,8 +241,8 @@ class DromeInstrument<T extends number | number[]> {
     return this;
   }
 
-  duck(...channels: number[]) {
-    this.duckChannels = channels;
+  duck(channels: number | number[], depth?: number, attack?: number) {
+    this.duckParams = { channels: [channels].flat(), depth, attack };
     return this;
   }
 

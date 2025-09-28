@@ -97,6 +97,7 @@ class DromeSample extends DromeInstrument<number> {
         let [buffer] = await this.loadSample(name);
         if (!buffer) return;
 
+        const time = startTime + noteDuration * i;
         const source = new DromeAudioSource(this.drome.ctx, nodes[0].input, {
           type: "buffer",
           buffer,
@@ -109,12 +110,14 @@ class DromeSample extends DromeInstrument<number> {
 
         nodes.forEach((node) => {
           if (!(node instanceof FilterEffect)) return;
-          node.apply(startTime + noteDuration * i, noteDuration);
+          node.apply(time, noteDuration);
         });
 
-        source.play(startTime + noteDuration * i, noteDuration);
-        if (this.duckChannels)
-          this.drome.duck(this.duckChannels, startTime + noteDuration * i);
+        source.play(time, noteDuration);
+        if (this.duckParams) {
+          const { channels, depth, attack } = this.duckParams;
+          this.drome.duck(channels, time, depth, attack);
+        }
         this.sources.add(source);
         source.node.onended = () => this.sources.delete(source);
       });
