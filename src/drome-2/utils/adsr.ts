@@ -11,7 +11,7 @@ interface ApplyEnvArgs {
   minVal?: number;
 }
 
-const defaultEnv = { a: 0.01, d: 0.01, s: 1.0, r: 0.01 };
+const defaultEnv = { a: 0.001, d: 0.01, s: 1.0, r: 0.01 };
 
 function applyEnvelope({
   target,
@@ -27,7 +27,7 @@ function applyEnvelope({
   // Cancel anything that was already scheduled
   target.cancelAndHoldAtTime(startTime);
 
-  const attDur = Math.max(clamp(adsr.a, 0.01, 0.98) * duration, 0.01);
+  const attDur = Math.max(clamp(adsr.a, 0.001, 0.98) * duration, 0.001);
   const attEnd = startTime + attDur;
   const decDur = Math.max(clamp(adsr.d, 0.01, 0.98) * duration, 0.01);
   const decEnd = attEnd + decDur;
@@ -37,7 +37,7 @@ function applyEnvelope({
   const relEnd = susEnd + relDur;
 
   // Use minVal if provided, otherwise use startVal for release
-  const releaseTarget = minVal !== undefined ? minVal : startVal;
+  const releaseTarget = minVal ?? startVal;
 
   target.setValueAtTime(startVal, startTime);
   target.linearRampToValueAtTime(maxVal, attEnd); // Attack

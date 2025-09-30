@@ -1,7 +1,7 @@
 class GainEffect {
   private node: GainNode;
 
-  constructor(ctx: AudioContext, initial = 0.5) {
+  constructor(ctx: AudioContext, initial = 1) {
     this.node = new GainNode(ctx, { gain: initial });
   }
   connect(dest: AudioNode) {
@@ -15,6 +15,9 @@ class GainEffect {
   }
   set volume(v: number) {
     this.node.gain.value = v;
+  }
+  get gain() {
+    return this.node.gain;
   }
 }
 

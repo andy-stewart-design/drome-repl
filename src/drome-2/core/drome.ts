@@ -16,18 +16,20 @@ import {
   createBinaryRand,
 } from "../utils/random";
 
-const AUDIO_CHANNELS = [0.375, 0.875];
+const BASE_GAIN = 0.75;
+const NUM_CHANNELS = 8;
 
 class Drome extends AudioClock {
   private instruments: Set<DromeSynth | DromeSample> = new Set();
   private audioChannels: GainEffect[];
   readonly sampleBuffers: Map<string, AudioBuffer> = new Map();
+  readonly reverbCache: Map<string, AudioBuffer> = new Map();
   readonly replListeners: [DromeEventType, DromeEventCallback][] = [];
 
   constructor(bpm?: number) {
     super(bpm);
-    this.audioChannels = AUDIO_CHANNELS.map(
-      (gain) => new GainEffect(this.ctx, gain)
+    this.audioChannels = Array.from({ length: NUM_CHANNELS }).map(
+      () => new GainEffect(this.ctx, BASE_GAIN)
     );
     this.on("bar", this.handleTick.bind(this));
   }
@@ -54,6 +56,10 @@ class Drome extends AudioClock {
     super.stop();
     this.instruments.forEach((inst) => inst.stop());
     this.clearReplListeners();
+    this.audioChannels.forEach((chan) => {
+      chan.gain.cancelScheduledValues(this.ctx.currentTime);
+      chan.volume = BASE_GAIN;
+    });
   }
 
   public push(inst: DromeSynth | DromeSample) {
@@ -70,11 +76,15 @@ class Drome extends AudioClock {
   }
 
   public synth(...types: OscTypeAlias[]) {
-    return new DromeSynth(this, this.audioChannels[0], ...types);
+    return new DromeSynth(this, this.audioChannels, ...types);
   }
 
   public sample(...name: SampleNote[]) {
-    return new DromeSample(this, this.audioChannels[1], ...name);
+    return new DromeSample(this, this.audioChannels, ...name);
+  }
+
+  public achan(n: number) {
+    return this.audioChannels[n];
   }
 
   public onBeat(cb: DromeEventCallback) {

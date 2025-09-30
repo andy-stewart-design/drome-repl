@@ -22,10 +22,11 @@ class DromeSample extends DromeInstrument<number> {
   private sources: Set<DromeAudioSource> = new Set();
   private _playbackRate = 1;
 
-  constructor(drome: Drome, dest: DromeAudioNode, ...names: SampleNote[]) {
+  constructor(drome: Drome, dest: DromeAudioNode[], ...names: SampleNote[]) {
     super(drome, dest, [[1]]);
     if (names.length) this.sampleNames = names;
     else this.sampleNames = ["bd"];
+    this._channelIndex = 1;
   }
 
   push() {
@@ -96,6 +97,7 @@ class DromeSample extends DromeInstrument<number> {
         let [buffer] = await this.loadSample(name);
         if (!buffer) return;
 
+        const time = startTime + noteDuration * i;
         const source = new DromeAudioSource(this.drome.ctx, nodes[0].input, {
           type: "buffer",
           buffer,
@@ -108,10 +110,10 @@ class DromeSample extends DromeInstrument<number> {
 
         nodes.forEach((node) => {
           if (!(node instanceof FilterEffect)) return;
-          node.apply(startTime + noteDuration * i, noteDuration);
+          node.apply(time, noteDuration);
         });
 
-        source.play(startTime + noteDuration * i, noteDuration);
+        source.play(time, noteDuration);
         this.sources.add(source);
         source.node.onended = () => this.sources.delete(source);
       });

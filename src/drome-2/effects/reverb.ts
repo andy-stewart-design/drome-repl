@@ -1,4 +1,5 @@
-import { generateHighQualityImpulseResponse } from "../utils/reverb";
+import type Drome from "../core/drome";
+import { generateImpulseResponse } from "../utils/reverb";
 
 interface ReverbEffectOptions {
   duration?: number; // IR length in seconds
@@ -13,18 +14,19 @@ class ReverbEffect {
   private output: GainNode;
 
   constructor(
-    ctx: AudioContext,
+    drome: Drome,
     { duration = 3, mix = 0.5 }: ReverbEffectOptions = {}
   ) {
-    this.input = new GainNode(ctx);
-    this.output = new GainNode(ctx);
-    this.convolver = new ConvolverNode(ctx);
-    generateHighQualityImpulseResponse(ctx, duration).then((buffer) => {
-      this.convolver.buffer = buffer;
-    });
+    this.input = new GainNode(drome.ctx);
+    this.output = new GainNode(drome.ctx);
+    this.convolver = new ConvolverNode(drome.ctx);
+    const buffer = drome.reverbCache.get(`${mix}-${duration}`);
 
-    this.wet = new GainNode(ctx, { gain: mix });
-    this.dry = new GainNode(ctx, { gain: 1 });
+    if (buffer) this.convolver.buffer = buffer;
+    else this.createBuffer(drome, mix, duration);
+
+    this.wet = new GainNode(drome.ctx, { gain: mix });
+    this.dry = new GainNode(drome.ctx, { gain: 1 });
 
     // Dry path
     this.input.connect(this.dry).connect(this.output);
@@ -32,6 +34,12 @@ class ReverbEffect {
     // Wet path
     this.input.connect(this.convolver);
     this.convolver.connect(this.wet).connect(this.output);
+  }
+
+  private async createBuffer(drome: Drome, mix: number, duration: number) {
+    const buffer = await generateImpulseResponse(drome.ctx, duration);
+    this.convolver.buffer = buffer;
+    drome.reverbCache.set(`${mix}-${duration}`, buffer);
   }
 
   connect(dest: AudioNode) {
@@ -45,6 +53,10 @@ class ReverbEffect {
   setWetLevel(v: number) {
     this.wet.gain.value = v;
     this.dry.gain.value = 1 - v;
+  }
+
+  get buffer() {
+    return this.convolver.buffer;
   }
 
   get inputNode() {

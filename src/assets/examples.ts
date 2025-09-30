@@ -5,20 +5,22 @@ const examples = [
   },
   {
     title: "Roots + Scales",
-    code: `d.stack(
-  d.synth("saw").root("c5").scale("maj").note([0,2,4,6],[-2,0,2,4])
-    .euclid(4,8).fast(4).adsr(0,1,0.75,0).lpf(1000).lpenv(2,0,0.333,0.125,0.1)
-    .postgain(1.25),
-  d.synth("saw").root("c4").scale("maj").note([[0,2,4,6]],[[-2,0,2,4]])
+    code: `const r = "c"
+
+d.stack(
+  d.synth("saw").root(r+5).scale("maj").note([0,2,4,6],[-2,0,2,4])
+    .euclid(4,8).fast(4).adsr(0,1,0.75,0).reverb(0.375)
+    .lpf(1000).lpenv(2,0,0.333,0.125,0.1)
+    .postgain(1.5),
+  d.synth("supsaw").root(r+4).scale("maj").note([[0,2,4,6]],[[-2,0,2,4]])
     .hex("ff").stretch(2)
-    .lpf(400).lpenv(2, 0.333, 0.333, 0, 0)
-    .postgain(1.25),
-  d.synth("saw","sine").root("c3").scale("maj").note([[-7,0]],[[-9,-2]])
+    .lpf(600).lpenv(2, 0.333, 0.333, 0, 0).hpf(800).reverb(0.375),
+  d.synth("saw","sine").root(r+3).scale("maj").note([[-7,0]],[[-9,-2]])
     .euclid(8,8).stretch(2)
-    .lpf(300).lpenv(2,0.25,0.25,0.5,0).postgain(0.75),
-  d.sample("bd:3").euclid([3,5], 8).reverb(0.1),
-  d.sample("hh:4").hex("ff").gain(0.375),
-  d.sample("oh:1").euclid(4,8,1).gain(0.5)
+    .lpf(300).lpenv(2,0.25,0.25,0.5,0).gain(1.125),
+  d.sample("bd:3").bank("tr909").euclid([3,5],8).gain(1),
+  d.sample("hh:4").hex("ff").pan(0.875).gain(0.375),
+  d.sample("oh:1").euclid(4,8,1).pan(0.125).gain(0.5)
 )`,
   },
   {
@@ -49,7 +51,7 @@ d.stack(
 const scale = "min"
 d.bpm(140)
 
-d.sample("bd:3").bank("tr909").euclid(3,8).gain(0.75).push()
+d.sample("bd:3").bank("tr909").euclid(3,8).push()
 d.sample("hh:4").bank("tr909").hex("ff").gain(d.rand.range(0.5,0.75).get(8)).pan(0.5).push()
 d.sample("cp").bank("tr808").euclid(1,4,2).push()
 
@@ -90,7 +92,7 @@ const sub_notes = [5,0,-4,[-4,-4,-2,-2],5,[0,0,3,3],-4,-2] // Root: G1 / 31
 
 d.stack(
   d.synth("ssaw").note(...lead_notes).root(55)
-    .adsr(0.01,0.95,0.5,0.225)
+    .adsr(0.01,0.95,0.5,0.225).gain(1.25)
     .lpf(1600).lpenv(2).euclid(3,8,1).reverb(0.5).delay(0.3,0.225),
   d.synth("saw").note(...arp_notes).root(55)
     .adsr(0.25,0.25,0.75,0.01).lpf(400).lpenv(6).reverb(0.5),
@@ -175,35 +177,39 @@ export { examples, textAreaPlaceholder };
 // drome.synth("sawtooth", 12).note(notes).adsr(0, 0.1);
 
 /* 
-drome.stack(
-  d.synth("saw").note([[60, 64, 67, 71]], [[57, 60, 64, 67]])
-    .hex("ff").stretch(2)
-    .adsr(0.25, 0.25, 0.5, 0.5)
-    .lpf(300).lpenv(2, 0.25, 0.25, 0, 0)
-    .reverb(0.5).distort(1).postgain(1),
-  d.synth("saw").note([[36,48]], [[33,45]]).euclid(8,8).stretch(2).lpf(300).lpenv(2,0.25,0.25,0.5,0).postgain(0.75),
-  d.synth("sine").note([[36,48]], [[33,45]]).euclid(8,8).stretch(2).adsr(0.1,0,1,0.1),
-  d.sample("bd:3").euclid([3, 5], 8).reverb(0.1),
-  d.sample("hh:4").hex("ff").gain(0.375),
-  d.sample("oh:1").euclid(4, 8, 1).gain(0.5)
-);
-*/
-
-/* 
-drome.stack(
-  d.synth("saw").root("c4").scale("maj").note([[0,2,4,6]], [[-3,0,4,7]])
-    .hex("ff").stretch(2)
-    .adsr(0.25, 0.25, 0.5, 0.1)
-    .lpf(300).lpenv(2, 0.25, 0.25, 0, 0)
-    .reverb(0.5).distort(1).postgain(1),
-  d.synth("saw", "sine").note([[36,48]], [[33,45]]).euclid(8,8).stretch(2).lpf(300).lpenv(2,0.25,0.25,0.5,0).postgain(0.75),
-  d.sample("bd:3").euclid([3, 5], 8).reverb(0.1),
-  d.sample("hh:4").hex("ff").gain(0.375),
-  d.sample("oh:1").euclid(4, 8, 1).gain(0.5)
-);
-*/
-
-/* 
 d.synth("saw").root("c4").scale("maj").note([[0,2,4,6]])
   .euclid(3,8).adsr(0,1,0.25,0.333).lpf(1200).push()
+*/
+
+/* 
+const root = "a"
+const scale = "min"
+d.bpm(140)
+
+d.sample("bd:3").bank("tr909").euclid(3,8).gain(0.75).push()
+d.sample("hh:4").bank("tr909").hex("ff").gain(d.rand.range(0.5,0.75).get(8)).pan(0.5).push()
+d.sample("cp").bank("tr808").euclid(1,4,2).push()
+
+// d.sample("bd:3").bank("tr909").hex("f").gain(0.75).push()
+// d.sample("hh:4").bank("tr909").euclid(5,8).gain(d.rand.range(0.5,0.75).get(8)).pan(0.5).push()
+// d.sample("oh:2").bank("tr909").euclid(4,8,1).gain(0.375).pan(0.75).push()
+// d.sample("cp").bank("tr808").euclid(2,4,1).gain(0.75).push()
+// d.sample("sd:2").bank("tr909").euclid(2,4,1).gain(0.75).push()
+  
+d.synth("sine","saw").root("c3").scale(scale).note(d.euclid(6,16)).legato()
+  .lpf(500).lpenv(3,0,1,0,0.2).postgain(0.5).push()
+
+// d.sample("hh:4").bank("tr909")
+//   .apply(d.brand(100,1).get(8)).fast(2)
+//   .gain(d.rand.range(0.5,0.75).get(8)).pan(0.5)
+//   .push()
+
+d.synth("saw").root(root + 3).scale(scale)
+  .note(d.irand([100,88],1).range(0,7).get(8))
+  .euclid(8,8).legato().reverb(0.5).pan([-1,1]).delay(0.5, 0.25)
+  .adsr(0,1,0,0).lpf(600).lpenv(3,0.25,0.25,0.333,0).push()
+
+d.synth("sq","sine").root(root + 1).scale(scale)
+  .note(6,5).euclid(8,8).reverb(0.1)
+  .adsr(0,0.5,0.5,0.1).lpf(400).lpenv(2,0,0.5,0.5,0).push()
 */
