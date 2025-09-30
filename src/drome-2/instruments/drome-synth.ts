@@ -33,7 +33,7 @@ class DromeSynth extends DromeInstrument<number | number[]> {
         this.waveforms.push(synthAliasMap[type]);
       });
     }
-    this.channelIndex = 0;
+    this._channelIndex = 0;
   }
 
   private getFrequency(note: number) {

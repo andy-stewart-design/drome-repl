@@ -9,15 +9,16 @@ const examples = [
 
 d.stack(
   d.synth("saw").root(r+5).scale("maj").note([0,2,4,6],[-2,0,2,4])
-    .euclid(4,8).fast(4).adsr(0,1,0.75,0).lpf(1000).lpenv(2,0,0.333,0.125,0.1)
-    .postgain(1.25),
+    .euclid(4,8).fast(4).adsr(0,1,0.75,0).reverb(0.375)
+    .lpf(1000).lpenv(2,0,0.333,0.125,0.1)
+    .postgain(1.5),
   d.synth("supsaw").root(r+4).scale("maj").note([[0,2,4,6]],[[-2,0,2,4]])
     .hex("ff").stretch(2)
-    .lpf(600).lpenv(2, 0.333, 0.333, 0, 0).hpf(800).reverb(0.5),
+    .lpf(600).lpenv(2, 0.333, 0.333, 0, 0).hpf(800).reverb(0.375),
   d.synth("saw","sine").root(r+3).scale("maj").note([[-7,0]],[[-9,-2]])
-    .euclid(8,8).stretch(2).chan(3)
-    .lpf(300).lpenv(2,0.25,0.25,0.5,0).postgain(1.5),
-  d.sample("bd:3").euclid([3,5],8).gain(1).duck(3,1,0.333).reverb(0.1),
+    .euclid(8,8).stretch(2)
+    .lpf(300).lpenv(2,0.25,0.25,0.5,0).gain(1.125),
+  d.sample("bd:3").bank("tr909").euclid([3,5],8).gain(1),
   d.sample("hh:4").hex("ff").pan(0.875).gain(0.375),
   d.sample("oh:1").euclid(4,8,1).pan(0.125).gain(0.5)
 )`,

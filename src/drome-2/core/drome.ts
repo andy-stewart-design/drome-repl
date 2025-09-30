@@ -87,21 +87,6 @@ class Drome extends AudioClock {
     return this.audioChannels[n];
   }
 
-  public duck(chanIdx: number | number[], t?: number, d?: number, a = 0.333) {
-    [chanIdx].flat().forEach((idx) => {
-      const chan = this.audioChannels[idx];
-      if (!t) t = this.ctx.currentTime;
-      d = typeof d === "number" ? Math.min(Math.max(1 - d, 0), 1) : 0;
-      chan.gain.cancelScheduledValues(t);
-      chan.gain.setValueAtTime(chan.gain.value, t);
-      chan.gain.linearRampToValueAtTime(d, t + 0.02); // quick dip
-      chan.gain.linearRampToValueAtTime(
-        BASE_GAIN,
-        t + this.beatDuration * Math.min(a, 1)
-      );
-    });
-  }
-
   public onBeat(cb: DromeEventCallback) {
     this.on("beat", cb);
     this.replListeners.push(["beat", cb]);

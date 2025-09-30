@@ -26,7 +26,7 @@ class DromeSample extends DromeInstrument<number> {
     super(drome, dest, [[1]]);
     if (names.length) this.sampleNames = names;
     else this.sampleNames = ["bd"];
-    this.channelIndex = 1;
+    this._channelIndex = 1;
   }
 
   push() {
@@ -114,10 +114,6 @@ class DromeSample extends DromeInstrument<number> {
         });
 
         source.play(time, noteDuration);
-        if (this.duckParams) {
-          const { channels, depth, attack } = this.duckParams;
-          this.drome.duck(channels, time, depth, attack);
-        }
         this.sources.add(source);
         source.node.onended = () => this.sources.delete(source);
       });
