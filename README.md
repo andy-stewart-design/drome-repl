@@ -6,6 +6,8 @@
 [x] add ability to pass in array for parameter (like gain)
 [x] Make DromeRandomArray generic
 [x] Explore randomness (PRNG?)
-[ ] Add more samples (drums + ep133)
-[ ] Expand automcomplete
+[ ] Make Drome.stack a class
+[ ] Beat repeat function -> .repeat(3,32,0.2)
+[ ] Add more samples (ep133)
+[ ] Expand autocomplete
 [ ] Look for ways to simplify `applyEnvelope` function

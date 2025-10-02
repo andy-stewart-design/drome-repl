@@ -21,7 +21,48 @@ d.stack(
   d.sample("bd:3").bank("tr909").euclid([3,5],8).gain(1),
   d.sample("hh:4").hex("ff").pan(0.875).gain(0.375),
   d.sample("oh:1").euclid(4,8,1).pan(0.125).gain(0.5)
-)`,
+).push()`,
+  },
+  {
+    title: "Random lead",
+    code: `const r = "f"
+const s = "min"
+
+const arp = d.synth("saw").root(r+5).scale(s)
+  .note([4,6,9,8],[3,4,6,8]).stretch(4).fast(4)
+  .adsr(0,.5,0,0)
+  .reverb(.375).lpf(2500).hpf(500)
+  .postgain(1.25)
+
+const pad = d.synth("tri").root(r+3).scale(s)
+  .note([[4,6,9,8]],[[3,4,6,8]])
+  .adsr(0.125,.75,.333,.25)
+  .reverb(.5).lpf(2000)
+  .postgain(.75)
+  
+const lead = d.synth("saw","tri").root(r+4).scale(s)
+  .note(d.irand([0],2).range(0,7).get(8)).hex("e226a22f").slow(2)
+  .lpf(1600).reverb(.5).delay(.5,.25).distort(100)
+  .postgain(.425)
+
+const drums = d.stack(
+  d.sample("bd:3").hex("f"), // kick
+  d.sample("cp").bank("tr808").euclid(2,4,3).gain(1.25).reverb(0.5,0.25), // clap
+  d.sample("ht").bank("tr606").euclid([0,1],8,3), // perc
+  d.sample("hh:0").bank("tr606").hex("ffff").gain([0.2,.375]).pan(.875), // hihat
+  d.sample("oh").bank("d70").euclid(4,8,1).gain(0.625).reverb(0.125,1).pan(.125), // open hat
+  d.sample("sh").bank("tr808").euclid(16,16).reverb(0.125,0.5).gain([0.5,0.05]).pan(0.125), // shaker
+)
+
+const bass = d.synth("sq","sine").root(r+1).scale("min").note(4,3,4,[3,3,3,3,3,6,6,6])
+  .euclid(8,8,1).gain([0.375,1.25])
+  .lpf(600).lpenv(2,0.5,0.5,.5,.1)
+
+pad.push()
+arp.push()
+lead.push()
+bass.push()
+drums.push()`,
   },
   {
     title: "360",
@@ -38,12 +79,12 @@ d.stack(
     .delay(0.2).reverb(0.2).postgain(1.5),
   d.synth("sq","sine").note(...bass_notes).root("c2").scale("maj").sequence(...kick_seq,16)
     .adsr(0,1,0.5,0.2).lpf(200).lpenv(2,0,1,0,0),
-)
+).push()
 
 d.stack(
   d.sample("bd").sequence(...kick_seq,16),
   d.sample("cp").bank("RolandTR808").euclid(2,4,1).gain(0.75)
-)`,
+).push()`,
   },
   {
     title: "Randomness",
@@ -100,7 +141,7 @@ d.stack(
     .lpf(800).lpenv(2,0.1,0.25,0.375,1).euclid(5,8,2).reverb(0.1).gain(0.75),
   d.synth("saw","sq").note(...sub_notes).root(31).euclid(4,4)
     .lpf(50).lpenv(30,0.9,0.1,0.8,0.01).gain(0.375),
-)
+).push()
 
 d.stack(
   d.sample("bd:0").hex("f"),
@@ -108,7 +149,7 @@ d.stack(
   d.sample("cp:3").euclid(2,4,1),
   d.sample("hh:2").euclid(4,8,1).gain(0.625),
   d.sample("sh").bank("RolandTR808").hex("ff").gain(0.375),
-)`,
+).push()`,
   },
   {
     title: "Multiple speeds",
@@ -119,7 +160,7 @@ d.stack(
   drome.synth("sq").note([43,43,43,50,43,43,53,54])
     .lpf(300).lpenv(2,0,0.5,0.5,0.1)
     .fast(2).gain(2).reverb(0.25),
-)`,
+).push()`,
   },
   //   {
   //     title: "Static methods",
@@ -138,7 +179,7 @@ drome.stack(
   drome.sample("hh").euclid(8,8).gain(0.625),
   drome.sample("oh").euclid(4,8,1).gain(0.575),
   drome.sample("cp").euclid(2,4,1).gain(1.5),
-)
+).push()
   
 const kick = drome.sample("bd").hex("f")
 kick.push()`,
@@ -155,7 +196,7 @@ d.stack(
   drome.sample("bd").bank("tr909").euclid(4,4),
   drome.sample("hh").bank("tr808").euclid(4,8,1).gain(0.75),
   drome.sample("cp").bank("tr808").euclid(2,4,1).gain(0.75),
-)`,
+).push()`,
   },
 ];
 
