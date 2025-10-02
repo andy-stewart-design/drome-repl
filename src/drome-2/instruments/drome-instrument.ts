@@ -81,6 +81,11 @@ class DromeInstrument<T extends number | number[]> {
     return this;
   }
 
+  reverse() {
+    this.cycles.reverse();
+    return this;
+  }
+
   sequence(...args: [...number[][], number]) {
     this.cycles.sequence(...args);
     return this;

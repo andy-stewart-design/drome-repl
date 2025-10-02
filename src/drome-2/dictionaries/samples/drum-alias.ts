@@ -11,7 +11,7 @@ const drumAliases = {
   ms404: "RhythmAce",
 
   linn9000: "Linn9000",
-  9000: "Linn9000",
+  "9000": "Linn9000",
 
   oberheimdmx: "OberheimDMX_",
   dmx: "OberheimDMX_",

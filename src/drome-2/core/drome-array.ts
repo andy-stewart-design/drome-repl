@@ -72,6 +72,14 @@ class DromeArray<T> {
     return this;
   }
 
+  reverse() {
+    this._value = this._value
+      .slice()
+      .reverse()
+      .map((arr) => arr.slice().reverse());
+    return this;
+  }
+
   sequence(...args: [...number[][], number]) {
     const steps = args[args.length - 1] as number;
     const pulses = args.slice(0, -1) as number[][];
