@@ -1,5 +1,22 @@
 import { autocompletion, CompletionContext } from "@codemirror/autocomplete";
-const rawSuggestions = ["tr505", "tr606", "tr626", "tr707", "tr808", "tr909"];
+const rawSuggestions = [
+  "9000",
+  "ace",
+  "akailinn",
+  "cr78",
+  "d70",
+  "dmx",
+  "dr550",
+  "hr16",
+  "ms404",
+  "rm50",
+  "tr505",
+  "tr606",
+  "tr626",
+  "tr707",
+  "tr808",
+  "tr909",
+];
 
 function bankCompletionSource(context: CompletionContext) {
   // Match: bank(   or bank("text
