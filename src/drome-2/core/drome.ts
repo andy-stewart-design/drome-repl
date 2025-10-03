@@ -15,6 +15,7 @@ import {
   createIntegerRand,
   createBinaryRand,
 } from "../utils/random";
+import DromeStack from "./drome-stack";
 
 const BASE_GAIN = 0.75;
 const NUM_CHANNELS = 8;
@@ -74,8 +75,8 @@ class Drome extends AudioClock {
     this.instruments.add(inst);
   }
 
-  public stack(...intruments: (DromeSynth | DromeSample)[]) {
-    return { push: () => intruments.forEach((inst) => inst.push()) };
+  public stack(...instruments: (DromeSynth | DromeSample)[]) {
+    return new DromeStack(instruments);
   }
 
   public clear() {
