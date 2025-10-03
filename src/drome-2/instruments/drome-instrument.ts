@@ -34,6 +34,9 @@ class DromeInstrument<T extends number | number[]> {
   protected _channelIndex: number | undefined;
   protected readonly _env: ADSRParams = { a: 0.001, d: 0.125, s: 1.0, r: 0.01 };
 
+  // Method aliases
+  public rev: () => this;
+
   constructor(
     drome: Drome,
     destination: DromeAudioNode[],
@@ -43,6 +46,7 @@ class DromeInstrument<T extends number | number[]> {
     this._destination = destination;
     this._postgain = new GainEffect(this.drome.ctx, 1);
     this.cycles = new DromeArray<T>(defaultCycle);
+    this.rev = this.reverse.bind(this);
   }
 
   /* ----------------------------------------------------------------
