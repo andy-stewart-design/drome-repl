@@ -26,12 +26,18 @@ class Drome extends AudioClock {
   readonly reverbCache: Map<string, AudioBuffer> = new Map();
   readonly replListeners: [DromeEventType, DromeEventCallback][] = [];
 
+  // Method aliases
+  public sam: (...name: SampleNote[]) => DromeSample;
+  public syn: (...types: OscTypeAlias[]) => DromeSynth;
+
   constructor(bpm?: number) {
     super(bpm);
     this.audioChannels = Array.from({ length: NUM_CHANNELS }).map(
       () => new GainEffect(this.ctx, BASE_GAIN)
     );
     this.on("bar", this.handleTick.bind(this));
+    this.sam = this.sample.bind(this);
+    this.syn = this.synth.bind(this);
   }
 
   private handleTick() {

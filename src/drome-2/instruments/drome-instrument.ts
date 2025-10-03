@@ -36,6 +36,7 @@ class DromeInstrument<T extends number | number[]> {
 
   // Method aliases
   public rev: () => this;
+  public seq: (...args: [...number[][], number]) => this;
 
   constructor(
     drome: Drome,
@@ -47,6 +48,7 @@ class DromeInstrument<T extends number | number[]> {
     this._postgain = new GainEffect(this.drome.ctx, 1);
     this.cycles = new DromeArray<T>(defaultCycle);
     this.rev = this.reverse.bind(this);
+    this.seq = this.sequence.bind(this);
   }
 
   /* ----------------------------------------------------------------
