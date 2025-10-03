@@ -6,10 +6,17 @@
 [x] add ability to pass in array for parameter (like gain)
 [x] Make DromeRandomArray generic
 [x] Explore randomness (PRNG?)
-[ ] Add drome array functions to Drome class
+[x] Add drome array functions to Drome class
 [ ] Make DromeStack a class
 [ ] tremelo/vibrato
 [ ] Beat repeat function -> .repeat(3,32,0.2)
 [ ] Add more samples (ep133)
 [ ] Expand autocomplete
 [ ] Look for ways to simplify `applyEnvelope` function
+
+## Future
+
+[ ] Sample chopping
+[ ] Low frequency oscillators
+[ ] Multiple values for global effects like postgain
+[ ] Global effects on audio channels (lpf, duck, etc.)

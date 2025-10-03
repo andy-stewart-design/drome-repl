@@ -29,6 +29,7 @@ class Drome extends AudioClock {
   // Method aliases
   public sam: (...name: SampleNote[]) => DromeSample;
   public syn: (...types: OscTypeAlias[]) => DromeSynth;
+  public seq: (...args: [...number[][], number]) => DromeArray<number>;
 
   constructor(bpm?: number) {
     super(bpm);
@@ -38,6 +39,7 @@ class Drome extends AudioClock {
     this.on("bar", this.handleTick.bind(this));
     this.sam = this.sample.bind(this);
     this.syn = this.synth.bind(this);
+    this.seq = this.sequence.bind(this);
   }
 
   private handleTick() {
@@ -117,12 +119,24 @@ class Drome extends AudioClock {
   }
 
   // DROME ARRAY METHODS
+  euclid(pulses: number | number[], steps: number, rotation = 0) {
+    return new DromeArray([[1]]).euclid(pulses, steps, rotation);
+  }
+
+  hex(...hexes: (string | number)[]) {
+    return new DromeArray([[1]]).hex(...hexes);
+  }
+
   note(...notes: DromeCyclePartial<number>[]) {
     return new DromeArray([[0]]).note(...notes);
   }
 
-  euclid(pulses: number | number[], steps: number, rotation = 0) {
-    return new DromeArray([[1]]).euclid(pulses, steps, rotation);
+  sequence(...args: [...number[][], number]) {
+    return new DromeArray([[1]]).sequence(...args);
+  }
+
+  struct(...patterns: number[][]) {
+    return new DromeArray([[1]]).struct(...patterns);
   }
 
   // RANDOM GETTERS
