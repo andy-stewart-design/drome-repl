@@ -13,6 +13,7 @@
   "AkaiLinn_sd": ["AkaiLinn/akailinn-sd/SD.wav"],
   "AkaiLinn_sh": ["AkaiLinn/akailinn-sh/Shuffle.wav"],
   "AkaiLinn_tb": ["AkaiLinn/akailinn-tb/Tambourin.wav"],
+
   "AlesisHR16_bd": ["AlesisHR16/alesishr16-bd/Bassdrum.wav"],
   "AlesisHR16_cp": ["AlesisHR16/alesishr16-cp/Clap.wav"],
   "AlesisHR16_hh": ["AlesisHR16/alesishr16-hh/Closed Hat.wav"],
@@ -36,6 +37,7 @@
     "AlesisHR16/alesishr16-sh/Maracas.wav",
     "AlesisHR16/alesishr16-sh/Shaker.wav"
   ],
+
   "BossDR550_bd": [
     "BossDR550/bossdr550-bd/Bassdrum-01.wav",
     "BossDR550/bossdr550-bd/Bassdrum-02.wav",
@@ -106,6 +108,7 @@
     "BossDR550/bossdr550-sh/Cabasa-01.wav",
     "BossDR550/bossdr550-sh/Cabasa-02.wav"
   ],
+
   "DoepferMS404_bd": [
     "DoepferMS404/doepferms404-bd/0Bassdrum.wav",
     "DoepferMS404/doepferms404-bd/Bassdrum Reverse.wav"
@@ -114,6 +117,7 @@
   "DoepferMS404_lt": ["DoepferMS404/doepferms404-lt/Tom.wav"],
   "DoepferMS404_oh": ["DoepferMS404/doepferms404-oh/Hat Open.wav"],
   "DoepferMS404_sd": ["DoepferMS404/doepferms404-sd/Snaredrum.wav"],
+
   "Linn9000_bd": ["Linn9000/linn9000-bd/BAssdrum.wav"],
   "Linn9000_cb": [
     "Linn9000/linn9000-cb/Cowbell-01.wav",
@@ -146,6 +150,7 @@
   "Linn9000_rim": ["Linn9000/linn9000-rim/Rim Shot.wav"],
   "Linn9000_sd": ["Linn9000/linn9000-sd/0Snaredrum.wav"],
   "Linn9000_tb": ["Linn9000/linn9000-tb/Tambourine.wav"],
+
   "OberheimDMX_": [
     "OberheimDMX/oberheimdmx--perc/Timbale H.wav",
     "OberheimDMX/oberheimdmx--perc/Timbale L.wav",
@@ -172,6 +177,7 @@
   ],
   "OberheimDMX_sh": ["OberheimDMX/oberheimdmx-sh/Cabasa.wav"],
   "OberheimDMX_tb": ["OberheimDMX/oberheimdmx-tb/Tamborine.wav"],
+
   "RhythmAce_bd": [
     "RhythmAce/rhythmace-bd/Bassdrum-01.wav",
     "RhythmAce/rhythmace-bd/Bassdrum-02.wav",
@@ -194,12 +200,7 @@
     "RhythmAce/rhythmace-sd/Snaredrum-02.wav",
     "RhythmAce/rhythmace-sd/Snaredrum-03.wav"
   ],
-  "RolandD70_bd": [
-    "RolandD70/rolandd70-bd/Bassdrum-01.wav",
-    "RolandD70/rolandd70-bd/Bassdrum-02.wav",
-    "RolandD70/rolandd70-bd/Bassdrum-03.wav",
-    "RolandD70/rolandd70-bd/Bassdrum-04.wav"
-  ],
+
   "RolandCompurhythm78_bd": [
     "RolandCompurhythm78/rolandcompurhythm78-bd/Bassdrum.wav"
   ],
@@ -236,6 +237,13 @@
   "RolandCompurhythm78_tb": [
     "RolandCompurhythm78/rolandcompurhythm78-tb/Tambourine.wav"
   ],
+
+  "RolandD70_bd": [
+    "RolandD70/rolandd70-bd/Bassdrum-01.wav",
+    "RolandD70/rolandd70-bd/Bassdrum-02.wav",
+    "RolandD70/rolandd70-bd/Bassdrum-03.wav",
+    "RolandD70/rolandd70-bd/Bassdrum-04.wav"
+  ],
   "RolandD70_cb": ["RolandD70/rolandd70-cb/Cowbell.wav"],
   "RolandD70_cp": ["RolandD70/rolandd70-cp/Clap.wav"],
   "RolandD70_cr": ["RolandD70/rolandd70-cr/Crash.wav"],
@@ -254,6 +262,7 @@
     "RolandD70/rolandd70-sd/Snaredrum-05.wav"
   ],
   "RolandD70_sh": ["RolandD70/rolandd70-sh/Cabasa.wav"],
+
   "RolandTR505_bd": ["RolandTR505/rolandtr505-bd/Bassdrum.wav"],
   "RolandTR505_cb": [
     "RolandTR505/rolandtr505-cb/Cowbell H.wav",
@@ -274,6 +283,7 @@
   "RolandTR505_rd": ["RolandTR505/rolandtr505-rd/Ride.wav"],
   "RolandTR505_rim": ["RolandTR505/rolandtr505-rim/Rimshot.wav"],
   "RolandTR505_sd": ["RolandTR505/rolandtr505-sd/Snaredrum.wav"],
+
   "RolandTR606_bd": ["RolandTR606/rolandtr606-bd/Bassdrum.wav"],
   "RolandTR606_cr": ["RolandTR606/rolandtr606-cr/Cymbal.wav"],
   "RolandTR606_hh": ["RolandTR606/rolandtr606-hh/Hat Closed.wav"],
@@ -281,6 +291,7 @@
   "RolandTR606_lt": ["RolandTR606/rolandtr606-lt/Tom L.wav"],
   "RolandTR606_oh": ["RolandTR606/rolandtr606-oh/Hat Open.wav"],
   "RolandTR606_sd": ["RolandTR606/rolandtr606-sd/Snaredrum.wav"],
+
   "RolandTR626_bd": [
     "RolandTR626/rolandtr626-bd/Bassdrum-01.wav",
     "RolandTR626/rolandtr626-bd/Bassdrum-02.wav"
@@ -327,6 +338,7 @@
   ],
   "RolandTR626_sh": ["RolandTR626/rolandtr626-sh/Shaker.wav"],
   "RolandTR626_tb": ["RolandTR626/rolandtr626-tb/Tambourine.wav"],
+
   "RolandTR707_bd": [
     "RolandTR707/rolandtr707-bd/Bassdrum-01.wav",
     "RolandTR707/rolandtr707-bd/Bassdrum-02.wav"
@@ -344,6 +356,7 @@
     "RolandTR707/rolandtr707-sd/Snaredrum-01.wav",
     "RolandTR707/rolandtr707-sd/Snaredrum-02.wav"
   ],
+
   "RolandTR808_bd": [
     "RolandTR808/rolandtr808-bd/BD0000.WAV",
     "RolandTR808/rolandtr808-bd/BD0010.WAV",
@@ -488,6 +501,7 @@
     "RolandTR808/rolandtr808-sh/Cabasa.wav",
     "RolandTR808/rolandtr808-sh/MA.WAV"
   ],
+
   "RolandTR909_bd": [
     "RolandTR909/rolandtr909-bd/Bassdrum-01.wav",
     "RolandTR909/rolandtr909-bd/Bassdrum-02.wav",
@@ -584,6 +598,7 @@
     "RolandTR909/rolandtr909-sd/sd14.wav",
     "RolandTR909/rolandtr909-sd/sd15.wav"
   ],
+
   "YamahaRM50_bd": [
     "YamahaRM50/yamaharm50-bd/BD-001.wav",
     "YamahaRM50/yamaharm50-bd/BD-002.wav",

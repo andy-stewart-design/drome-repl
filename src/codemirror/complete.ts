@@ -2,7 +2,7 @@ import { autocompletion, CompletionContext } from "@codemirror/autocomplete";
 const rawSuggestions = [
   "9000",
   "ace",
-  "akailinn",
+  // "akailinn",
   "cr78",
   "d70",
   "dmx",
