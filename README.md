@@ -7,10 +7,10 @@
 [x] Make DromeRandomArray generic
 [x] Explore randomness (PRNG?)
 [x] Add drome array functions to Drome class
-[ ] Make DromeStack a class
+[x] Make DromeStack a class
+[ ] Add more samples (ep133)
 [ ] tremelo/vibrato
 [ ] Beat repeat function -> .repeat(3,32,0.2)
-[ ] Add more samples (ep133)
 [ ] Expand autocomplete
 [ ] Look for ways to simplify `applyEnvelope` function
 
