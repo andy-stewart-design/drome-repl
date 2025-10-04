@@ -1,4 +1,5 @@
-import { drumAliases } from "./dictionaries/samples/drum-alias";
+// import { drumAliases } from "./dictionaries/samples/drum-alias";
+import type z from "zod";
 import { scaleAliasMap } from "./dictionaries/notes/scale-alias";
 import { synthAliasMap } from "./dictionaries/synths/synth-aliases";
 import type DelayEffect from "./effects/delay";
@@ -6,6 +7,7 @@ import type DistortionEffect from "./effects/distortion";
 import type FilterEffect from "./effects/filter";
 import type GainEffect from "./effects/gain";
 import type ReverbEffect from "./effects/reverb";
+import type { drumMachineSchema } from "./utils/get-sample";
 
 interface Metronome {
   beat: number;
@@ -76,7 +78,7 @@ type SampleName =
 
 type SampleNote = SampleName | `${SampleName}:${number}`;
 
-type SampleBank = keyof typeof drumAliases;
+type SampleBank = keyof z.infer<typeof drumMachineSchema>;
 
 export type {
   ADSRParams,

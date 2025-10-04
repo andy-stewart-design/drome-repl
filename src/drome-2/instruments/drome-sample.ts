@@ -1,5 +1,4 @@
 import DromeInstrument from "./drome-instrument";
-import _drumMachines from "../dictionaries/samples/drum-machines.json";
 import DromeAudioSource from "./drome-audio-source";
 import FilterEffect from "../effects/filter";
 import { getSampleUrl } from "../utils/get-sample";

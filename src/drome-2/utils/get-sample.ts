@@ -6,7 +6,7 @@ const drumMachineDataSchema = z.object({
 });
 
 const drumMachineSchema = z.object({
-  9000: drumMachineDataSchema,
+  "9000": drumMachineDataSchema,
   ace: drumMachineDataSchema,
   cr78: drumMachineDataSchema,
   d70: drumMachineDataSchema,
@@ -55,4 +55,4 @@ function toNumber(value: number | string): number {
   return isNaN(parsed) || !isFinite(parsed) ? 0 : parsed;
 }
 
-export { getSampleUrl };
+export { getSampleUrl, drumMachineSchema };
