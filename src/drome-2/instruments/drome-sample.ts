@@ -1,11 +1,9 @@
 import DromeInstrument from "./drome-instrument";
-import _drumMachines from "../dictionaries/samples/drum-machines.json";
 import DromeAudioSource from "./drome-audio-source";
 import FilterEffect from "../effects/filter";
-import { drumAliases as _drumAliases } from "../dictionaries/samples/drum-alias";
+import { getSampleUrl } from "../utils/get-sample";
 import type Drome from "../core/drome";
 import type {
-  // DromeCycleValue,
   DromeAudioNode,
   SampleBank,
   SampleName,
@@ -13,12 +11,9 @@ import type {
 } from "../types";
 import type { DromeCycleValue } from "../core/drome-array";
 
-const drumMachines: Record<string, string | string[]> = _drumMachines;
-const drumAliases: Record<string, string> = _drumAliases;
-
 class DromeSample extends DromeInstrument<number> {
   private sampleNames: SampleName[];
-  private sampleBank: SampleBank = "rolandtr909";
+  private sampleBank: SampleBank = "tr909";
   private sources: Set<DromeAudioSource> = new Set();
   private _playbackRate = 1;
 
@@ -36,14 +31,12 @@ class DromeSample extends DromeInstrument<number> {
   }
 
   async loadSample(note: SampleNote) {
-    const baseUrl = drumMachines._base;
     const [sampleName, _index] = note.split(":");
-    const index = parseInt(_index) || 0;
-    const bankName = drumAliases[this.sampleBank.toLocaleLowerCase()];
-
-    const sampleSlugs = drumMachines[`${bankName}_${sampleName}`];
-    const sampleSlug = sampleSlugs[index % sampleSlugs.length];
-    const sampleUrl = `${baseUrl}${sampleSlug}`;
+    const sampleUrl = getSampleUrl(this.sampleBank, sampleName, _index);
+    if (!sampleUrl) {
+      console.warn(`Couldn't find a sample: ${this.sampleBank} ${sampleName}`);
+      return [undefined, undefined] as const;
+    }
 
     if (this.drome.sampleBuffers.has(sampleUrl)) {
       const audioBuffer = this.drome.sampleBuffers.get(sampleUrl)!;
@@ -66,7 +59,7 @@ class DromeSample extends DromeInstrument<number> {
   preloadSamples() {
     return this.sampleNames.map(async (name) => {
       let [buffer, sampleUrl] = await this.loadSample(name);
-      if (!buffer) return;
+      if (!buffer || !sampleUrl) return;
 
       this.drome.sampleBuffers.set(sampleUrl, buffer);
       return [sampleUrl, buffer] as const;

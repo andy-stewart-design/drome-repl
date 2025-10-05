@@ -83,7 +83,7 @@ d.stack(
 
 d.stack(
   d.sample("bd").sequence(...kick_seq,16),
-  d.sample("cp").bank("RolandTR808").euclid(2,4,1).gain(0.75)
+  d.sample("cp").bank("tr808").euclid(2,4,1).gain(0.75)
 ).push()`,
   },
   {
@@ -148,7 +148,7 @@ d.stack(
   d.sample("sd").euclid(2,4,1),
   d.sample("cp:3").euclid(2,4,1),
   d.sample("hh:2").euclid(4,8,1).gain(0.625),
-  d.sample("sh").bank("RolandTR808").hex("ff").gain(0.375),
+  d.sample("sh").bank("tr808").hex("ff").gain(0.375),
 ).push()`,
   },
   {

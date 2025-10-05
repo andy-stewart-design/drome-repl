@@ -18,7 +18,8 @@
     "@lezer/highlight": "^1.2.1",
     "@lezer/javascript": "^1.5.1",
     "codemirror": "^6.0.2",
-    "solid-js": "^1.9.7"
+    "solid-js": "^1.9.7",
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "@types/node": "^24.2.1",

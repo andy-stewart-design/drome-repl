@@ -1,6 +1,7 @@
+import DromeSample from "../instruments/drome-sample";
 import type DromeArray from "./drome-array";
-import type DromeSample from "../instruments/drome-sample";
 import type DromeSynth from "../instruments/drome-synth";
+import type { SampleBank } from "../types";
 
 class DromeStack {
   private instruments: (DromeSynth | DromeSample)[];
@@ -76,6 +77,13 @@ class DromeStack {
 
   achan(n: number) {
     this.instruments.forEach((inst) => inst.achan(n));
+    return this;
+  }
+
+  bank(bank: SampleBank) {
+    this.instruments.forEach((inst) => {
+      if (inst instanceof DromeSample) inst.bank(bank);
+    });
     return this;
   }
 
