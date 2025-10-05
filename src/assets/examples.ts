@@ -36,19 +36,20 @@ const arp = d.synth("saw").root(r+5).scale(s)
 
 const pad = d.synth("tri").root(r+3).scale(s)
   .note([[4,6,9,8]],[[3,4,6,8]])
-  .adsr(0.125,.75,.333,.25)
+  .adsr(0.125,.75,.333,0).vibrato(.25,.5)
   .reverb(.5).lpf(2000)
   .postgain(.75)
   
 const lead = d.synth("saw","tri").root(r+4).scale(s)
   .note(d.irand([0],2).range(0,7).get(8)).hex("e226a22f").slow(2)
-  .lpf(1600).reverb(.5).delay(.5,.25).distort(100)
+  .lpf(1600).reverb(.5).delay(.5,.25).distort(300)
   .postgain(.425)
 
 const drums = d.stack(
   d.sample("bd:3").hex("f"), // kick
   d.sample("cp").bank("tr808").euclid(2,4,3).gain(1.25).reverb(0.5,0.25), // clap
   d.sample("ht").bank("tr606").euclid([0,1],8,3), // perc
+  d.sample("mt:2").bank("tr808").euclid([0,1],8,1), // m-tom
   d.sample("hh:0").bank("tr606").hex("ffff").gain([0.2,.375]).pan(.875), // hihat
   d.sample("oh").bank("d70").euclid(4,8,1).gain(0.625).reverb(0.125,1).pan(.125), // open hat
   d.sample("sh").bank("tr808").euclid(16,16).reverb(0.125,0.5).gain([0.5,0.05]).pan(0.125), // shaker

@@ -124,8 +124,10 @@ function App() {
           <div class="controls">
             <Show when={metronome()}>
               <span class="metronome">
-                <span>Beat</span> {metronome()?.beat} <span>: Bar </span>
-                {metronome()?.bar.toString().padStart(2, "0")}
+                <span>Beat</span> {metronome()!.beat + 1} <span>: Bar </span>
+                {((metronome()!.bar % 4) + 1).toString().padStart(2, "0")}
+                <span> : Cycle </span>
+                {(metronome()!.bar + 1).toString().padStart(2, "0")}
               </span>
             </Show>
             <button onclick={handlePlay}>
