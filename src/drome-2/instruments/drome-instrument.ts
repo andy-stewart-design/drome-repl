@@ -17,6 +17,7 @@ import type {
   DromeCyclePartial,
   DromeArrangement,
 } from "../core/drome-array";
+import type DromeAudioSource from "./drome-audio-source";
 
 class DromeInstrument<T extends number | number[]> {
   readonly drome: Drome;
@@ -31,12 +32,15 @@ class DromeInstrument<T extends number | number[]> {
   private _postgain: GainEffect;
   private _pan = new DromeArray([[0]]);
   protected _legato = false;
+  private _vibratoParams: { depth: number; speed: number } | undefined;
+  protected _vibratoNodes: { osc: OscillatorNode; gain: GainNode } | undefined;
   protected _channelIndex: number | undefined;
   protected readonly _env: ADSRParams = { a: 0.001, d: 0.125, s: 1.0, r: 0.01 };
 
   // Method aliases
   public rev: () => this;
   public seq: (...args: [...number[][], number]) => this;
+  public vib: (depth: number, speed?: number) => this;
 
   constructor(
     drome: Drome,
@@ -49,6 +53,21 @@ class DromeInstrument<T extends number | number[]> {
     this.cycles = new DromeArray<T>(defaultCycle);
     this.rev = this.reverse.bind(this);
     this.seq = this.sequence.bind(this);
+    this.vib = this.vibrato.bind(this);
+  }
+
+  protected applyVibrato(osc: DromeAudioSource) {
+    if (!this._vibratoParams) return;
+    const { depth, speed } = this._vibratoParams;
+    const modulator = new OscillatorNode(this.drome.ctx, {
+      type: "sine",
+      frequency: speed,
+    });
+    const modulatorGain = new GainNode(this.drome.ctx, { gain: depth });
+    modulator.connect(modulatorGain);
+    osc.nodes.forEach((node) => modulatorGain.connect(node.detune));
+    modulator.start();
+    this._vibratoNodes = { osc: modulator, gain: modulatorGain };
   }
 
   /* ----------------------------------------------------------------
@@ -231,6 +250,11 @@ class DromeInstrument<T extends number | number[]> {
     return this;
   }
 
+  vibrato(depth: number, speed = 1) {
+    this._vibratoParams = { depth: depth * 100, speed };
+    return this;
+  }
+
   achan(n: number) {
     this._channelIndex = n;
     return this;
@@ -288,6 +312,11 @@ class DromeInstrument<T extends number | number[]> {
     if (this._postgain) {
       this._postgain.disconnect();
       this._postgain.volume = 1;
+    }
+    if (this._vibratoNodes) {
+      this._vibratoNodes.osc.stop();
+      this._vibratoNodes.gain.disconnect();
+      this._vibratoNodes = undefined;
     }
 
     this._filters.clear();

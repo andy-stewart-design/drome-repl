@@ -101,6 +101,8 @@ class DromeSample extends DromeInstrument<number> {
           pan: this.getCurrentPan(cycleIndex, i),
         });
 
+        this.applyVibrato(source);
+
         nodes.forEach((node) => {
           if (!(node instanceof FilterEffect)) return;
           node.apply(time, noteDuration);
