@@ -220,6 +220,10 @@ class DromeAudioSource {
   get node() {
     return this.srcNodes[0];
   }
+
+  get nodes() {
+    return this.srcNodes;
+  }
 }
 
 export default DromeAudioSource;

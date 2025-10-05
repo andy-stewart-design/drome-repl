@@ -101,6 +101,7 @@ class DromeSynth extends DromeInstrument<number | number[]> {
         });
 
         const { offset, duration } = this.getDuration(cycle, noteIndex);
+        this.applyVibrato(osc);
         osc.play(startTime + offset, duration, chordIndex);
 
         this.oscillators.add(osc);
