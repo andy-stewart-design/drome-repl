@@ -113,6 +113,7 @@ class DromeSample extends DromeInstrument<number> {
           : 0;
         const startPoint = this.loopBegin && this.loopBegin[startIndex];
         const start = startPoint ? buffer.duration * startPoint : 0;
+        const end = buffer.duration * 0.5 + start;
 
         const time = startTime + noteDuration * i;
         const source = new DromeAudioSource(this.drome.ctx, nodes[0].input, {
@@ -124,6 +125,7 @@ class DromeSample extends DromeInstrument<number> {
           filters: this._filters,
           pan: this.getCurrentPan(cycleIndex, i),
           start,
+          end,
         });
 
         this.applyVibrato(source);

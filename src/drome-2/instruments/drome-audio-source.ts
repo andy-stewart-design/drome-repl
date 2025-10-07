@@ -21,6 +21,7 @@ interface DromeBufferOptions extends BaseAudioSourceOptions {
   buffer: AudioBuffer;
   rate: number;
   start?: number;
+  end?: number;
 }
 
 interface LFO {
@@ -106,6 +107,7 @@ class DromeAudioSource {
       playbackRate: opts.rate,
       buffer: opts.buffer,
       loopStart: opts.start ?? 0,
+      loopEnd: opts.end,
     });
     this.srcNodes.push(src);
   }
@@ -175,6 +177,7 @@ class DromeAudioSource {
           ? startOffsets[noteIndex + this.srcNodes.length * chordIndex]
           : 0;
       const offset = node instanceof AudioBufferSourceNode ? node.loopStart : 0;
+      // const end = node instanceof AudioBufferSourceNode ? node.loopEnd : 0;
 
       node.start(startTime + jitter, offset);
       const releaseTime = this.env.r * duration;
