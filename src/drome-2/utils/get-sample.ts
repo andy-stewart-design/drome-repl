@@ -21,6 +21,7 @@ const drumMachineSchema = z.object({
   tr707: drumMachineDataSchema,
   tr808: drumMachineDataSchema,
   tr909: drumMachineDataSchema,
+  loops: drumMachineDataSchema,
 });
 
 const modules = import.meta.glob("../dictionaries/samples/drums/*.json", {

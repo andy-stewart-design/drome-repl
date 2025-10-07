@@ -5,9 +5,11 @@ import type { SampleBank } from "../types";
 
 class DromeStack {
   private instruments: (DromeSynth | DromeSample)[];
+  public play: () => this;
 
   constructor(instruments: (DromeSynth | DromeSample)[]) {
     this.instruments = instruments;
+    this.play = this.push.bind(this);
   }
 
   adsr(a: number, d?: number, s?: number, r?: number) {

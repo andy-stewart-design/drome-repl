@@ -24,6 +24,8 @@ class DromeSynth extends DromeInstrument<number | number[]> {
   private rootNote = 0;
   private _scale: number[] | null = null;
 
+  public play: () => this;
+
   constructor(drome: Drome, dest: DromeAudioNode[], ...types: OscTypeAlias[]) {
     super(drome, dest, [[60]]);
     if (types.length === 0) {
@@ -34,6 +36,7 @@ class DromeSynth extends DromeInstrument<number | number[]> {
       });
     }
     this._channelIndex = 0;
+    this.play = this.push.bind(this);
   }
 
   private getFrequency(note: number) {

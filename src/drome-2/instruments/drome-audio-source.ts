@@ -20,6 +20,7 @@ interface DromeBufferOptions extends BaseAudioSourceOptions {
   type: "buffer";
   buffer: AudioBuffer;
   rate: number;
+  start?: number;
 }
 
 interface LFO {
@@ -68,7 +69,7 @@ class DromeAudioSource {
     if (opts.type === "oscillator") {
       this.createOscillator(opts.waveform, opts.frequency);
     } else {
-      this.createBuffer(opts.buffer, opts.rate);
+      this.createBuffer(opts);
     }
 
     const filterNodes: BiquadFilterNode[] = [];
@@ -100,9 +101,12 @@ class DromeAudioSource {
     });
   }
 
-  private createBuffer(buffer: AudioBuffer, playbackRate: number) {
-    const src = new AudioBufferSourceNode(this.ctx, { playbackRate });
-    src.buffer = buffer;
+  private createBuffer(opts: DromeBufferOptions) {
+    const src = new AudioBufferSourceNode(this.ctx, {
+      playbackRate: opts.rate,
+      buffer: opts.buffer,
+      loopStart: opts.start ?? 0,
+    });
     this.srcNodes.push(src);
   }
 
@@ -170,7 +174,9 @@ class DromeAudioSource {
         this.srcNodes.length > 1
           ? startOffsets[noteIndex + this.srcNodes.length * chordIndex]
           : 0;
-      node.start(startTime + jitter);
+      const offset = node instanceof AudioBufferSourceNode ? node.loopStart : 0;
+
+      node.start(startTime + jitter, offset);
       const releaseTime = this.env.r * duration;
       node.stop(startTime + this.getDuration(duration) + releaseTime + 0.2);
     });
