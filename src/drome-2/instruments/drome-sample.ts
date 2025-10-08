@@ -17,7 +17,7 @@ class DromeSample extends DromeInstrument<number> {
   private sources: Set<DromeAudioSource> = new Set();
   private _playbackRate = 1;
   private _fitValue: number | undefined;
-  private loopBegin: number[] | undefined;
+  private _chopPoints: number[] | undefined;
 
   public play: () => this;
 
@@ -27,6 +27,24 @@ class DromeSample extends DromeInstrument<number> {
     else this.sampleNames = ["bd"];
     this._channelIndex = 1;
     this.play = this.push.bind(this);
+  }
+
+  private getPlaybackParams(buffer: AudioBuffer) {
+    const rate = this._fitValue
+      ? buffer.duration / this.drome.barDuration / this._fitValue
+      : this._playbackRate;
+
+    const startIndex = this._chopPoints
+      ? this.drome.metronome.bar % this._chopPoints.length
+      : 0;
+    const startPoint = this._chopPoints ? this._chopPoints[startIndex] : 0;
+    const start = buffer.duration * startPoint;
+
+    const duration = this._fitValue
+      ? buffer.duration * (1 / this._fitValue)
+      : buffer.duration;
+
+    return { start, rate, duration };
   }
 
   push() {
@@ -83,13 +101,16 @@ class DromeSample extends DromeInstrument<number> {
 
   fit(numBars = 1) {
     this._fitValue = numBars;
+    this._chopPoints = Array.from({ length: numBars }, (_, i) => i / numBars);
     return this;
   }
 
   begin(pos: number | number[]) {
-    this.loopBegin = Array.isArray(pos) ? pos : [pos];
+    this._chopPoints = Array.isArray(pos) ? pos : [pos];
     return this;
   }
+
+  // chop(numChops: number, sequence: number[]) {}
 
   start() {
     const nodes = super.connectChain();
@@ -105,27 +126,15 @@ class DromeSample extends DromeInstrument<number> {
         let [buffer] = await this.loadSample(name);
         if (!buffer) return;
 
-        const rate = this._fitValue
-          ? buffer.duration / this.drome.barDuration / this._fitValue
-          : this._playbackRate;
-        const startIndex = this.loopBegin
-          ? this.drome.metronome.bar % this.loopBegin?.length
-          : 0;
-        const startPoint = this.loopBegin && this.loopBegin[startIndex];
-        const start = startPoint ? buffer.duration * startPoint : 0;
-        const end = buffer.duration * 0.5 + start;
-
         const time = startTime + noteDuration * i;
         const source = new DromeAudioSource(this.drome.ctx, nodes[0].input, {
           type: "buffer",
           buffer,
-          rate,
           gain: this.getCurrentGain(cycleIndex, i),
           env: this._env,
           filters: this._filters,
           pan: this.getCurrentPan(cycleIndex, i),
-          start,
-          end,
+          ...this.getPlaybackParams(buffer),
         });
 
         this.applyVibrato(source);

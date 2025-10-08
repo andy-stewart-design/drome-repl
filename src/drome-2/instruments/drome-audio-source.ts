@@ -20,8 +20,8 @@ interface DromeBufferOptions extends BaseAudioSourceOptions {
   type: "buffer";
   buffer: AudioBuffer;
   rate: number;
-  start?: number;
-  end?: number;
+  start: number;
+  duration: number;
 }
 
 interface LFO {
@@ -30,6 +30,7 @@ interface LFO {
 }
 
 type DromeAudioSourceOptions = DromeOscillatorOptions | DromeBufferOptions;
+type SamplePlaybackParams = { start: number; duration: number };
 
 const startOffsets = [
   0.0037173433480637208, 0.0036399005414373565, 0.004805912343136861,
@@ -55,6 +56,7 @@ class DromeAudioSource {
   private env: ADSRParams;
   private startTime: number | undefined;
   private filters: Map<FilterType, FilterEffect> = new Map();
+  private playbackParams: SamplePlaybackParams | undefined;
 
   constructor(
     ctx: AudioContext,
@@ -71,6 +73,7 @@ class DromeAudioSource {
       this.createOscillator(opts.waveform, opts.frequency);
     } else {
       this.createBuffer(opts);
+      this.playbackParams = { start: opts.start, duration: opts.duration };
     }
 
     const filterNodes: BiquadFilterNode[] = [];
@@ -106,8 +109,6 @@ class DromeAudioSource {
     const src = new AudioBufferSourceNode(this.ctx, {
       playbackRate: opts.rate,
       buffer: opts.buffer,
-      loopStart: opts.start ?? 0,
-      loopEnd: opts.end,
     });
     this.srcNodes.push(src);
   }
@@ -176,10 +177,12 @@ class DromeAudioSource {
         this.srcNodes.length > 1
           ? startOffsets[noteIndex + this.srcNodes.length * chordIndex]
           : 0;
-      const offset = node instanceof AudioBufferSourceNode ? node.loopStart : 0;
-      // const end = node instanceof AudioBufferSourceNode ? node.loopEnd : 0;
+      const offset = this.playbackParams ? this.playbackParams.start : 0;
+      const end = this.playbackParams
+        ? this.playbackParams.duration
+        : undefined;
 
-      node.start(startTime + jitter, offset);
+      node.start(startTime + jitter, offset, end);
       const releaseTime = this.env.r * duration;
       node.stop(startTime + this.getDuration(duration) + releaseTime + 0.2);
     });
