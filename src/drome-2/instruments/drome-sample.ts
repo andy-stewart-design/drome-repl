@@ -22,7 +22,7 @@ class DromeSample extends DromeInstrument<number> {
   public play: () => this;
 
   constructor(drome: Drome, dest: DromeAudioNode[], ...names: SampleNote[]) {
-    super(drome, dest, [[1]]);
+    super(drome, dest, [[0]]);
     if (names.length) this.sampleNames = names;
     else this.sampleNames = ["bd"];
     this._channelIndex = 1;
@@ -121,7 +121,7 @@ class DromeSample extends DromeInstrument<number> {
     const noteDuration = this.drome.barDuration / cycle.length;
 
     const play = async (note: DromeCycleValue<number>, i: number) => {
-      if (!note) return;
+      if (typeof note !== "number") return;
       this.sampleNames.forEach(async (name) => {
         let [buffer] = await this.loadSample(name);
         if (!buffer) return;
@@ -150,9 +150,7 @@ class DromeSample extends DromeInstrument<number> {
       });
     };
 
-    cycle.forEach(async (pat, i) => {
-      if (pat) play(pat, i);
-    });
+    cycle.forEach(async (pat, i) => play(pat, i));
   }
 
   stop() {
