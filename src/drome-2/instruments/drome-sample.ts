@@ -9,7 +9,7 @@ import type {
   SampleName,
   SampleNote,
 } from "../types";
-import type { DromeCycleValue } from "../core/drome-array";
+import type { DromeCyclePartial, DromeCycleValue } from "../core/drome-array";
 
 class DromeSample extends DromeInstrument<number> {
   private sampleNames: SampleName[];
@@ -17,7 +17,6 @@ class DromeSample extends DromeInstrument<number> {
   private sources: Set<DromeAudioSource> = new Set();
   private _playbackRate = 1;
   private _fitValue: number | undefined;
-  private _chopPoints: number[] | undefined;
 
   public play: () => this;
 
@@ -27,24 +26,6 @@ class DromeSample extends DromeInstrument<number> {
     else this.sampleNames = ["bd"];
     this._channelIndex = 1;
     this.play = this.push.bind(this);
-  }
-
-  private getPlaybackParams(buffer: AudioBuffer) {
-    const rate = this._fitValue
-      ? buffer.duration / this.drome.barDuration / this._fitValue
-      : this._playbackRate;
-
-    const startIndex = this._chopPoints
-      ? this.drome.metronome.bar % this._chopPoints.length
-      : 0;
-    const startPoint = this._chopPoints ? this._chopPoints[startIndex] : 0;
-    const start = buffer.duration * startPoint;
-
-    const duration = this._fitValue
-      ? buffer.duration * (1 / this._fitValue)
-      : buffer.duration;
-
-    return { start, rate, duration };
   }
 
   push() {
@@ -101,12 +82,12 @@ class DromeSample extends DromeInstrument<number> {
 
   fit(numBars = 1) {
     this._fitValue = numBars;
-    this._chopPoints = Array.from({ length: numBars }, (_, i) => i / numBars);
+    this.cycles.note(...Array.from({ length: numBars }, (_, i) => i / numBars));
     return this;
   }
 
-  begin(pos: number | number[]) {
-    this._chopPoints = Array.isArray(pos) ? pos : [pos];
+  begin(...points: DromeCyclePartial<number>[]) {
+    this.cycles.note(...points);
     return this;
   }
 
@@ -126,7 +107,15 @@ class DromeSample extends DromeInstrument<number> {
         let [buffer] = await this.loadSample(name);
         if (!buffer) return;
 
-        const time = startTime + noteDuration * i;
+        // sample playback params
+        const playbackRate = this._fitValue
+          ? buffer.duration / this.drome.barDuration / this._fitValue
+          : this._playbackRate;
+        const sampleDuration = this._fitValue
+          ? (buffer.duration * (1 / this._fitValue)) / cycle.length
+          : buffer.duration;
+        const sampleStartPoint = buffer.duration * note;
+
         const source = new DromeAudioSource(this.drome.ctx, nodes[0].input, {
           type: "buffer",
           buffer,
@@ -134,16 +123,19 @@ class DromeSample extends DromeInstrument<number> {
           env: this._env,
           filters: this._filters,
           pan: this.getCurrentPan(cycleIndex, i),
-          ...this.getPlaybackParams(buffer),
+          start: sampleStartPoint,
+          rate: playbackRate,
+          duration: sampleDuration,
         });
 
-        this.applyVibrato(source);
+        const time = startTime + noteDuration * i;
 
         nodes.forEach((node) => {
           if (!(node instanceof FilterEffect)) return;
           node.apply(time, noteDuration);
         });
 
+        this.applyVibrato(source);
         source.play(time, noteDuration);
         this.sources.add(source);
         source.node.onended = () => this.sources.delete(source);
