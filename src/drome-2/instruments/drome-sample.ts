@@ -86,12 +86,24 @@ class DromeSample extends DromeInstrument<number> {
     return this;
   }
 
-  begin(...points: DromeCyclePartial<number>[]) {
-    this.cycles.note(...points);
+  begin(...startPoints: DromeCyclePartial<number>[]) {
+    this.cycles.note(...startPoints);
+    console.log("begin", this.cycles.value);
     return this;
   }
 
-  // chop(numChops: number, sequence: number[]) {}
+  chop(numChops: number, sequence: DromeCyclePartial<number>[]) {
+    const startPoints = sequence.map((pattern) => {
+      return (Array.isArray(pattern) ? pattern : [pattern]).map((val) => {
+        if (typeof val !== "number") return null;
+        return (1 / numChops) * (val % numChops);
+      });
+    });
+    console.log("chop", startPoints);
+
+    this.cycles.note(...startPoints);
+    return this;
+  }
 
   start() {
     const nodes = super.connectChain();

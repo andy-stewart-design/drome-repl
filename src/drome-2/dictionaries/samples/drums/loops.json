@@ -1,12 +1,13 @@
 {
-  "basePath": "https://raw.githubusercontent.com/switchangel/breaks/main/",
+  "basePath": "https://raw.githubusercontent.com/andy-stewart-design/samples-loops/main/",
   "slugs": {
-    "breaks": [
-      "10_break.wav",
-      "11_break.wav",
-      "12_break.wav",
-      "13_break.wav",
-      "14_break.wav"
-    ]
+    "break": [
+      "breaks/10_break.wav",
+      "breaks/11_break.wav",
+      "breaks/12_break.wav",
+      "breaks/13_break.wav",
+      "breaks/14_break.wav"
+    ],
+    "rhodes": ["rhodes/rhodes-01.mp3"]
   }
 }
